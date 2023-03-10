@@ -1,0 +1,3 @@
+[submodule ".github/COMMIT_CONVENTION"]
+	path = .github/COMMIT_CONVENTION
+	url = https://github.com/P-manBrown/commit-convention.git

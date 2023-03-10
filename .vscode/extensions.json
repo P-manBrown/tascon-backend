@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "ms-vscode-remote.remote-containers",
+    "wingrunr21.vscode-ruby",
+    "Hridoy.rails-snippets",
+    "karunamurti.rspec-snippets",
+    "kaiwood.endwise",
+    "mikestead.dotenv",
+  ]
+}

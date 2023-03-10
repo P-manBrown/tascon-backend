@@ -1,0 +1,28 @@
+min_version: 1.3.0
+pre-commit:
+  parallel: true
+  commands:
+    rubocop:
+      glob: '*.rb'
+      run: bin/bundle exec rubocop -A --force-exclusion {staged_files}
+      fail_text: 'Read the report above.'
+    markdownlint:
+      glob: '*.md'
+      run: bin/bundle exec mdl {staged_files}
+      fail_text: 'Read the report above.'
+    protect-branch:
+      run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main|develop'
+      fail_text: "ERROR: Do NOT commit directly to 'main' or 'develop' branch."
+commit-msg:
+  commands:
+    git-lint:
+      run: bin/bundle exec git-lint --hook {1}
+      fail_text: 'Read the report above and .github/commit/COMMIT_CONVENTION.md'
+pre-push:
+  commands:
+    rspec:
+      glob: 'spec/**/*.rb'
+      env:
+        RAILS_ENV: test
+      run: bin/bundle exec rspec {push_files}
+      fail_text: 'Read the report above.'

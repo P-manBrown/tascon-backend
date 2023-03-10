@@ -1,0 +1,33 @@
+[
+  {
+    "_id": "bf13b6fe-4ff0-4889-84d4-d91e757cc522",
+    "name": "(Global Env)",
+    "default": false,
+    "global": true,
+    "sortNum": -2,
+    "created": "2023-02-13T10:37:07.998Z",
+    "modified": "2023-02-13T10:37:07.998Z",
+    "data": [
+      {
+        "name": "BASE_URL",
+        "value": "http://host.docker.internal:8080/api"
+      },
+      {
+        "name": "API_VERSION",
+        "value": "v1"
+      }
+    ],
+    "envFile": "../../.env"
+  },
+  {
+    "_id": "b4693d47-4927-49f2-91d9-69c2bb418cda",
+    "name": "(Local Env)",
+    "default": false,
+    "global": true,
+    "local": true,
+    "sortNum": -1,
+    "created": "2023-02-13T10:37:09.937Z",
+    "modified": "2023-02-13T10:37:09.938Z",
+    "data": []
+  }
+]

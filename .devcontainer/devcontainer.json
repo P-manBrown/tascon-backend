@@ -1,0 +1,58 @@
+{
+  "name": "tascon-backend",
+  "dockerComposeFile": ["../compose.yml", "./compose.devcontainer.yml"],
+  "service": "api",
+  "workspaceFolder": "/home/ruby/tascon-backend",
+  "postCreateCommand": "bash ./.devcontainer/postCreateCommand.sh",
+  "features": {
+    "ghcr.io/P-manBrown/devcontainer-features/common-utils:2": {
+      "configureZshAsDefaultShell": true,
+      "upgradePackages": false
+    },
+    "ghcr.io/P-manBrown/devcontainer-features/git-from-src-fast:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/P-manBrown/devcontainer-features/solargraph:1": {
+      "skipYardGems": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "VisualStudioExptTeam.vscodeintellicode",
+        "streetsidesoftware.code-spell-checker",
+        "EditorConfig.EditorConfig",
+        "yzhang.markdown-all-in-one",
+        "DavidAnson.vscode-markdownlint",
+        "bierner.markdown-preview-github-styles",
+        "castwide.solargraph",
+        "noku.rails-run-spec-vscode",
+        "sporto.rails-go-to-spec",
+        "KoichiSasada.vscode-rdbg",
+        "rangav.vscode-thunder-client",
+        "cweijan.vscode-mysql-client2"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "castwide.solargraph",
+        "editor.formatOnSave": true,
+        "solargraph.checkGemVersion": false,
+        "solargraph.diagnostics": true,
+        "solargraph.formatting": true,
+        "markdown.extension.toc.levels": "2..6",
+        "markdownlint.config": {
+          "MD033": false
+        },
+        "[markdown]": {
+          "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll.markdownlint": true
+          }
+        },
+        "thunder-client.httpLibrary": "axios",
+        "thunder-client.saveToWorkspace": true,
+        "thunder-client.workspaceRelativePath": "./.vscode",
+        "thunder-client.defaultUrl": "{{BASE_URL}}/{{API_VERSION}}/"
+      }
+    }
+  }
+}

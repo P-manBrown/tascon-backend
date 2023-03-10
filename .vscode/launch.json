@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Rails: start debugging",
+      "type": "rdbg",
+      "request": "launch",
+      "script": "${workspaceFolder}/bin/bundle",
+      "args": ["exec", "puma", "-C", "./config/puma.rb"],
+      "useTerminal": true
+    }
+  ]
+}
