@@ -15,6 +15,7 @@
     "markdownlint",
     "nextjs",
     "noku",
+    "omniauth",
     "rangav",
     "rdbg",
     "rubocop",

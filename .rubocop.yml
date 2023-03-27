@@ -8,14 +8,17 @@ AllCops:
   Exclude:
     - "bin/{bundle,rails,rake}"
     - "db/migrate/*"
+    - "db/schema.rb"
     - "vendor/**/*"
-    - "**/spec_helper.rb"
 
 Layout/EmptyLinesAroundAccessModifier:
   EnforcedStyle: only_before
 
 Layout/EndAlignment:
   EnforcedStyleAlignWith: variable
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
 
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
@@ -26,6 +29,13 @@ Layout/LineLength:
 Metrics/BlockLength:
   Exclude:
     - "Guardfile"
+    - "config/**/*"
+
+Metrics/MethodLength:
+  Max: 20
+
+RSpec/ExampleLength:
+  Max: 10
 
 Style/AsciiComments:
   Enabled: false

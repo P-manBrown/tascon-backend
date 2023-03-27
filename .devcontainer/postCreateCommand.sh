@@ -46,6 +46,7 @@ echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install
 
 echo 'Setting up Solargraph...'
+sed -iz 's/- require_not_found\n//' "${HOME}/.config/solargraph/config.yml"
 for _ in {1..3}; do
 	yard gems -quiet && break
 done

@@ -15,12 +15,18 @@ gem "bootsnap", require: false
 
 gem "rack-cors", "~> 2.0"
 
+gem "rails-i18n", "~> 7.0"
+
+gem "devise_token_auth", "~> 1.2"
+
 group :development, :test do
   gem "dotenv-rails", "~> 2.8"
 
+  gem "faker", "~> 3.1"
+
   gem "factory_bot_rails", "~> 6.2"
 
-  gem "rspec-rails", "~> 6.0.0"
+  gem "rspec-rails", "~> 6.0"
 
   gem "debug", platforms: %i[mri mingw x64_mingw]
 end
@@ -30,6 +36,8 @@ group :development do
   gem "guard-rspec", "~> 4.7", require: false
 
   gem "lefthook", "~> 1.3", require: false
+
+  gem "letter_opener_web", "~> 2.0"
 
   gem "mdl", "~> 0.12.0", require: false
 
