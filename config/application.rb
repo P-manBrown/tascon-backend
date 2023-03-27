@@ -29,11 +29,19 @@ module TasconBackend
     # in config/environments, which are processed later.
     #
     config.time_zone = "Tokyo"
+    config.active_record.default_timezone = :local
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    config.i18n.default_locale = :ja
+
+    config.action_mailer.default_url_options = {
+      host: ENV.fetch("WEB_HOST"),
+      port: ENV.fetch("WEB_PORT")
+    }
   end
 end

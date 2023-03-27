@@ -1,14 +1,14 @@
 [
   {
-    "_id": "aa564148-ffd9-4866-b4e2-faed91bc1d99",
+    "_id": "5acc0fc9-f359-4a69-adda-9961cbb398f6",
     "colId": "history",
     "containerId": "",
-    "name": "{{BASE_URL}}/{{API_VERSION}}",
-    "url": "{{BASE_URL}}/{{API_VERSION}}",
+    "name": "{{BASE_URL}}/{{API_VERSION}}/",
+    "url": "{{BASE_URL}}/{{API_VERSION}}/",
     "method": "GET",
     "sortNum": 0,
-    "created": "2023-02-22T15:14:29.745Z",
-    "modified": "2023-02-22T15:14:29.745Z",
+    "created": "2023-03-27T09:36:30.957Z",
+    "modified": "2023-03-27T09:36:30.957Z",
     "headers": [],
     "params": [],
     "tests": []
