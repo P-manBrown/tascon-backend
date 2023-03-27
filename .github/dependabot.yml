@@ -28,6 +28,8 @@ updates:
       prefix: 'build'
     target-branch: 'develop'
   - package-ecosystem: 'bundler'
+    registries:
+      - github-packages
     directory: '/'
     schedule:
       interval: 'daily'
@@ -36,3 +38,8 @@ updates:
     commit-message:
       prefix: 'build'
     target-branch: 'develop'
+registries:
+  github-packages:
+    type: rubygems-server
+    url: https://rubygems.pkg.github.com
+    token: ${{secrets.MY_GITHUB_TOKEN}}
