@@ -21,7 +21,7 @@ commit-msg:
 pre-push:
   commands:
     rspec:
-      glob: 'spec/**/*.rb'
+      glob: 'spec/**/*_spec.rb'
       env:
         RAILS_ENV: test
       run: bin/bundle exec rspec {push_files}
