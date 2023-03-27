@@ -48,6 +48,7 @@ services:
       - puma-sockets:/${COMPOSE_PROJECT_NAME}/tmp
     environment:
       - PROJECT_NAME=${COMPOSE_PROJECT_NAME:?}
+      - SERVER_NAME=${NGINX_SERVER_NAME:-localhost}
     ports:
       - ${WEB_PORT:-8080}:8080
     depends_on:
