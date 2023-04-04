@@ -14,10 +14,12 @@ pre-commit:
       run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main|develop'
       fail_text: "ERROR: Do NOT commit directly to 'main' or 'develop' branch."
 commit-msg:
+  skip: merge
   commands:
     git-lint:
       run: bin/bundle exec git-lint --hook {1}
-      fail_text: 'Read the report above and .github/commit/COMMIT_CONVENTION.md'
+      fail_text: |
+        Read the report above and https://tinyurl.com/git-commit-convention
 pre-push:
   commands:
     rspec:
