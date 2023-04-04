@@ -3,11 +3,11 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.2.1"
 
-gem "rails", "~> 7.0.4", ">= 7.0.4.2"
+gem "rails", "~> 7.0.4"
 
 gem "mysql2", "~> 0.5"
 
-gem "puma", "~> 5.0"
+gem "puma", "~> 6.2"
 
 gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 
@@ -41,10 +41,10 @@ group :development do
 
   gem "mdl", "~> 0.12.0", require: false
 
-  gem "rubocop", "~> 1.46", require: false
+  gem "rubocop", "~> 1.48", require: false
   gem "rubocop-performance", "~> 1.16", require: false
-  gem "rubocop-rails", "~> 2.17", require: false
-  gem "rubocop-rspec", "~> 2.18", require: false
+  gem "rubocop-rails", "~> 2.18", require: false
+  gem "rubocop-rspec", "~> 2.19", require: false
 
   source "https://rubygems.pkg.github.com/p-manbrown" do
     gem "my_git-lint", "~> 1.0", require: false
