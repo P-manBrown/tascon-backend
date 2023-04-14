@@ -33,7 +33,7 @@ group :development do
 
   gem "mdl", "~> 0.12.0", require: false
 
-  gem "rubocop", "~> 1.49", require: false
+  gem "rubocop", "~> 1.50", require: false
   gem "rubocop-performance", "~> 1.17", require: false
   gem "rubocop-rails", "~> 2.19", require: false
   gem "rubocop-rspec", "~> 2.19", require: false
