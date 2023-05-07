@@ -36,7 +36,7 @@ group :development do
   gem "rubocop", "~> 1.50", require: false
   gem "rubocop-performance", "~> 1.17", require: false
   gem "rubocop-rails", "~> 2.19", require: false
-  gem "rubocop-rspec", "~> 2.20", require: false
+  gem "rubocop-rspec", "~> 2.22", require: false
 
   source "https://rubygems.pkg.github.com/p-manbrown" do
     gem "my_git-lint", "~> 1.0", require: false
