@@ -29,7 +29,7 @@ group :development do
   gem "guard", "~> 2.18"
   gem "guard-rspec", "~> 4.7", require: false
 
-  gem "lefthook", "~> 1.3", require: false
+  gem "lefthook", "~> 1.4", require: false
 
   gem "mdl", "~> 0.12.0", require: false
 
