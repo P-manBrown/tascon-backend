@@ -17,7 +17,8 @@ commit-msg:
   skip: merge
   commands:
     git-lint:
-      run: bin/bundle exec git-lint --hook {1}
+      # TEMP: Remove comments because comments are also analyzed.
+      run: sed -i '/^\#/d' {1} && bin/bundle exec git-lint --hook {1}
       fail_text: |
         Read the report above and https://tinyurl.com/git-commit-convention
 pre-push:

@@ -10,12 +10,8 @@ module Api
             DeviseTokenAuth.default_confirm_success_url
           )
 
-          if confirmable_enabled? && !@redirect_url
-            return render_create_error_missing_confirm_success_url
-          end
-          if blacklisted_redirect_url?(@redirect_url)
-            return render_create_error_redirect_url_not_allowed
-          end
+          return render_create_error_missing_confirm_success_url if confirmable_enabled? && !@redirect_url
+          return render_create_error_redirect_url_not_allowed if blacklisted_redirect_url?(@redirect_url)
 
           # For setting the redirect URL of the confirmation email.
           @resource.redirect_url = @redirect_url if @resource.present?

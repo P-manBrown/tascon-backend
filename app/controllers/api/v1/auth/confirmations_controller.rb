@@ -3,12 +3,8 @@ module Api
     module Auth
       class ConfirmationsController < DeviseTokenAuth::ConfirmationsController
         def create
-          if confirmable_enabled? && !redirect_url
-            return render_create_error_missing_redirect_url
-          end
-          if blacklisted_redirect_url?(redirect_url)
-            return render_error_not_allowed_redirect_url
-          end
+          return render_create_error_missing_redirect_url if confirmable_enabled? && !redirect_url
+          return render_error_not_allowed_redirect_url if blacklisted_redirect_url?(redirect_url)
 
           super
         end

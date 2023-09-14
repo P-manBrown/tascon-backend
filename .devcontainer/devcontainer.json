@@ -28,7 +28,7 @@
         "noku.rails-run-spec-vscode",
         "sporto.rails-go-to-spec",
         "KoichiSasada.vscode-rdbg",
-        "rangav.vscode-thunder-client",
+        "Postman.postman-for-vscode",
         "cweijan.vscode-mysql-client2"
       ],
       "settings": {
@@ -47,11 +47,7 @@
           "editor.codeActionsOnSave": {
             "source.fixAll.markdownlint": true
           }
-        },
-        "thunder-client.httpLibrary": "axios",
-        "thunder-client.saveToWorkspace": true,
-        "thunder-client.workspaceRelativePath": "./.vscode",
-        "thunder-client.defaultUrl": "{{BASE_URL}}/{{API_VERSION}}/"
+        }
       }
     }
   }

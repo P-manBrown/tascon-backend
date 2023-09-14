@@ -1,0 +1,16 @@
+ja:
+  activerecord:
+    errors:
+      models:
+        user:
+          attributes:
+            email:
+              taken: "はすでに登録されています"
+    attributes:
+      user:
+        current_password: "現在のパスワード"
+        email: "メールアドレス"
+        password: "パスワード"
+        username: "ユーザー名"
+    models:
+      user: "ユーザー"

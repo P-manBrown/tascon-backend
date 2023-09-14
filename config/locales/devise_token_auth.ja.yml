@@ -1,10 +1,14 @@
-# Override https://tinyurl.com/2ochwp9b.
+# devise_token_auth: https://tinyurl.com/2ochwp9b
+# devise: https://tinyurl.com/22favuhh
 ja:
   devise_token_auth:
     sessions:
-      not_confirmed: "'%{email}' に確認用のメールを送信しました。メール内の説明を読み、アカウントを有効化してください。"
+      not_confirmed: "ログイン前にアカウントを有効化してください。"
+      bad_credentials: "ログイン用の認証情報が正しくありません。"
     passwords:
       missing_redirect_url: "'redirect_url' パラメータが与えられていません。"
+      user_not_found: "メールアドレスは登録されていません"
+      sended: "'%{email}' にパスワード再設定の案内を送信しました。"
     confirmations:
       sended: "'%{email}' に確認用のメールを再送しました。メール内の説明を読み、アカウントを有効化してください。"
       missing_redirect_url: "'redirect_url' パラメータが与えられていません。"

@@ -38,15 +38,11 @@ git config --local core.editor 'code --wait'
 echo 'Setting up GitHub CLI...'
 gh config set editor 'code --wait'
 
-echo 'Setting up Thunder Client...'
-vscode_global_storage="${HOME}/.vscode-server/data/User/globalStorage"
-mkdir -p "${vscode_global_storage}/rangav.vscode-thunder-client"
-
 echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install
 
 echo 'Setting up Solargraph...'
-sed -iz 's/- require_not_found\n//' "${HOME}/.config/solargraph/config.yml"
+sed -i -z 's/- require_not_found\n//' "${HOME}/.config/solargraph/config.yml"
 for _ in {1..3}; do
 	yard gems -quiet && break
 done

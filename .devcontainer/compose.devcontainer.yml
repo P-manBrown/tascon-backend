@@ -2,9 +2,9 @@ services:
   api:
     volumes:
       - shell-log:/home/${API_USER_NAME}/shell_log
-      - vscode-global-storage:/home/${API_USER_NAME}/.vscode-server/data/User/globalStorage
-    entrypoint: bash ./.devcontainer/devcontainer-entrypoint.sh
     command: bash -c 'while sleep 1000; do :; done'
+    env_file:
+      - ./.devcontainer/environment/gh-token.env
 volumes:
   shell-log:
   vscode-global-storage:

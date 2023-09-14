@@ -43,5 +43,11 @@ module TasconBackend
       host: ENV.fetch("WEB_HOST"),
       port: ENV.fetch("WEB_PORT")
     }
+
+    config.action_controller.allow_forgery_protection = false
+
+    config.session_store :cookie_store, key: "_interslice_session"
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore, config.session_options
   end
 end
