@@ -13,11 +13,13 @@ cat <<-'EOF' | tee -a "${HOME}/.bashrc" >> "${HOME}/.zshrc"
 	  fi
 	}
 	SHELL="$(readlink "/proc/$$/exe")"
-	export HISTFILE="${HOME}/shell_log/.${SHELL##*/}_history"
+	shell_log_dir="${HOME}/shell_log"
+	export HISTFILE="${shell_log_dir}/.${SHELL##*/}_history"
 	if [[ ${SHLVL} -eq 2 ]]; then
-	  mkdir -p "${HOME}/shell_log/${SHELL##*/}"
-	  create_date="$(date '+%Y%m%d%H%M%S')"
-	  script -f "${HOME}/shell_log/${SHELL##*/}/${create_date}.log"
+	  mkdir -p ${shell_log_dir}
+	  find ${shell_log_dir} -name '*.log' -mtime +7 -delete
+	  creation_date="$(date '+%Y%m%d%H%M%S')"
+	  script -f "${shell_log_dir}/${creation_date}.log"
 	fi
 EOF
 echo "export PROMPT_COMMAND='history -a && precmd'" >> "${HOME}/.bashrc"
