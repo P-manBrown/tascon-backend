@@ -44,15 +44,15 @@ commits:
       delimiter: "!?: "
       includes:
         - build
-        - chore
         - ci
         - docs
         - feat
         - fix
-        - format
-        - improve
+        - perf
+        - refactor
         - revert
         - test
+        - chore
     suffix:
       enabled: true
       severity: error
