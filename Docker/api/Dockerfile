@@ -5,6 +5,14 @@ ARG PROJECT_NAME
 ARG USER_NAME
 ENV TZ=Asia/Tokyo
 
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+	--mount=type=cache,target=/var/cache/apt,sharing=locked <<-EOF
+		set -e
+		rm -f /etc/apt/apt.conf.d/docker-clean
+		apt-get update -qq
+		apt-get install -y --no-install-recommends libvips42
+EOF
+
 RUN <<-EOF
 	set -eu
 	adduser "${USER_NAME}"

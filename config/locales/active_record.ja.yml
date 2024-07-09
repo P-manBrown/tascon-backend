@@ -1,16 +1,22 @@
+# rails-i18n: https://tinyurl.com/aczke9k
 ja:
+  errors:
+    messages:
+      invalid: "が正しくありません。"
   activerecord:
     errors:
       models:
         user:
           attributes:
             email:
-              taken: "はすでに登録されています"
+              taken: "はすでに登録されています。"
     attributes:
       user:
         current_password: "現在のパスワード"
         email: "メールアドレス"
         password: "パスワード"
-        username: "ユーザー名"
+        name: "ユーザー名"
+        avatar: "アバター"
+        bio: "自己紹介"
     models:
       user: "ユーザー"

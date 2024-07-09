@@ -1,24 +1,30 @@
 # devise_token_auth: https://tinyurl.com/2ochwp9b
 # devise: https://tinyurl.com/22favuhh
+
 ja:
   devise_token_auth:
     sessions:
-      not_confirmed: "ログイン前にアカウントを有効化してください。"
+      not_confirmed: "ログイン前に確認メールからメールアドレスを認証してください。"
       bad_credentials: "ログイン用の認証情報が正しくありません。"
     passwords:
       missing_redirect_url: "'redirect_url' パラメータが与えられていません。"
-      user_not_found: "メールアドレスは登録されていません"
-      sended: "'%{email}' にパスワード再設定の案内を送信しました。"
+      user_not_found: "メールアドレスは登録されていません。"
+      password_not_required: "このアカウントはパスワードを要求していません。'%{provider}でログイン' してください。"
+      sended: "'%{email}' にパスワードリセットの案内を送信しました。"
     confirmations:
-      sended: "'%{email}' に確認用のメールを再送しました。メール内の説明を読み、アカウントを有効化してください。"
-      missing_redirect_url: "'redirect_url' パラメータが与えられていません。"
-      not_allowed_redirect_url: "'%{redirect_url}' へのリダイレクトは許可されていません。"
+      sended: "'%{email}' に確認用のメールを再送しました。"
 
   devise:
     mailer:
       confirmation_instructions:
-        subject: "【TASCON】アカウント有効化のご案内"
-        confirm_link_msg: "メールアドレスを登録しました。下記のリンクからアカウントを有効化できます。"
+        subject: "【TASCON】メールアドレス確認のお願い"
+        confirm_link_msg: "24時間以内に下記リンクからメールアドレスを認証してください。"
+        confirm_account_link: "メールアドレスを認証"
       reset_password_instructions:
         subject: "【TASCON】パスワードリセットのご案内"
-        request_reset_link_msg: "パスワードリセットのリクエストが送信されました。下記のリンクからパスワードの変更ができます。"
+        request_reset_link_msg: "6時間以内に下記リンクからパスワードを変更してください。"
+        password_change_link: "パスワードを変更"
+      email_changed:
+        subject: "【TASCON】メールアドレス変更のお知らせ"
+      password_change:
+        subject: "【TASCON】パスワード変更のお知らせ"

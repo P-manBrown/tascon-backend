@@ -1,12 +1,13 @@
-<p><%= t(:welcome).capitalize + ' ' + @email %>!</p>
-
-<p><%= t('.confirm_link_msg') %></p>
-
+<%# Override https://tinyurl.com/23vzmcv3 %>
+<p><%= "#{t(:hello).capitalize}、#{@resource.name}" %>さん。</p>
 <p>
-  <%= link_to t('.confirm_account_link'),
-              confirmation_url(@resource, {
-                confirmation_token: @token,
-                config: message['client-config'].to_s,
-                redirect_url: message['redirect-url']
-              }).html_safe %>
+  TASCONにご登録いただいたメールアドレスを確認します。<br/>
+  <%= t(".confirm_link_msg") %>
+</p>
+<p>
+  <%= link_to t(".confirm_account_link"), confirmation_url(@resource, {
+    confirmation_token: @token,
+    config: message["client-config"].to_s,
+    redirect_url: message["rediret-url"].to_s,
+  }).html_safe # rubocop:disable Rails/OutputSafety %>
 </p>
