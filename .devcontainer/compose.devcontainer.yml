@@ -7,4 +7,3 @@ services:
       - ./.devcontainer/environment/gh-token.env
 volumes:
   shell-log:
-  vscode-global-storage:
