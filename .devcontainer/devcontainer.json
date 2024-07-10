@@ -35,6 +35,8 @@
         "cweijan.vscode-mysql-client2"
       ],
       "settings": {
+        "todo-tree.general.tags": ["TODO", "TEMP"],
+        "todo-tree.filtering.includeHiddenFiles": true,
         "editor.defaultFormatter": "castwide.solargraph",
         "editor.formatOnSave": true,
         "solargraph.checkGemVersion": false,
