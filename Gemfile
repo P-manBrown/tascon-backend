@@ -56,7 +56,6 @@ group :development do
 
   gem "letter_opener_web", "~> 2.0"
 
-  gem "mdl", "~> 0.12.0", require: false
 
   gem "rubocop", "~> 1.48", require: false
   gem "rubocop-erb", "~> 0.4.0", require: false

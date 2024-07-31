@@ -11,11 +11,6 @@ pre-commit:
       glob: '*.erb'
       run: bin/bundle exec htmlbeautifier {staged_files}
       stage_fixed: true
-    markdownlint:
-      glob: '*.md'
-      run: bin/bundle exec mdl {staged_files}
-      fail_text: 'Read the report above.'
-      stage_fixed: true
     debride:
       glob: '*.rb'
       run: bin/bundle exec debride --rails -w debride-whitelist.txt {all_files} | tee /dev/tty | grep -q 'LOC:\ 0'
