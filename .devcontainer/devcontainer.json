@@ -22,9 +22,6 @@
         "streetsidesoftware.code-spell-checker",
         "Gruntfuggly.todo-tree",
         "EditorConfig.EditorConfig",
-        "yzhang.markdown-all-in-one",
-        "DavidAnson.vscode-markdownlint",
-        "bierner.markdown-preview-github-styles",
         "dotenv.dotenv-vscode",
         "aliariff.vscode-erb-beautify",
         "castwide.solargraph",
@@ -48,17 +45,7 @@
         "[erb]": {
           "editor.defaultFormatter": "aliariff.vscode-erb-beautify"
         },
-        "vscode-erb-beautify.useBundler": true,
-        "markdown.extension.toc.levels": "2..6",
-        "markdownlint.config": {
-          "MD033": false
-        },
-        "[markdown]": {
-          "editor.defaultFormatter": "yzhang.markdown-all-in-one",
-          "editor.codeActionsOnSave": {
-            "source.fixAll.markdownlint": "explicit"
-          }
-        }
+        "vscode-erb-beautify.useBundler": true
       }
     }
   }
