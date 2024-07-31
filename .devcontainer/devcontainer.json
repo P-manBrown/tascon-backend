@@ -22,6 +22,7 @@
         "streetsidesoftware.code-spell-checker",
         "Gruntfuggly.todo-tree",
         "EditorConfig.EditorConfig",
+        "joshbolduc.commitlint",
         "dotenv.dotenv-vscode",
         "aliariff.vscode-erb-beautify",
         "castwide.solargraph",
@@ -45,7 +46,45 @@
         "[erb]": {
           "editor.defaultFormatter": "aliariff.vscode-erb-beautify"
         },
-        "vscode-erb-beautify.useBundler": true
+        "vscode-erb-beautify.useBundler": true,
+        "commitlint.config.extend.rules": {
+          "type-empty": [2, "never"],
+          "type-case": [2, "always", "lower-case"],
+          "type-enum": [
+            2,
+            "always",
+            [
+              "build",
+              "ci",
+              "docs",
+              "feat",
+              "fix",
+              "perf",
+              "refactor",
+              "revert",
+              "test",
+              "chore"
+            ]
+          ],
+          "subject-empty": [2, "never"],
+          "subject-case": [
+            2,
+            "never",
+            [
+              "upper-case",
+              "camel-case",
+              "kebab-case",
+              "pascal-case",
+              "sentence-case",
+              "snake-case",
+              "start-case"
+            ]
+          ],
+          "subject-full-stop": [2, "never", "."],
+          "body-leading-blank": [2, "always"],
+          "footer-leading-blank": [2, "always"]
+        }
+
       }
     }
   }
