@@ -10,7 +10,7 @@ updates:
       - 'P-manBrown'
     commit-message:
       prefix: 'build'
-    target-branch: 'develop'
+    target-branch: 'main'
   - package-ecosystem: 'docker'
     directory: '/Docker/db'
     schedule:
@@ -21,7 +21,7 @@ updates:
       - 'P-manBrown'
     commit-message:
       prefix: 'build'
-    target-branch: 'develop'
+    target-branch: 'main'
   - package-ecosystem: 'docker'
     directory: '/Docker/web'
     schedule:
@@ -30,7 +30,7 @@ updates:
       timezone: 'Asia/Tokyo'
     commit-message:
       prefix: 'build'
-    target-branch: 'develop'
+    target-branch: 'main'
   - package-ecosystem: 'bundler'
     directory: '/'
     schedule:
@@ -41,4 +41,4 @@ updates:
       - 'P-manBrown'
     commit-message:
       prefix: 'build'
-    target-branch: 'develop'
+    target-branch: 'main'
