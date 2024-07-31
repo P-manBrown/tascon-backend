@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: 'docker'
     directory: '/Docker/api'
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
       time: '03:00'
       timezone: 'Asia/Tokyo'
     reviewers:
@@ -14,7 +14,7 @@ updates:
   - package-ecosystem: 'docker'
     directory: '/Docker/db'
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
       time: '03:00'
       timezone: 'Asia/Tokyo'
     reviewers:
@@ -25,7 +25,7 @@ updates:
   - package-ecosystem: 'docker'
     directory: '/Docker/web'
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
       time: '03:00'
       timezone: 'Asia/Tokyo'
     commit-message:
@@ -34,7 +34,7 @@ updates:
   - package-ecosystem: 'bundler'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
       time: '03:00'
       timezone: 'Asia/Tokyo'
     reviewers:
