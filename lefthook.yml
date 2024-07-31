@@ -18,13 +18,6 @@ pre-commit:
     protect-branch:
       run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main|develop'
       fail_text: "ERROR: Do NOT commit directly to 'main' or 'develop' branch."
-commit-msg:
-  skip: merge
-  commands:
-    git-lint:
-      # TEMP: Remove comments because comments are also analyzed.
-      run: sed -i '/^\#/d' {1} && bin/bundle exec git-lint --hook {1}
-      fail_text: Read the report above and https://tinyurl.com/git-commit-convention
 pre-push:
   commands:
     check-git-clean:

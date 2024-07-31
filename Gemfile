@@ -45,8 +45,6 @@ end
 group :development do
   gem "debride", "~> 1.12", require: false
 
-  gem "git-lint", "~> 6.0", require: false
-
   gem "guard", "~> 2.18"
   gem "guard-rspec", "~> 4.7", require: false
 
@@ -55,7 +53,6 @@ group :development do
   gem "lefthook", "~> 1.3", require: false
 
   gem "letter_opener_web", "~> 2.0"
-
 
   gem "rubocop", "~> 1.48", require: false
   gem "rubocop-erb", "~> 0.4.0", require: false
