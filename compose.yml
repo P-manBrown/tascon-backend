@@ -1,7 +1,5 @@
 x-mysql_env_path: &mysql-env-path
   ./Docker/db/environment/mysql.env
-x-github_credentials_path: &github-credentials-path
-  ./Docker/api/environment/github-credentials.env
 
 services:
   db:
@@ -24,18 +22,16 @@ services:
       args:
         - PROJECT_NAME=${COMPOSE_PROJECT_NAME:?}
         - USER_NAME=${API_USER_NAME:?}
-      secrets:
-        - github-credentials
     volumes:
       - .:/home/${API_USER_NAME:?}/${COMPOSE_PROJECT_NAME:?}
+      - ./.git-lint.yml:/home/${API_USER_NAME:?}/.xdg/git-lint/configuration.yml
       - gem-home:/usr/local/bundle
       - puma-sockets:/home/${API_USER_NAME}/${COMPOSE_PROJECT_NAME}/tmp/sockets
     environment:
       - RAILS_ENV=${RAILS_ENV:-development}
-      - XDG_CONFIG_DIRS=/home/${API_USER_NAME:?}/${COMPOSE_PROJECT_NAME:?}
+      - XDG_CONFIG_DIRS=/home/${API_USER_NAME:?}/.xdg
     env_file:
       - *mysql-env-path
-      - *github-credentials-path
     extra_hosts:
       - host.docker.internal:host-gateway
     depends_on:
@@ -48,13 +44,11 @@ services:
       - puma-sockets:/${COMPOSE_PROJECT_NAME}/tmp
     environment:
       - PROJECT_NAME=${COMPOSE_PROJECT_NAME:?}
+      - SERVER_NAME=${NGINX_SERVER_NAME:-localhost}
     ports:
       - ${WEB_PORT:-8080}:8080
     depends_on:
       - api
-secrets:
-  github-credentials:
-    file: *github-credentials-path
 volumes:
   mysql-datadir:
   gem-home:

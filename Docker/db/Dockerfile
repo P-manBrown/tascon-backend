@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM mysql:8.0.32
+FROM mysql:8.0.33
 
 ENV TZ=Asia/Tokyo
 

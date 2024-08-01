@@ -13,11 +13,13 @@ cat <<-'EOF' | tee -a "${HOME}/.bashrc" >> "${HOME}/.zshrc"
 	  fi
 	}
 	SHELL="$(readlink "/proc/$$/exe")"
-	export HISTFILE="${HOME}/shell_log/.${SHELL##*/}_history"
+	shell_log_dir="${HOME}/shell_log"
+	export HISTFILE="${shell_log_dir}/.${SHELL##*/}_history"
 	if [[ ${SHLVL} -eq 2 ]]; then
-	  mkdir -p "${HOME}/shell_log/${SHELL##*/}"
-	  create_date="$(date '+%Y%m%d%H%M%S')"
-	  script -f "${HOME}/shell_log/${SHELL##*/}/${create_date}.log"
+	  mkdir -p ${shell_log_dir}
+	  find ${shell_log_dir} -name '*.log' -mtime +7 -delete
+	  creation_date="$(date '+%Y%m%d%H%M%S')"
+	  script -f "${shell_log_dir}/${creation_date}.log"
 	fi
 EOF
 echo "export PROMPT_COMMAND='history -a && precmd'" >> "${HOME}/.bashrc"
@@ -38,14 +40,11 @@ git config --local core.editor 'code --wait'
 echo 'Setting up GitHub CLI...'
 gh config set editor 'code --wait'
 
-echo 'Setting up Thunder Client...'
-vscode_global_storage="${HOME}/.vscode-server/data/User/globalStorage"
-mkdir -p "${vscode_global_storage}/rangav.vscode-thunder-client"
-
 echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install
 
 echo 'Setting up Solargraph...'
+sed -i -z 's/- require_not_found\n//' "${HOME}/.config/solargraph/config.yml"
 for _ in {1..3}; do
 	yard gems -quiet && break
 done

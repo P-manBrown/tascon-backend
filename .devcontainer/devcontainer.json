@@ -20,38 +20,70 @@
       "extensions": [
         "VisualStudioExptTeam.vscodeintellicode",
         "streetsidesoftware.code-spell-checker",
+        "Gruntfuggly.todo-tree",
         "EditorConfig.EditorConfig",
-        "yzhang.markdown-all-in-one",
-        "DavidAnson.vscode-markdownlint",
-        "bierner.markdown-preview-github-styles",
+        "joshbolduc.commitlint",
+        "dotenv.dotenv-vscode",
+        "aliariff.vscode-erb-beautify",
         "castwide.solargraph",
         "noku.rails-run-spec-vscode",
         "sporto.rails-go-to-spec",
         "KoichiSasada.vscode-rdbg",
-        "rangav.vscode-thunder-client",
+        "Postman.postman-for-vscode",
         "cweijan.vscode-mysql-client2"
       ],
       "settings": {
+        "todo-tree.general.tags": ["TODO", "TEMP"],
+        "todo-tree.filtering.includeHiddenFiles": true,
         "editor.defaultFormatter": "castwide.solargraph",
         "editor.formatOnSave": true,
         "solargraph.checkGemVersion": false,
         "solargraph.diagnostics": true,
         "solargraph.formatting": true,
-        "markdown.extension.toc.levels": "2..6",
-        "markdownlint.config": {
-          "MD033": false
+        "files.associations": {
+          "*.html.erb": "erb"
         },
-        "[markdown]": {
-          "editor.defaultFormatter": "yzhang.markdown-all-in-one",
-          "editor.formatOnSave": true,
-          "editor.codeActionsOnSave": {
-            "source.fixAll.markdownlint": true
-          }
+        "[erb]": {
+          "editor.defaultFormatter": "aliariff.vscode-erb-beautify"
         },
-        "thunder-client.httpLibrary": "axios",
-        "thunder-client.saveToWorkspace": true,
-        "thunder-client.workspaceRelativePath": "./.vscode",
-        "thunder-client.defaultUrl": "{{BASE_URL}}/{{API_VERSION}}/"
+        "vscode-erb-beautify.useBundler": true,
+        "commitlint.config.extend.rules": {
+          "type-empty": [2, "never"],
+          "type-case": [2, "always", "lower-case"],
+          "type-enum": [
+            2,
+            "always",
+            [
+              "build",
+              "ci",
+              "docs",
+              "feat",
+              "fix",
+              "perf",
+              "refactor",
+              "revert",
+              "test",
+              "chore"
+            ]
+          ],
+          "subject-empty": [2, "never"],
+          "subject-case": [
+            2,
+            "never",
+            [
+              "upper-case",
+              "camel-case",
+              "kebab-case",
+              "pascal-case",
+              "sentence-case",
+              "snake-case",
+              "start-case"
+            ]
+          ],
+          "subject-full-stop": [2, "never", "."],
+          "body-leading-blank": [2, "always"],
+          "footer-leading-blank": [2, "always"]
+        }
       }
     }
   }
