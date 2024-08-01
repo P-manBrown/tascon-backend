@@ -37,7 +37,7 @@ group :development, :test do
 
   gem "faker", "~> 3.1"
 
-  gem "rspec-rails", "~> 6.0"
+  gem "rspec-rails", "~> 6.1"
 
   gem "debug", platforms: %i[mri mingw x64_mingw]
 end
