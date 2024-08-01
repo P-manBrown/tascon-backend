@@ -3,26 +3,23 @@ pre-commit:
   parallel: true
   commands:
     rubocop:
-      glob: '*.rb'
-      run: bin/bundle exec rubocop -A --force-exclusion {staged_files}
+      glob: '*.{rb,erb}'
+      run: bin/bundle exec rubocop --autocorrect --force-exclusion {staged_files}
+      stage_fixed: true
       fail_text: 'Read the report above.'
-    markdownlint:
-      glob: '*.md'
-      run: bin/bundle exec mdl {staged_files}
+    htmlbeautifier:
+      glob: '*.erb'
+      run: bin/bundle exec htmlbeautifier {staged_files}
+      stage_fixed: true
+    debride:
+      glob: '*.rb'
+      run: bin/bundle exec debride --rails -w debride-whitelist.txt {all_files} | tee /dev/tty | grep -q 'LOC:\ 0'
       fail_text: 'Read the report above.'
     protect-branch:
       run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main|develop'
       fail_text: "ERROR: Do NOT commit directly to 'main' or 'develop' branch."
-commit-msg:
-  commands:
-    git-lint:
-      run: bin/bundle exec git-lint --hook {1}
-      fail_text: 'Read the report above and .github/commit/COMMIT_CONVENTION.md'
 pre-push:
   commands:
-    rspec:
-      glob: 'spec/**/*.rb'
-      env:
-        RAILS_ENV: test
-      run: bin/bundle exec rspec {push_files}
-      fail_text: 'Read the report above.'
+    check-git-clean:
+      run: test -z "$(git status --porcelain | tee /dev/tty)"
+      fail_text: 'ERROR: Commit or stash changes before pushing.'

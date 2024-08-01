@@ -1,0 +1,11 @@
+<%# Override https://tinyurl.com/2y44ysbj %>
+<p><%= "#{t(:hello).capitalize}、#{@resource.name}" %>さん。</p>
+<% if @resource.try(:unconfirmed_email?) %>
+  <p>
+    メールアドレスの変更がリクエストされました。<br />
+    <%= @resource.unconfirmed_email %>にメールアドレス確認用のメールを送信しています。<br />
+    内容を確認し、メールアドレスを認証してください。
+  </p>
+<% else %>
+  <p>メールアドレスが<%= @resource.email %>に変更されました。</p>
+<% end %>

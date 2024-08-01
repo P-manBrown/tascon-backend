@@ -2,14 +2,16 @@ require:
   - rubocop-performance
   - rubocop-rails
   - rubocop-rspec
+  - rubocop-erb
+  - rubocop-factory_bot
 
 AllCops:
   NewCops: enable
   Exclude:
     - "bin/{bundle,rails,rake}"
     - "db/migrate/*"
+    - "db/schema.rb"
     - "vendor/**/*"
-    - "**/spec_helper.rb"
 
 Layout/EmptyLinesAroundAccessModifier:
   EnforcedStyle: only_before
@@ -17,15 +19,16 @@ Layout/EmptyLinesAroundAccessModifier:
 Layout/EndAlignment:
   EnforcedStyleAlignWith: variable
 
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
 Layout/IndentationConsistency:
   EnforcedStyle: indented_internal_methods
-
-Layout/LineLength:
-  Max: 80
 
 Metrics/BlockLength:
   Exclude:
     - "Guardfile"
+    - "config/**/*"
 
 Style/AsciiComments:
   Enabled: false

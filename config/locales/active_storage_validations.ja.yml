@@ -1,0 +1,7 @@
+# active_storage_validations: https://tinyurl.com/yw8trctz
+ja:
+  errors:
+    messages:
+      content_type_invalid: "には%{authorized_types}のファイルを選択してください。"
+      file_size_out_of_range: "には%{max_size}以下のファイルを選択してください。"
+      image_not_processable: "にできない不正な画像です。"
