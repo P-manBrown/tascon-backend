@@ -52,7 +52,7 @@ group :development do
 
   gem "lefthook", "~> 1.3", require: false
 
-  gem "letter_opener_web", "~> 2.0"
+  gem "letter_opener_web", "~> 3.0"
 
   gem "rubocop", "~> 1.48", require: false
   gem "rubocop-erb", "~> 0.5.2", require: false
