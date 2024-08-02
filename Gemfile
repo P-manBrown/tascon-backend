@@ -31,7 +31,7 @@ gem "omniauth-twitter", "~> 1.4"
 gem "rails-i18n", "~> 7.0"
 
 group :development, :test do
-  gem "dotenv-rails", "~> 2.8"
+  gem "dotenv-rails", "~> 3.1"
 
   gem "factory_bot_rails", "~> 6.2"
 
