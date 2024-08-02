@@ -50,7 +50,7 @@ group :development do
 
   gem "htmlbeautifier", "~> 1.4", require: false
 
-  gem "lefthook", "~> 1.3", require: false
+  gem "lefthook", "~> 1.7", require: false
 
   gem "letter_opener_web", "~> 3.0"
 
