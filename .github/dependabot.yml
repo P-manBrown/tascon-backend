@@ -19,6 +19,9 @@ updates:
       timezone: 'Asia/Tokyo'
     reviewers:
       - 'P-manBrown'
+    ignore:
+      - dependency-name: 'mysql'
+        versions: ['>=8.5']
     commit-message:
       prefix: 'build'
     target-branch: 'main'
