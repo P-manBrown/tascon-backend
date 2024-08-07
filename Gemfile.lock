@@ -375,6 +375,8 @@ GEM
     rubocop-erb (0.5.2)
       better_html
       rubocop (~> 1.45)
+    rubocop-factory_bot (2.26.1)
+      rubocop (~> 1.61)
     rubocop-performance (1.21.1)
       rubocop (>= 1.48.1, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
@@ -447,6 +449,7 @@ DEPENDENCIES
   rspec-rails (~> 6.1)
   rubocop (~> 1.48)
   rubocop-erb (~> 0.5.2)
+  rubocop-factory_bot (~> 2.26)
   rubocop-performance (~> 1.21)
   rubocop-rails (~> 2.25)
   rubocop-rspec (~> 3.0)
