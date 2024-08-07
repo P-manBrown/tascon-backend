@@ -16,8 +16,8 @@ pre-commit:
       run: bin/bundle exec debride --rails -w debride-whitelist.txt {all_files} | tee /dev/tty | grep -q 'LOC:\ 0'
       fail_text: 'Read the report above.'
     protect-branch:
-      run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main|develop'
-      fail_text: "ERROR: Do NOT commit directly to 'main' or 'develop' branch."
+      run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main'
+      fail_text: "ERROR: Do NOT commit directly to 'main' branch."
 pre-push:
   commands:
     check-git-clean:
