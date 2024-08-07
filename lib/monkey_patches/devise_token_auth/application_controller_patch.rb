@@ -2,7 +2,7 @@
 #      see http://tinyurl.com/yla25xhq
 
 require "devise_token_auth/version"
-raise "Consider removing this patch." unless DeviseTokenAuth::VERSION == "1.2.2"
+raise "Consider removing this patch." unless DeviseTokenAuth::VERSION == "1.2.3"
 
 Rails.application.config.to_prepare do
   DeviseTokenAuth::ApplicationController.class_eval do
