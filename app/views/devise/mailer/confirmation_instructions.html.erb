@@ -8,6 +8,6 @@
   <%= link_to t(".confirm_account_link"), confirmation_url(@resource, {
     confirmation_token: @token,
     config: message["client-config"].to_s,
-    redirect_url: message["rediret-url"].to_s,
-  }).html_safe # rubocop:disable Rails/OutputSafety %>
+    redirect_url: message["redirect-url"]
+  }) %>
 </p>
