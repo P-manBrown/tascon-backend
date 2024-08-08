@@ -31,6 +31,8 @@ updates:
       interval: 'monthly'
       time: '03:00'
       timezone: 'Asia/Tokyo'
+    reviewers:
+      - 'P-manBrown'
     commit-message:
       prefix: 'build'
     target-branch: 'main'
