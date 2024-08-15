@@ -12,7 +12,7 @@
 
 ### Related Issues (Optional)
 
-<!-- Mention any related issue numbers -->
+<!-- Mention any related issue numbers (excluding task management issue) -->
 
 ### Notes (Optional)
 
