@@ -59,7 +59,7 @@ group :development do
   gem "rubocop", "~> 1.66", require: false
   gem "rubocop-erb", "~> 0.5.3", require: false
   gem "rubocop-factory_bot", "~> 2.26", require: false
-  gem "rubocop-performance", "~> 1.21", require: false
+  gem "rubocop-performance", "~> 1.22", require: false
   gem "rubocop-rails", "~> 2.26", require: false
   gem "rubocop-rspec", "~> 3.0", require: false
 end
