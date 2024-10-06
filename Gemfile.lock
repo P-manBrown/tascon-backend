@@ -374,7 +374,7 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.32.3)
       parser (>= 3.3.1.0)
-    rubocop-erb (0.5.3)
+    rubocop-erb (0.5.4)
       better_html
       rubocop (~> 1.45)
     rubocop-factory_bot (2.26.1)
@@ -452,7 +452,7 @@ DEPENDENCIES
   rails-i18n (~> 7.0)
   rspec-rails (~> 7.0)
   rubocop (~> 1.66)
-  rubocop-erb (~> 0.5.3)
+  rubocop-erb (~> 0.5.4)
   rubocop-factory_bot (~> 2.26)
   rubocop-performance (~> 1.22)
   rubocop-rails (~> 2.26)
