@@ -17,7 +17,7 @@ gem "rack-cors", "~> 2.0"
 
 gem "image_processing", "~> 1.13"
 
-gem "alba", "~> 3.2"
+gem "alba", "~> 3.3"
 
 gem "active_storage_validations", "~> 1.2"
 
