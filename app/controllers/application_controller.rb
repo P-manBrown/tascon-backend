@@ -3,7 +3,6 @@ class ApplicationController < ActionController::API
   # Avoid making the response headers too large.
   after_action :delete_user_session
   after_action :delete_csrf_token, only: :destroy, if: :devise_controller?
-  after_action :delete_current_user_id, only: :destroy, if: :devise_controller?
 
   include ActionController::Cookies
   include ActionController::RequestForgeryProtection
@@ -19,10 +18,6 @@ class ApplicationController < ActionController::API
     def delete_csrf_token
       session.delete(:_csrf_token)
       cookies.delete(:csrf_token)
-    end
-
-    def delete_current_user_id
-      cookies.delete(:current_user_id)
     end
 
     def render_error(status, message)

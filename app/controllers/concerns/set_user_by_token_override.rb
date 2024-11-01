@@ -12,11 +12,6 @@ module SetUserByTokenOverride
         value: auth_header.to_json,
         expires:
       )
-
-      cookies[:current_user_id] = DeviseTokenAuth.cookie_attributes.merge(
-        value: current_api_v1_user.id,
-        expires:
-      )
     end
   # rubocop:enable Naming/AccessorMethodName
 end
