@@ -386,7 +386,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.1.0)
+    rubocop-rspec (3.2.0)
       rubocop (~> 1.61)
     ruby-progressbar (1.13.0)
     ruby-vips (2.2.2)
@@ -457,7 +457,7 @@ DEPENDENCIES
   rubocop-factory_bot (~> 2.26)
   rubocop-performance (~> 1.22)
   rubocop-rails (~> 2.27)
-  rubocop-rspec (~> 3.1)
+  rubocop-rspec (~> 3.2)
   tzinfo-data
 
 RUBY VERSION
