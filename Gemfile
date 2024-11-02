@@ -47,7 +47,7 @@ end
 group :development do
   gem "debride", "~> 1.12", require: false
 
-  gem "guard", "~> 2.18"
+  gem "guard", "~> 2.19"
   gem "guard-rspec", "~> 4.7", require: false
 
   gem "htmlbeautifier", "~> 1.4", require: false
