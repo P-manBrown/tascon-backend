@@ -6,7 +6,7 @@ class ApplicationController < ActionController::API
 
   include ActionController::Cookies
   include ActionController::RequestForgeryProtection
-  include SetUserByTokenOverride
+  include DeviseTokenAuth::Concerns::SetUserByToken
 
   protect_from_forgery with: :exception
 

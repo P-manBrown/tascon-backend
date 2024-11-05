@@ -1,13 +1,6 @@
 DeviseTokenAuth.setup do |config|
   config.change_headers_on_each_request = false
 
-  config.cookie_enabled = true
-  config.cookie_attributes = {
-    http_only: true,
-    secure: Rails.env.production?,
-    same_site: Rails.env.production? ? "None" : "Lax"
-  }
-
   config.token_cost = Rails.env.test? ? 4 : 10
 
   config.send_confirmation_email = true

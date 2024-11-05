@@ -21,4 +21,3 @@ avatar=
 included
 failure
 redirect_options
-set_token_in_cookie

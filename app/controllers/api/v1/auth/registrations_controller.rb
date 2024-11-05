@@ -19,14 +19,6 @@ module Api
           super
         end
 
-        def destroy
-          super do
-            if DeviseTokenAuth.cookie_enabled
-              cookies.delete(DeviseTokenAuth.cookie_name, domain: DeviseTokenAuth.cookie_attributes[:domain])
-            end
-          end
-        end
-
         private
           def should_set_redirect_url?
             new_email = account_update_params[:email]

@@ -22,7 +22,7 @@ class User < ApplicationRecord
       value.original_filename = "#{SecureRandom.alphanumeric(10)}#{extension}"
     end
 
-    super(value)
+    super
   end
 
   def avatar_url
