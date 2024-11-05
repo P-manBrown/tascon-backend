@@ -4,7 +4,8 @@ module Api
       class PasswordsController < DeviseTokenAuth::PasswordsController
         def update
           super do |resource|
-            client = JSON.parse(cookies[DeviseTokenAuth.cookie_name])["client"]
+            # See https://is.gd/DNCnRT
+            client = @token.client
             resource.remove_tokens_after_password_reset(client)
             resource.save!
           end
