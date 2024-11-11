@@ -7,7 +7,21 @@ Rails.application.config.middleware.use OmniAuth::Builder do
            Rails.application.credentials.google[:client_secret]
 end
 
-OmniAuth.config.request_validation_phase = proc do |env|
-  OmniAuth::RailsCsrfProtection::TokenVerifier.new.call(env)
-  raise ActionController::InvalidAuthenticityToken unless env["HTTP_ORIGIN"] == ENV.fetch("FRONTEND_ORIGIN")
+class RequestValidator
+  def call(env)
+    dup._call(env)
+  end
+
+  def _call(env)
+    request = ActionDispatch::Request.new(env.dup)
+
+    return if request.origin == ENV.fetch("FRONTEND_ORIGIN")
+
+    raise ActionController::BadRequest
+  end
+
+  private
+    attr_reader :request
 end
+
+OmniAuth.config.request_validation_phase = RequestValidator.new

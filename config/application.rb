@@ -45,12 +45,7 @@ module TasconBackend
       port: ENV.fetch("WEB_PORT")
     }
 
-    config.action_controller.forgery_protection_origin_check = false
-
-    config.session_store :cookie_store,
-                         key: "_tascon_session",
-                         secure: Rails.env.production?,
-                         same_site: Rails.env.production? ? :none : :lax
+    config.session_store :cookie_store, key: "_tascon_session", secure: Rails.env.production?
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore, config.session_options
   end

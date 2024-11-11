@@ -9,7 +9,6 @@ Rails.application.routes.draw do
         registrations: "api/v1/auth/registrations",
         token_validations: "api/v1/auth/token_validations"
       }
-      get "/csrf_token", to: "csrf_tokens#set_csrf_token"
       resources :users, only: %i[index show]
     end
   end
