@@ -258,9 +258,6 @@ GEM
     omniauth-oauth2 (1.8.0)
       oauth2 (>= 1.4, < 3)
       omniauth (~> 2.0)
-    omniauth-rails_csrf_protection (1.0.2)
-      actionpack (>= 4.2)
-      omniauth (~> 2.0)
     omniauth-twitter (1.4.0)
       omniauth-oauth (~> 1.1)
       rack
@@ -445,7 +442,6 @@ DEPENDENCIES
   letter_opener_web (~> 3.0)
   mysql2 (~> 0.5)
   omniauth-google-oauth2
-  omniauth-rails_csrf_protection (~> 1.0)
   omniauth-twitter (~> 1.4)
   puma (~> 6.4)
   rack-cors (~> 2.0)
