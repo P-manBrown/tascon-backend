@@ -96,7 +96,7 @@ GEM
     bootsnap (1.18.4)
       msgpack (~> 1.2)
     builder (3.3.0)
-    bullet (7.2.0)
+    bullet (8.0.0)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11)
     childprocess (5.0.0)
@@ -392,7 +392,7 @@ GEM
     ruby_parser (3.21.0)
       racc (~> 1.5)
       sexp_processor (~> 4.16)
-    securerandom (0.3.1)
+    securerandom (0.3.2)
     sexp_processor (4.17.1)
     shellany (0.0.1)
     smart_properties (1.17.0)
@@ -426,7 +426,7 @@ DEPENDENCIES
   active_storage_validations (~> 1.2)
   alba (~> 3.3)
   bootsnap
-  bullet (~> 7.2)
+  bullet (~> 8.0)
   debride (~> 1.12)
   debug
   devise-i18n (~> 1.12)
