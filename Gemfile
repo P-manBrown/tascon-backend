@@ -30,7 +30,7 @@ gem "omniauth-twitter", "~> 1.4"
 gem "rails-i18n", "~> 7.0"
 
 group :development, :test do
-  gem "bullet", "~> 7.2"
+  gem "bullet", "~> 8.0"
 
   gem "dotenv-rails", "~> 3.1"
 
