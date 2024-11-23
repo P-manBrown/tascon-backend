@@ -7,7 +7,7 @@ gem "rails", "~> 7.2.2"
 
 gem "mysql2", "~> 0.5"
 
-gem "puma", "~> 6.4"
+gem "puma", "~> 6.5"
 
 gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 
