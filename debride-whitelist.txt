@@ -22,3 +22,4 @@ included
 failure
 redirect_options
 call
+render_data

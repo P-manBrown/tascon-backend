@@ -8,11 +8,13 @@ raise "Consider removing this patch." unless DeviseTokenAuth::VERSION == "1.2.4"
 
 Rails.application.config.to_prepare do
   Devise::OmniauthCallbacksController.class_eval do
-    rescue_from ActionController::InvalidAuthenticityToken, with: :failure
+    rescue_from ActionController::BadRequest, with: :failure
 
     def failure
-      redirect_to controller: "api/v1/auth/omniauth_callbacks", action: "omniauth_failure",
-                  failure_redirect_url: params["failure_redirect_url"]
+      redirect_to controller: "api/v1/auth/omniauth_callbacks",
+                  action: "omniauth_failure",
+                  omniauth_window_type: params["omniauth_window_type"] || "newWindow",
+                  message: "処理中にエラーが発生しました。"
     end
   end
 end

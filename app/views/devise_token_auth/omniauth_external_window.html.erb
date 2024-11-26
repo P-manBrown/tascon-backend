@@ -1,0 +1,37 @@
+<!-- Override https://is.gd/v9evAO -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      const data = JSON.parse(
+        decodeURIComponent(
+          '<%= ERB::Util.url_encode({ request_id: @request_id, data: @data }.to_json) %>'
+        )
+      )
+
+      const handleMessage = (ev) => {
+        const frontendOrigin = '<%= @frontend_origin %>'
+        const isOriginValid =  ev.origin === frontendOrigin
+        const isMessageValid = ev.data === "requestCredentials"
+        if (isOriginValid && isMessageValid) {
+          ev.source?.postMessage(data, frontendOrigin)
+          window.close()
+        }
+      }
+
+      window.addEventListener("message", handleMessage)
+
+      function requestCredentials() {
+        return data
+      }
+
+      setTimeout(() => {
+        document.getElementById('text').textContent = data?.data?.error || '処理中...'
+      }, 1000)
+    </script>
+  </head>
+  <body>
+    <pre id="text">
+    </pre>
+  </body>
+</html>
