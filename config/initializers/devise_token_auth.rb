@@ -10,6 +10,7 @@ DeviseTokenAuth.setup do |config|
   config.check_current_password_before_update = :password
 
   config.remove_tokens_after_password_reset = true
+  config.require_client_password_reset_token = true
 
   config.omniauth_prefix = "/api/v1/omniauth"
 end
