@@ -80,7 +80,7 @@ GEM
       tzinfo (~> 2.0, >= 2.0.5)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
-    alba (3.3.3)
+    alba (3.4.0)
       ostruct (~> 0.6)
     ast (2.4.2)
     base64 (0.2.0)
@@ -427,7 +427,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_storage_validations (~> 1.3)
-  alba (~> 3.3)
+  alba (~> 3.4)
   bootsnap
   bullet (~> 8.0)
   debride (~> 1.12)
