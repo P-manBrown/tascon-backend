@@ -23,7 +23,7 @@ module Api
           def resource_update_method
             # TEMP: https://is.gd/E52ElZ
             allow_password_change = recoverable_enabled? && @resource.allow_password_change == true
-            if !check_current_password_before_update? || allow_password_change
+            if !check_current_password_before_update? || (allow_password_change && !params[:current_password])
               "update"
             else
               "update_with_password"
