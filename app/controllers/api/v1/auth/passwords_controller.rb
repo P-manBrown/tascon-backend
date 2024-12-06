@@ -20,6 +20,20 @@ module Api
             providers[@resource.provider]
           end
 
+          def resource_update_method
+            # TEMP: https://is.gd/E52ElZ
+            allow_password_change = recoverable_enabled? && @resource.allow_password_change == true
+            if !check_current_password_before_update? || allow_password_change
+              "update"
+            else
+              "update_with_password"
+            end
+          end
+
+          def check_current_password_before_update?
+            DeviseTokenAuth.check_current_password_before_update
+          end
+
           def render_update_error_password_not_required
             render_error(
               422,
