@@ -19,7 +19,7 @@ gem "image_processing", "~> 1.13"
 
 gem "alba", "~> 3.4"
 
-gem "active_storage_validations", "~> 1.3"
+gem "active_storage_validations", "~> 1.4"
 
 gem "devise-i18n", "~> 1.12"
 gem "devise_token_auth", "~> 1.2"
