@@ -9,7 +9,11 @@ Rails.application.routes.draw do
         registrations: "api/v1/auth/registrations",
         token_validations: "api/v1/auth/token_validations"
       }
-      resources :users, only: %i[index show]
+      resources :users, only: %i[index show] do
+        collection do
+          get "search"
+        end
+      end
     end
   end
 end

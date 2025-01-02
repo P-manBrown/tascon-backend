@@ -6,6 +6,16 @@ module Api
 
         render json: UserResource.new(user), status: :ok
       end
+
+      def search
+        user = User.find_by(email: params[:email], is_private: false)
+
+        if user.nil?
+          render json: { user: nil }, status: :ok
+        else
+          render json: UserResource.new(user), status: :ok
+        end
+      end
     end
   end
 end
