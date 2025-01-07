@@ -1,5 +1,4 @@
-x-mysql_env_path: &mysql-env-path
-  ./Docker/db/environment/mysql.env
+x-mysql_env_path: &mysql-env-path ./Docker/db/environment/mysql.env
 
 services:
   db:
@@ -24,12 +23,10 @@ services:
         - USER_NAME=${API_USER_NAME:?}
     volumes:
       - .:/home/${API_USER_NAME:?}/${COMPOSE_PROJECT_NAME:?}
-      - ./.git-lint.yml:/home/${API_USER_NAME:?}/.xdg/git-lint/configuration.yml
       - gem-home:/usr/local/bundle
       - puma-sockets:/home/${API_USER_NAME}/${COMPOSE_PROJECT_NAME}/tmp/sockets
     environment:
       - RAILS_ENV=${RAILS_ENV:-development}
-      - XDG_CONFIG_DIRS=/home/${API_USER_NAME:?}/.xdg
     env_file:
       - *mysql-env-path
     extra_hosts:
