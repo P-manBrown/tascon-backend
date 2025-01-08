@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_08_072027) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_08_080057) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -40,8 +40,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_08_072027) do
   end
 
   create_table "relationships", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "associate_id"
+    t.integer "user_id", null: false
+    t.integer "associate_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["associate_id"], name: "index_relationships_on_associate_id"
