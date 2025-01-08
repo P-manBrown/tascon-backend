@@ -3,7 +3,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.3.6"
 
-gem "rails", "~> 7.2.2"
+gem "rails", "~> 8.0.1"
 
 gem "mysql2", "~> 0.5"
 
@@ -27,7 +27,7 @@ gem "devise_token_auth", "~> 1.2"
 gem "omniauth-google-oauth2"
 gem "omniauth-twitter", "~> 1.4"
 
-gem "rails-i18n", "~> 7.0"
+gem "rails-i18n", "~> 8.0"
 
 group :development, :test do
   gem "bullet", "~> 8.0"
