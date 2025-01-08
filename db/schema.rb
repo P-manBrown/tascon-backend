@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2023_10_17_075134) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_08_072027) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,16 @@ ActiveRecord::Schema[7.2].define(version: 2023_10_17_075134) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "relationships", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "associate_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["associate_id"], name: "index_relationships_on_associate_id"
+    t.index ["user_id", "associate_id"], name: "index_relationships_on_user_id_and_associate_id", unique: true
+    t.index ["user_id"], name: "index_relationships_on_user_id"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
