@@ -28,7 +28,7 @@ User.create!(
 
   User.create!(
     name: Faker::Name.name,
-    email: Faker::Internet.email,
+    email: Faker::Internet.unique.email,
     password: password,
     password_confirmation: password,
     is_private: Faker::Boolean.boolean,
