@@ -15,7 +15,7 @@ User.destroy_all
 # Create a user with a fixed password.
 User.create!(
   name: "テスト ユーザー",
-  email: "text@example.com",
+  email: "test@example.com",
   password: "sample",
   password_confirmation: "sample",
   is_private: false,
