@@ -10,6 +10,12 @@ ja:
           attributes:
             email:
               taken: "はすでに登録されています。"
+        contact:
+          attributes:
+            contact_user:
+              required: "が見つかりません。"
+            contact_user_id:
+              taken: "はすでに登録されています。"
     attributes:
       user:
         current_password: "現在のパスワード"
@@ -18,5 +24,8 @@ ja:
         name: "ユーザー名"
         avatar: "アバター"
         bio: "自己紹介"
+      contact:
+        contact_user: "対象ユーザー"
+        contact_user_id: "対象ユーザーID"
     models:
       user: "ユーザー"

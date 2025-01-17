@@ -10,6 +10,9 @@ class User < ApplicationRecord
 
   has_one_attached :avatar
 
+  has_many :contacts, dependent: :destroy
+  has_many :contact_users, through: :contacts
+
   validates :name, presence: true, length: { maximum: 255 }
   validates :email, uniqueness: { case_sensitive: false }, length: { maximum: 100 }
   validates :avatar, content_type: { in: %w[image/jpeg image/png] }, size: { less_than_or_equal_to: 2.megabytes },

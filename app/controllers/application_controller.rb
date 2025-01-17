@@ -11,13 +11,6 @@ class ApplicationController < ActionController::API
       warden.session_serializer.delete("user")
     end
 
-    def render_error(status, message)
-      response = {
-        errors: [message]
-      }
-      render json: response, status:
-    end
-
     def verify_request
       return if request.get? || request.head? || request.origin == ENV.fetch("FRONTEND_ORIGIN")
 
