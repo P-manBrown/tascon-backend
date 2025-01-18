@@ -16,7 +16,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :contacts, only: %i[create show]
+      resources :contacts, only: %i[create show destroy]
     end
   end
 end
