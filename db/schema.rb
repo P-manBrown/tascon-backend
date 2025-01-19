@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_17_143501) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_19_101340) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -44,6 +44,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_17_143501) do
     t.bigint "contact_user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "display_name"
+    t.text "note"
     t.index ["contact_user_id"], name: "index_contacts_on_contact_user_id"
     t.index ["user_id", "contact_user_id"], name: "index_contacts_on_user_id_and_contact_user_id", unique: true
     t.index ["user_id"], name: "index_contacts_on_user_id"
