@@ -17,7 +17,7 @@ class User < ApplicationRecord
   validates :email, uniqueness: { case_sensitive: false }, length: { maximum: 100 }
   validates :avatar, content_type: { in: %w[image/jpeg image/png] }, size: { less_than_or_equal_to: 2.megabytes },
                      processable_image: true, mime_type_and_extension_consistency: true
-  validates :bio, length: { maximum: 250 }
+  validates :bio, length: { maximum: 250 }, presence: true, allow_nil: true
 
   def avatar=(value)
     if value.respond_to?(:original_filename) && value.original_filename
