@@ -5,7 +5,8 @@ class Contact < ApplicationRecord
   validates :contact_user_id, uniqueness: { scope: :user_id }
   validates :display_name, presence: true, allow_nil: true
   validates :note, presence: true, allow_nil: true
-  validate :not_self_contact, :contact_user_must_be_public
+  validate :not_self_contact
+  validate :contact_user_must_be_public
 
   def not_self_contact
     return unless user_id == contact_user_id
