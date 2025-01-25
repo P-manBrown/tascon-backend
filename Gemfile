@@ -61,6 +61,4 @@ group :development do
   gem "rubocop-performance", "~> 1.23", require: false
   gem "rubocop-rails", "~> 2.29", require: false
   gem "rubocop-rspec", "~> 3.4", require: false
-
-  gem "typelizer", "~> 0.2.0"
 end
