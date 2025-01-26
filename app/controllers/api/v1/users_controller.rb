@@ -8,12 +8,12 @@ module Api
       end
 
       def search
-        user = User.find_by(email: params[:email], is_private: false)
+        @user = User.find_by(email: params[:email], is_private: false)
 
-        if user.nil?
+        if @user.nil?
           render json: { user: nil }, status: :ok
         else
-          render json: UserResource.new(user), status: :ok
+          render json: UserResource.new(@user, params: { current_user_contact: }), status: :ok
         end
       end
 
