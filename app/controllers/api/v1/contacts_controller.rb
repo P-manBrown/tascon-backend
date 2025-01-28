@@ -19,7 +19,7 @@ module Api
 
       private
         def contact_params
-          params.require(:contact).permit(:contact_user_id, :display_name, :note)
+          params.expect(contact: %i[contact_user_id display_name note])
         end
     end
   end
