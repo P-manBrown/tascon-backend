@@ -10,13 +10,13 @@ Rails.application.routes.draw do
         token_validations: "api/v1/auth/token_validations"
       }
 
-      resources :users, only: %i[index show] do
-        collection do
-          get "search"
+      shallow do
+        resources :users, only: :show do
+          get "search", on: :collection
+
+          resources :contacts, except: :show
         end
       end
-
-      resources :contacts, only: %i[create show destroy]
     end
   end
 end
