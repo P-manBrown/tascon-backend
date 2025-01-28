@@ -26,3 +26,4 @@ render_data
 resource_update_method
 search
 contact_users
+current_user_contact
