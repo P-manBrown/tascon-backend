@@ -1,29 +1,28 @@
 module Api
   module V1
     class ContactsController < ApplicationController
-      def create
-        contact = current_api_v1_user.contacts.build(create_contact_params)
+      before_action :set_contact, only: %i[update destroy]
 
-        if contact.save
-          render json: ContactResource.new(contact), status: :created, location: api_v1_user_url(contact.contact_user)
+      def create
+        @contact = current_api_v1_user.contacts.build(create_contact_params)
+
+        if @contact.save
+          render json: ContactResource.new(@contact), status: :created, location: api_v1_user_url(@contact.contact_user)
         else
-          render json: ErrorResource.new(contact.errors), status: :unprocessable_entity
+          render_validation_error
         end
       end
 
       def update
-        contact = current_api_v1_user.contacts.find(params[:id])
-
-        if contact.update(update_contact_params)
-          render json: ContactResource.new(contact), status: :ok
+        if @contact.update(update_contact_params)
+          render json: ContactResource.new(@contact), status: :ok
         else
-          render json: ErrorResource.new(contact.errors), status: :unprocessable_entity
+          render_validation_error
         end
       end
 
       def destroy
-        contact = current_api_v1_user.contacts.find(params[:id])
-        contact.destroy
+        @contact.destroy
         head :no_content
       end
 
@@ -34,6 +33,14 @@ module Api
 
         def update_contact_params
           params.expect(contact: %i[display_name note])
+        end
+
+        def set_contact
+          @contact = current_api_v1_user.contacts.find(params[:id])
+        end
+
+        def render_validation_error
+          render json: ErrorResource.new(@contact.errors), status: :unprocessable_entity
         end
     end
   end
