@@ -6,7 +6,7 @@ class Contact < ApplicationRecord
   validates :display_name, presence: true, allow_nil: true
   validates :note, presence: true, allow_nil: true
   validate :not_self_contact, on: :create
-  validate :contact_user_must_be_public
+  validate :contact_user_must_be_public, on: :create
 
   def not_self_contact
     return unless user_id == contact_user_id
