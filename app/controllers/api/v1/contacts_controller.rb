@@ -3,6 +3,13 @@ module Api
     class ContactsController < ApplicationController
       before_action :set_contact, only: %i[update destroy]
 
+      def index
+        user_contacts = current_api_v1_user.contacts.includes(contact_user: :avatar_attachment).order(:created_at)
+        @pagy, contacts = pagy(user_contacts, items: 20)
+
+        render json: ContactResource.new(contacts), status: :ok
+      end
+
       def create
         @contact = current_api_v1_user.contacts.build(create_contact_params)
 
