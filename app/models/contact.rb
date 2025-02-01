@@ -4,7 +4,7 @@ class Contact < ApplicationRecord
 
   validates :contact_user_id, uniqueness: { scope: :user_id }
   validates :display_name, presence: true, allow_nil: true, length: { maximum: 255 }
-  validates :note, presence: true, allow_nil: true
+  validates :note, presence: true, allow_nil: true, length: { maximum: 1000 }
   validate :not_self_contact, on: :create
   validate :contact_user_must_be_public, on: :create
 
