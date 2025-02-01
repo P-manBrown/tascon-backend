@@ -22,8 +22,8 @@ User.create!(
   bio: "テスト用のユーザー",
   confirmed_at: Time.current
 )
-# Create 20 users.
-20.times do
+# Create 100 users.
+100.times do
   password = Faker::Alphanumeric.alphanumeric(number: 10)
 
   User.create!(
@@ -35,4 +35,20 @@ User.create!(
     bio: Faker::Lorem.paragraph(sentence_count: 10),
     confirmed_at: Time.current
   )
+end
+
+# Delete all contacts.
+Contact.destroy_all
+# Create contacts for test user.
+test_user = User.find_by(email: "test@example.com")
+other_users = User.where.not(id: test_user.id)
+other_users.each do |contact_user|
+  Contact.create!(
+    user_id: test_user.id,
+    contact_user_id: contact_user.id,
+    display_name: Faker::Name.name,
+    note: Faker::Lorem.paragraph(sentence_count: 3)
+  )
+rescue ActiveRecord::RecordInvalid
+  next
 end
