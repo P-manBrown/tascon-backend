@@ -2,6 +2,7 @@
 ja:
   errors:
     messages:
+      exclusion: "に指定された値は使用できません。"
       invalid: "が正しくありません。"
   activerecord:
     errors:
