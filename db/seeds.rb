@@ -17,7 +17,6 @@ User.create!(
   name: "テスト ユーザー",
   email: "test@example.com",
   password: "sample",
-  # ユーザーに最低限必要なデータのみ作成する
   password_confirmation: "sample",
   confirmed_at: Time.current
 )
