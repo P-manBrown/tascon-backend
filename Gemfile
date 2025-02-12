@@ -15,7 +15,7 @@ gem "bootsnap", require: false
 
 gem "rack-cors", "~> 2.0"
 
-gem "image_processing", "~> 1.13"
+gem "image_processing", "~> 1.14"
 
 gem "alba", "~> 3.5"
 
