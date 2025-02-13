@@ -33,6 +33,10 @@ module Api
             @resource.redirect_url = @redirect_url if @resource.present?
           end
 
+          def render_create_success
+            render json: AccountResource.new(@resource), status: :ok
+          end
+
           def render_update_success
             render json: {
               status: "success",
