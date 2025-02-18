@@ -38,10 +38,7 @@ module Api
           end
 
           def render_update_success
-            render json: {
-              status: "success",
-              data: resource_data(resource_json: @resource.as_json.merge(avatar_url: @resource.avatar_url))
-            }
+            render json: AccountResource.new(@resource), status: :ok
           end
 
           def resource_errors
