@@ -37,6 +37,10 @@ module Api
             render json: AccountResource.new(@resource), status: :ok
           end
 
+          def render_create_error
+            render json: ErrorResource.new(@resource.errors), status: :unprocessable_entity
+          end
+
           def render_update_success
             render json: AccountResource.new(@resource), status: :ok
           end
