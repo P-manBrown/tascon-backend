@@ -29,3 +29,4 @@ contact_users
 current_user_contact
 select
 render_create_error
+render_update_error
