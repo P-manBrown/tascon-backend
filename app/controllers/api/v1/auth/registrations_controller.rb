@@ -49,10 +49,6 @@ module Api
             render json: ErrorResource.new(@resource.errors), status: :unprocessable_entity
           end
 
-          def resource_errors
-            @resource.errors.full_messages
-          end
-
           def configure_permitted_parameters
             devise_parameter_sanitizer.permit(:sign_up, keys: %i[name])
             devise_parameter_sanitizer.permit(:account_update, keys: %i[name avatar bio is_private])
