@@ -34,7 +34,7 @@ module Api
           end
 
           def render_create_success
-            render json: AccountResource.new(@resource), status: :ok
+            render json: AccountResource.new(@resource), status: :created, location: api_v1_user_url(@resource)
           end
 
           def render_create_error
