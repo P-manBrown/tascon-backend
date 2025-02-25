@@ -7,6 +7,7 @@ Rails.application.routes.draw do
         omniauth_callbacks: "api/v1/auth/omniauth_callbacks",
         passwords: "api/v1/auth/passwords",
         registrations: "api/v1/auth/registrations",
+        sessions: "api/v1/auth/sessions",
         token_validations: "api/v1/auth/token_validations"
       }
 
