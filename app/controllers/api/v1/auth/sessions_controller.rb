@@ -6,6 +6,10 @@ module Api
           def render_create_success
             render json: AccountResource.new(@resource), status: :ok
           end
+
+          def render_destroy_success
+            head :no_content
+          end
       end
     end
   end
