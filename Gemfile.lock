@@ -119,8 +119,9 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    devise-i18n (1.12.1)
+    devise-i18n (1.13.0)
       devise (>= 4.9.0)
+      rails-i18n
     devise_token_auth (1.2.5)
       bcrypt (~> 3.0)
       devise (> 3.5.2, < 5)
@@ -231,9 +232,9 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.4)
-    nokogiri (1.18.2-aarch64-linux-gnu)
+    nokogiri (1.18.3-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.2-x86_64-linux-gnu)
+    nokogiri (1.18.3-x86_64-linux-gnu)
       racc (~> 1.4)
     notiffany (0.1.3)
       nenv (~> 0.1)
@@ -417,7 +418,7 @@ GEM
     snaky_hash (2.0.1)
       hashie
       version_gem (~> 1.1, >= 1.1.1)
-    stringio (3.1.2)
+    stringio (3.1.5)
     strscan (3.1.0)
     thor (1.3.2)
     timeout (0.4.3)
@@ -437,7 +438,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.7.1)
+    zeitwerk (2.7.2)
 
 PLATFORMS
   aarch64-linux
@@ -450,7 +451,7 @@ DEPENDENCIES
   bullet (~> 8.0)
   debride (~> 1.12)
   debug
-  devise-i18n (~> 1.12)
+  devise-i18n (~> 1.13)
   devise_token_auth (~> 1.2)
   dotenv-rails (~> 3.1)
   factory_bot_rails (~> 6.4)
