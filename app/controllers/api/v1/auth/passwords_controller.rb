@@ -45,11 +45,7 @@ module Api
           end
 
           def render_create_success
-            render json: {
-              success: true,
-              email: @email,
-              message: success_message("passwords", @email)
-            }
+            head :no_content
           end
 
           def resource_errors
