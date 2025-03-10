@@ -52,6 +52,10 @@ module Api
             render json: AccountResource.new(@resource), status: :ok
           end
 
+          def render_update_error
+            render json: ErrorResource.new(@resource.errors), status: :unprocessable_entity
+          end
+
           def resource_errors
             super
             @resource.errors.full_messages
