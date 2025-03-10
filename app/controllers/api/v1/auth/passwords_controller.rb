@@ -48,6 +48,10 @@ module Api
             head :no_content
           end
 
+          def render_update_success
+            render json: AccountResource.new(@resource), status: :ok
+          end
+
           def resource_errors
             super
             @resource.errors.full_messages
