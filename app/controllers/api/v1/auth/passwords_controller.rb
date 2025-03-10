@@ -55,11 +55,6 @@ module Api
           def render_update_error
             render json: ErrorResource.new(@resource.errors), status: :unprocessable_entity
           end
-
-          def resource_errors
-            super
-            @resource.errors.full_messages
-          end
       end
     end
   end
