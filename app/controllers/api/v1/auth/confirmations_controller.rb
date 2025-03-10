@@ -22,6 +22,10 @@ module Api
             message = "'#{redirect_url}' へのリダイレクトは許可されていません。"
             render_error(422, message, response)
           end
+
+          def render_create_success
+            head :no_content
+          end
       end
     end
   end
