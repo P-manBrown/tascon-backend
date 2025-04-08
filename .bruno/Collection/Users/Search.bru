@@ -1,0 +1,21 @@
+meta {
+  name: Search
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/{{API_VERSION}}/users/search
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{BEARER_TOKEN}}
+}
+
+body:json {
+  {
+      "email": "test@example.com"
+  }
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Change User Info
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{BASE_URL}}/{{API_VERSION}}/auth
+  body: multipartForm
+  auth: bearer
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+auth:bearer {
+  token: {{BEARER_TOKEN}}
+}
+
+body:multipart-form {
+  avatar: @file(/Users/tachikawayuya/Documents/TASCON/tascon/backend/code/.bruno/480x320.png)
+  email: sample@example.com
+  confirm_success_url: {{FRONTEND_ORIGIN}}/login
+  name: sample
+  bio: Thank you very much for your time today.
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Google Auth
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{BASE_URL}}/{{API_VERSION}}/auth/google_oauth2
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+body:multipart-form {
+  failure_redirect_url: {{FRONTEND_ORIGIN}}/login
+  auth_origin_url: {{FRONTEND_ORIGIN}}/login
+}
