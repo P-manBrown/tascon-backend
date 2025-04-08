@@ -1,0 +1,25 @@
+meta {
+  name: Sign Up
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/{{API_VERSION}}/auth
+  body: json
+  auth: none
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+body:json {
+  {
+    "name": "佐藤 晴翔",
+    "email": "satoh.haruto@example.com",
+    "password": "satoHaruto@123",
+    "confirm_success_url": "{{FRONTEND_ORIGIN}}/login"
+  }
+  
+}

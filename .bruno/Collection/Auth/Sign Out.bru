@@ -1,0 +1,19 @@
+meta {
+  name: Sign Out
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{BASE_URL}}/{{API_VERSION}}/auth/sign_out
+  body: none
+  auth: bearer
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+auth:bearer {
+  token: {{BEARER_TOKEN}}
+}

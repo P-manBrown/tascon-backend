@@ -1,0 +1,19 @@
+meta {
+  name: Index
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BASE_URL}}/{{API_VERSION}}/users/1/contacts?page=1
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+}
+
+auth:bearer {
+  token: {{BEARER_TOKEN}}
+}

@@ -1,0 +1,29 @@
+meta {
+  name: Sign In
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{BASE_URL}}/{{API_VERSION}}/auth/sign_in
+  body: json
+  auth: none
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+body:json {
+  {
+    "email": "test@example.com",
+    "password": "sample"
+  }
+  
+}
+
+script:post-response {
+  const authorization = res.getHeader('authorization')
+  bru.setEnvVar('BEARER_TOKEN', authorization)
+  
+}

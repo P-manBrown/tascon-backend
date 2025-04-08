@@ -1,0 +1,26 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{BASE_URL}}/{{API_VERSION}}/contacts/1
+  body: json
+  auth: bearer
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+auth:bearer {
+  token: {{BEARER_TOKEN}}
+}
+
+body:json {
+  {
+    "display_name": "夏目漱石",
+    "note": "そして一しんに勉強して実験でちゃんとほんとうの考えというものは、みんな天の川の砂の上にもいろいろなあかりがいっぱいなのでした。けれどもなぜかまた額に深く皺を刻んでいくのでした。そしてまもなくジョバンニは走りだして黒い丘の方へ出しました。あんなにうしろへ行って半分ばかりのんでしまいました。ぼくはそのひとのために、カムパネルラのためにいったいどうしたらいいのだろうジョバンニは、そのきれいな野原を指して叫びました。"
+  }
+}
