@@ -1,7 +1,7 @@
 vars {
   API_VERSION: v1
-  BASE_URL: http://192.168.2.100/api
-  FRONTEND_ORIGIN: http://192.168.2.100:3000
+  BASE_URL: http://{{process.env.WEB_HOST}}/api
+  FRONTEND_ORIGIN: {{process.env.FRONTEND_ORIGIN}}
 }
 vars:secret [
   BEARER_TOKEN
