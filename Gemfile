@@ -58,7 +58,7 @@ group :development do
   gem "letter_opener_web", "~> 3.0"
 
   gem "rubocop", "~> 1.75", require: false
-  gem "rubocop-erb", "~> 0.5.5", require: false
+  gem "rubocop-erb", "~> 0.6.0", require: false
   gem "rubocop-factory_bot", "~> 2.27", require: false
   gem "rubocop-performance", "~> 1.25", require: false
   gem "rubocop-rails", "~> 2.31", require: false
