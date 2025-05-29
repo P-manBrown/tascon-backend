@@ -1,49 +1,41 @@
 version: 2
 updates:
-  - package-ecosystem: 'docker'
-    directory: '/Docker/api'
+  - package-ecosystem: "docker"
+    directory: "/Docker/api"
     schedule:
-      interval: 'daily'
-      time: '03:00'
-      timezone: 'Asia/Tokyo'
-    reviewers:
-      - 'P-manBrown'
+      interval: "daily"
+      time: "03:00"
+      timezone: "Asia/Tokyo"
     commit-message:
-      prefix: 'build'
-    target-branch: 'main'
-  - package-ecosystem: 'docker'
-    directory: '/Docker/db'
+      prefix: "build"
+    target-branch: "main"
+  - package-ecosystem: "docker"
+    directory: "/Docker/db"
     schedule:
-      interval: 'daily'
-      time: '03:00'
-      timezone: 'Asia/Tokyo'
-    reviewers:
-      - 'P-manBrown'
+      interval: "daily"
+      time: "03:00"
+      timezone: "Asia/Tokyo"
     ignore:
-      - dependency-name: 'mysql'
-        versions: ['>=8.5']
+      - dependency-name: "mysql"
+        versions: [">=8.5"]
     commit-message:
-      prefix: 'build'
-    target-branch: 'main'
-  - package-ecosystem: 'docker'
-    directory: '/Docker/web'
+      prefix: "build"
+    target-branch: "main"
+  - package-ecosystem: "docker"
+    directory: "/Docker/web"
     schedule:
-      interval: 'daily'
-      time: '03:00'
-      timezone: 'Asia/Tokyo'
-    reviewers:
-      - 'P-manBrown'
+      interval: "daily"
+      time: "03:00"
+      timezone: "Asia/Tokyo"
     commit-message:
-      prefix: 'build'
-    target-branch: 'main'
-  - package-ecosystem: 'bundler'
-    directory: '/'
+      prefix: "build"
+    target-branch: "main"
+  - package-ecosystem: "bundler"
+    directory: "/"
     schedule:
-      interval: 'daily'
-      time: '03:00'
-      timezone: 'Asia/Tokyo'
-    reviewers:
-      - 'P-manBrown'
+      interval: "daily"
+      time: "03:00"
+      timezone: "Asia/Tokyo"
     commit-message:
-      prefix: 'build'
-    target-branch: 'main'
+      prefix: "build"
+    target-branch: "main"
