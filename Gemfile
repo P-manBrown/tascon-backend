@@ -21,7 +21,7 @@ gem "alba", "~> 3.7"
 
 gem "active_storage_validations", "~> 3.0"
 
-gem "devise-i18n", "~> 1.13"
+gem "devise-i18n", "~> 1.14"
 gem "devise_token_auth", "~> 1.2"
 
 gem "omniauth-google-oauth2"
