@@ -11,10 +11,15 @@ module Api
       end
 
       def create
-        @contact = current_api_v1_user.contacts.build(create_contact_params)
+        target_user = User.find_by(email: params[:email], is_private: false)
+
+        return render_user_not_found_error unless target_user
+
+        @contact = current_api_v1_user.contacts.build(create_contact_params.merge(contact_user: target_user))
 
         if @contact.save
-          render json: ContactResource.new(@contact), status: :created, location: api_v1_user_url(@contact.contact_user)
+          render json: ContactResource.new(@contact), status: :created,
+                 location: api_v1_user_url(@contact.contact_user)
         else
           render_validation_error
         end
@@ -35,7 +40,7 @@ module Api
 
       private
         def create_contact_params
-          params.expect(contact: %i[contact_user_id display_name note])
+          params.expect(contact: %i[display_name note])
         end
 
         def update_contact_params
@@ -44,6 +49,15 @@ module Api
 
         def set_contact
           @contact = current_api_v1_user.contacts.find(params[:id])
+        end
+
+        def render_user_not_found_error
+          error_obj = {
+            attribute: "email",
+            type: "not_found",
+            full_message: "メールアドレスのユーザーが見つかりません。"
+          }
+          render json: ErrorResource.new(error_obj), status: :unprocessable_entity
         end
 
         def render_validation_error
