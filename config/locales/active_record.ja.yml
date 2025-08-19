@@ -27,7 +27,7 @@ ja:
         bio: "自己紹介"
       contact:
         contact_user: "対象ユーザー"
-        contact_user_id: "対象ユーザーID"
+        contact_user_id: "対象ユーザー"
         display_name: "表示名"
         note: "メモ"
     models:
