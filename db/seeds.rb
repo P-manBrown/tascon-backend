@@ -40,12 +40,16 @@ Contact.destroy_all
 # Create contacts for test user.
 test_user = User.find_by(email: "test@example.com")
 other_users = User.where.not(id: test_user.id)
-other_users.each do |contact_user|
+other_users.each_with_index do |contact_user, index|
+  is_blocked = (index % 5).zero?
+  blocked_at = is_blocked ? Faker::Time.between(from: 30.days.ago, to: Time.current) : nil
+
   Contact.create!(
     user_id: test_user.id,
     contact_user_id: contact_user.id,
     display_name: Faker::Name.name,
-    note: Faker::Lorem.paragraph(sentence_count: 3)
+    note: Faker::Lorem.paragraph(sentence_count: 3),
+    blocked_at: blocked_at
   )
 rescue ActiveRecord::RecordInvalid
   next
