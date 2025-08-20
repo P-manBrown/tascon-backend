@@ -1,12 +1,12 @@
 meta {
-  name: Destroy
+  name: Unblock
   type: http
-  seq: 6
+  seq: 5
 }
 
-delete {
-  url: {{BASE_URL}}/{{API_VERSION}}/contacts/2
-  body: json
+patch {
+  url: {{BASE_URL}}/{{API_VERSION}}/contacts/1/unblock
+  body: none
   auth: bearer
 }
 

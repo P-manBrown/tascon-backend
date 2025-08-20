@@ -15,7 +15,12 @@ Rails.application.routes.draw do
         resources :users, only: :show do
           get "search", on: :collection
 
-          resources :contacts, except: :show
+          resources :contacts, except: :show do
+            member do
+              patch :block
+              patch :unblock
+            end
+          end
         end
       end
     end

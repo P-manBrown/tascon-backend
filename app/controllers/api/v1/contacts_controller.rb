@@ -1,7 +1,7 @@
 module Api
   module V1
     class ContactsController < ApplicationController
-      before_action :set_contact, only: %i[update destroy]
+      before_action :set_contact, only: %i[update destroy block unblock]
 
       def index
         user_contacts = current_api_v1_user.contacts.includes(contact_user: :avatar_attachment).order(created_at: :DESC)
@@ -36,6 +36,22 @@ module Api
       def destroy
         @contact.destroy
         head :no_content
+      end
+
+      def block
+        if @contact.update(blocked_at: Time.current)
+          render json: ContactResource.new(@contact), status: :ok
+        else
+          render_validation_error
+        end
+      end
+
+      def unblock
+        if @contact.update(blocked_at: nil)
+          render json: ContactResource.new(@contact), status: :ok
+        else
+          render_validation_error
+        end
       end
 
       private

@@ -32,3 +32,5 @@ render_create_error
 render_update_error
 render_destroy_success
 avatar_url
+block
+unblock
