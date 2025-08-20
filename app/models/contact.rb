@@ -7,6 +7,8 @@ class Contact < ApplicationRecord
   validates :note, length: { maximum: 1000 }
   validate :not_self_contact, on: :create
 
+  scope :blocked, -> { where.not(blocked_at: nil) }
+
   def not_self_contact
     return unless user_id == contact_user_id
 

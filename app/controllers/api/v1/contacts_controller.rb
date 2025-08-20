@@ -4,8 +4,17 @@ module Api
       before_action :set_contact, only: %i[update destroy block unblock]
 
       def index
-        user_contacts = current_api_v1_user.contacts.includes(contact_user: :avatar_attachment).order(created_at: :DESC)
+        user_contacts = current_api_v1_user.contacts.includes(contact_user: :avatar_attachment).order(created_at: :desc)
         @pagy, contacts = pagy(user_contacts, limit: 18, overflow: :last_page)
+
+        render json: ContactResource.new(contacts), status: :ok
+      end
+
+      def blocked
+        blocked_contacts = current_api_v1_user.contacts.blocked
+                                              .includes(contact_user: :avatar_attachment)
+                                              .order(blocked_at: :desc)
+        @pagy, contacts = pagy(blocked_contacts, limit: 18, overflow: :last_page)
 
         render json: ContactResource.new(contacts), status: :ok
       end
