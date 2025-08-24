@@ -13,6 +13,10 @@ class User < ApplicationRecord
   has_many :contacts, dependent: :destroy
   has_many :contact_users, through: :contacts
 
+  has_many :reverse_contacts, class_name: "Contact",
+                              foreign_key: "contact_user_id", dependent: :destroy, inverse_of: :contact_user
+  has_many :reverse_contact_users, through: :reverse_contacts, source: :user
+
   validates :name, presence: true, length: { maximum: 255 }
   validates :email, uniqueness: { case_sensitive: false }, length: { maximum: 100 }
   validates :avatar, content_type: { in: %w[image/jpeg image/png] }, size: { less_than_or_equal_to: 2.megabytes },
@@ -34,5 +38,15 @@ class User < ApplicationRecord
     variant = avatar.variant(resize_to_fill: [256, 256], saver: { strip: true })
 
     rails_representation_url(variant.processed, host: ENV.fetch("WEB_HOST"), port: ENV.fetch("WEB_PORT"))
+  end
+
+  def suggestion_users
+    reverse_contact_users.includes(:avatar_attachment)
+                         .where(contacts: { blocked_at: nil })
+                         .where.not(id: contacts.select(:contact_user_id))
+  end
+
+  def suggestion_user_ids
+    suggestion_users.pluck(:id)
   end
 end

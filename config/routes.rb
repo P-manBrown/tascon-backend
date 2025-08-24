@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       shallow do
         resources :users, only: :show do
           get "search", on: :collection
+          get "suggestions", on: :collection
 
           resources :contacts, except: :show do
             get :blocked, on: :collection
