@@ -40,6 +40,18 @@ class User < ApplicationRecord
     rails_representation_url(variant.processed, host: ENV.fetch("WEB_HOST"), port: ENV.fetch("WEB_PORT"))
   end
 
+  def self.find_public_by_email(email)
+    find_by(email: email, is_private: false)
+  end
+
+  def contacts_with_users
+    contacts.includes(contact_user: :avatar_attachment)
+  end
+
+  def blocked_contacts_with_users
+    contacts.blocked.includes(contact_user: :avatar_attachment)
+  end
+
   def suggestion_users
     reverse_contact_users.includes(:avatar_attachment)
                          .where(contacts: { blocked_at: nil })
@@ -48,5 +60,9 @@ class User < ApplicationRecord
 
   def suggestion_user_ids
     suggestion_users.pluck(:id)
+  end
+
+  def find_suggestion_user(contact_user_id)
+    suggestion_users.find_by(id: contact_user_id)
   end
 end

@@ -14,4 +14,8 @@ class Contact < ApplicationRecord
 
     errors.add(:contact_user, "に自分自身は指定できません。")
   end
+
+  def update_blocked_status(blocked)
+    update(blocked_at: blocked ? Time.current : nil)
+  end
 end
