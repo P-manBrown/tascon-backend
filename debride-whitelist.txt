@@ -34,3 +34,5 @@ render_destroy_success
 avatar_url
 block
 unblock
+suggestions
+reverse_contacts
