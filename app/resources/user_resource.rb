@@ -7,7 +7,7 @@ class UserResource < ApplicationResource
     ContactResource.new(params[:current_user_contact], within: :user).to_h
   end
 
-  attribute :is_suggested, if: proc { params[:suggestion_user_ids].present? } do |user|
+  attribute :is_suggested, if: proc { !params[:suggestion_user_ids].nil? } do |user|
     params[:suggestion_user_ids].include?(user.id)
   end
 end
