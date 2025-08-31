@@ -1,7 +1,8 @@
 module Api
   module V1
     class ContactsController < ApplicationController
-      before_action :set_contact, only: %i[update destroy block unblock]
+      before_action :set_contact, only: %i[update destroy]
+      before_action :set_reverse_contact, only: %i[block unblock]
 
       def index
         user_contacts = current_api_v1_user.contacts_with_users.order(created_at: :desc)
@@ -70,6 +71,10 @@ module Api
 
         def set_contact
           @contact = current_api_v1_user.contacts.find(params[:id])
+        end
+
+        def set_reverse_contact
+          @contact = current_api_v1_user.reverse_contacts.find(params[:id])
         end
 
         def find_target_user
