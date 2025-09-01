@@ -410,7 +410,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.44.0, < 2.0)
-    rubocop-rspec (3.6.0)
+    rubocop-rspec (3.7.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
@@ -485,7 +485,7 @@ DEPENDENCIES
   rubocop-factory_bot (~> 2.27)
   rubocop-performance (~> 1.25)
   rubocop-rails (~> 2.33)
-  rubocop-rspec (~> 3.6)
+  rubocop-rspec (~> 3.7)
   tzinfo-data
 
 RUBY VERSION
