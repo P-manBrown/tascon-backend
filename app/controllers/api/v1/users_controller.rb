@@ -6,6 +6,7 @@ module Api
 
         render json: UserResource.new(@user, params: {
           current_user_contact: current_user_contact,
+          current_user_block: current_user_block,
           suggestion_user_ids: current_api_v1_user.suggestion_user_ids
         }), status: :ok
       end
@@ -18,6 +19,7 @@ module Api
         else
           render json: UserResource.new(@user, params: {
             current_user_contact: current_user_contact,
+            current_user_block: current_user_block,
             suggestion_user_ids: current_api_v1_user.suggestion_user_ids
           }), status: :ok
         end
@@ -33,6 +35,10 @@ module Api
       private
         def current_user_contact
           current_api_v1_user.contacts.find_by(contact_user_id: @user.id)
+        end
+
+        def current_user_block
+          current_api_v1_user.blocks.find_by(blocked_id: @user.id)
         end
     end
   end

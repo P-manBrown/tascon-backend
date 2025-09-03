@@ -36,3 +36,4 @@ block
 unblock
 suggestions
 reverse_contacts
+blocker

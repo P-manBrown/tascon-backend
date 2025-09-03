@@ -1,0 +1,25 @@
+meta {
+  name: Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{BASE_URL}}/{{API_VERSION}}/users/1/blocks
+  body: json
+  auth: bearer
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+auth:bearer {
+  token: {{BEARER_TOKEN}}
+}
+
+body:json {
+  {
+      "blocked_id": 2
+  }
+}

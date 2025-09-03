@@ -17,6 +17,10 @@ ja:
               required: "が見つかりません。"
             contact_user_id:
               taken: "はすでに登録されています。"
+        block:
+          attributes:
+            blocked_id:
+              taken: "はすでに登録されています。"
     attributes:
       user:
         current_password: "現在のパスワード"
@@ -30,5 +34,8 @@ ja:
         contact_user_id: "対象ユーザー"
         display_name: "表示名"
         note: "メモ"
+      block:
+        blocked: "対象ユーザー"
+        blocked_id: "対象ユーザー"
     models:
       user: "ユーザー"
