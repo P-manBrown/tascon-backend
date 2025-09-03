@@ -5,11 +5,12 @@ class Contact < ApplicationRecord
   validates :contact_user_id, uniqueness: { scope: :user_id }
   validates :display_name, length: { maximum: 255 }
   validates :note, length: { maximum: 1000 }
-  validate :not_self_contact, on: :create
+  validate :cannot_add_self_contact, on: :create
 
-  def not_self_contact
-    return unless user_id == contact_user_id
+  private
+    def cannot_add_self_contact
+      return unless user_id == contact_user_id
 
-    errors.add(:contact_user, "に自分自身は指定できません。")
-  end
+      errors.add(:contact_user, :cannot_add_self_contact, message: "に自分自身は指定できません。")
+    end
 end
