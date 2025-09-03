@@ -2,18 +2,10 @@ module Api
   module V1
     class ContactsController < ApplicationController
       before_action :set_contact, only: %i[update destroy]
-      before_action :set_reverse_contact, only: %i[block unblock]
 
       def index
-        user_contacts = current_api_v1_user.contacts_with_users.order(created_at: :desc)
+        user_contacts = current_api_v1_user.contacts.includes(contact_user: :avatar_attachment).order(created_at: :desc)
         @pagy, contacts = pagy(user_contacts, limit: 18, overflow: :last_page)
-
-        render json: ContactResource.new(contacts), status: :ok
-      end
-
-      def blocked
-        blocked_contacts = current_api_v1_user.blocked_contacts_with_users.order(blocked_at: :desc)
-        @pagy, contacts = pagy(blocked_contacts, limit: 18, overflow: :last_page)
 
         render json: ContactResource.new(contacts), status: :ok
       end
@@ -44,22 +36,6 @@ module Api
         head :no_content
       end
 
-      def block
-        if @contact.update_blocked_status(true)
-          render json: ContactResource.new(@contact), status: :ok
-        else
-          render_validation_error(@contact.errors)
-        end
-      end
-
-      def unblock
-        if @contact.update_blocked_status(false)
-          render json: ContactResource.new(@contact), status: :ok
-        else
-          render_validation_error(@contact.errors)
-        end
-      end
-
       private
         def create_contact_params
           params.expect(contact: %i[display_name note])
@@ -71,10 +47,6 @@ module Api
 
         def set_contact
           @contact = current_api_v1_user.contacts.find(params[:id])
-        end
-
-        def set_reverse_contact
-          @contact = current_api_v1_user.reverse_contacts.find(params[:id])
         end
 
         def find_target_user
@@ -98,13 +70,13 @@ module Api
         def find_target_user_by_email
           if params[:email].blank?
             render_missing_email_error
-            return
+            return nil
           end
 
-          target_user = User.find_public_by_email(params[:email])
-          if target_user.nil?
+          target_user = User.find_by(email: params[:email], is_private: false)
+          if target_user.nil? || current_api_v1_user.blocked_by?(target_user)
             render_email_user_not_found_error
-            return
+            return nil
           end
 
           target_user

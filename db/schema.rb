@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_20_003627) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_013500) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,6 +39,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_003627) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "blocks", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
+    t.bigint "blocker_id", null: false
+    t.bigint "blocked_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["blocked_id"], name: "index_blocks_on_blocked_id"
+    t.index ["blocker_id", "blocked_id"], name: "index_blocks_on_blocker_id_and_blocked_id", unique: true
+  end
+
   create_table "contacts", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "contact_user_id", null: false
@@ -46,7 +55,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_003627) do
     t.datetime "updated_at", null: false
     t.string "display_name"
     t.text "note"
-    t.timestamp "blocked_at"
     t.index ["contact_user_id"], name: "index_contacts_on_contact_user_id"
     t.index ["user_id", "contact_user_id"], name: "index_contacts_on_user_id_and_contact_user_id", unique: true
     t.index ["user_id"], name: "index_contacts_on_user_id"
@@ -79,6 +87,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_003627) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "blocks", "users", column: "blocked_id"
+  add_foreign_key "blocks", "users", column: "blocker_id"
   add_foreign_key "contacts", "users"
   add_foreign_key "contacts", "users", column: "contact_user_id"
 end

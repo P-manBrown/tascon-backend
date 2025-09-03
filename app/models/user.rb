@@ -17,6 +17,12 @@ class User < ApplicationRecord
                               foreign_key: "contact_user_id", dependent: :destroy, inverse_of: :contact_user
   has_many :reverse_contact_users, through: :reverse_contacts, source: :user
 
+  has_many :blocks, foreign_key: "blocker_id", dependent: :destroy, inverse_of: :blocker
+  has_many :blocked_users, through: :blocks, source: :blocked
+
+  has_many :reverse_blocks, class_name: "Block", foreign_key: "blocked_id", dependent: :destroy, inverse_of: :blocked
+  has_many :blockers, through: :reverse_blocks, source: :blocker
+
   validates :name, presence: true, length: { maximum: 255 }
   validates :email, uniqueness: { case_sensitive: false }, length: { maximum: 100 }
   validates :avatar, content_type: { in: %w[image/jpeg image/png] }, size: { less_than_or_equal_to: 2.megabytes },
@@ -40,22 +46,11 @@ class User < ApplicationRecord
     rails_representation_url(variant.processed, host: ENV.fetch("WEB_HOST"), port: ENV.fetch("WEB_PORT"))
   end
 
-  def self.find_public_by_email(email)
-    find_by(email: email, is_private: false)
-  end
-
-  def contacts_with_users
-    contacts.includes(contact_user: :avatar_attachment)
-  end
-
-  def blocked_contacts_with_users
-    contacts.blocked.includes(contact_user: :avatar_attachment)
-  end
-
   def suggestion_users
     reverse_contact_users.includes(:avatar_attachment)
-                         .where(contacts: { blocked_at: nil })
                          .where.not(id: contacts.select(:contact_user_id))
+                         .where.not(id: blocked_users.select(:id))
+                         .where.not(id: blockers.select(:id))
   end
 
   def suggestion_user_ids
@@ -64,5 +59,9 @@ class User < ApplicationRecord
 
   def find_suggestion_user(contact_user_id)
     suggestion_users.find_by(id: contact_user_id)
+  end
+
+  def blocked_by?(user)
+    reverse_blocks.exists?(blocker: user)
   end
 end

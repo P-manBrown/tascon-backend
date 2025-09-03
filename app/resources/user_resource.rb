@@ -3,8 +3,12 @@ class UserResource < ApplicationResource
 
   attributes :id, :name, :bio, :avatar_url
 
-  attribute :current_user_contact, if: proc { !params[:current_user_contact].nil? } do
+  attribute :contact, if: proc { !params[:current_user_contact].nil? } do
     ContactResource.new(params[:current_user_contact], within: :user).to_h
+  end
+
+  attribute :block, if: proc { !params[:current_user_block].nil? } do
+    BlockResource.new(params[:current_user_block], within: :user).to_h
   end
 
   attribute :is_suggested, if: proc { !params[:suggestion_user_ids].nil? } do |user|

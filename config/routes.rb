@@ -23,6 +23,8 @@ Rails.application.routes.draw do
               patch :unblock
             end
           end
+
+          resources :blocks, only: %i[index create destroy]
         end
       end
     end

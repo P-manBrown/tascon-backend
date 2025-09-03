@@ -7,15 +7,9 @@ class Contact < ApplicationRecord
   validates :note, length: { maximum: 1000 }
   validate :not_self_contact, on: :create
 
-  scope :blocked, -> { where.not(blocked_at: nil) }
-
   def not_self_contact
     return unless user_id == contact_user_id
 
     errors.add(:contact_user, "に自分自身は指定できません。")
-  end
-
-  def update_blocked_status(blocked)
-    update(blocked_at: blocked ? Time.current : nil)
   end
 end
