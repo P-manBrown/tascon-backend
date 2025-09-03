@@ -16,13 +16,7 @@ Rails.application.routes.draw do
           get "search", on: :collection
           get "suggestions", on: :collection
 
-          resources :contacts, except: :show do
-            get :blocked, on: :collection
-            member do
-              patch :block
-              patch :unblock
-            end
-          end
+          resources :contacts, except: :show
 
           resources :blocks, only: %i[index create destroy]
         end
