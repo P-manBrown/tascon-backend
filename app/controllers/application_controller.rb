@@ -35,4 +35,14 @@ class ApplicationController < ActionController::API
     def render_validation_error(errors)
       render json: ErrorResource.new(errors), status: :unprocessable_entity
     end
+
+    def set_user
+      @user = User.find(params[:user_id])
+    end
+
+    def authorize_user_access
+      return if @user == current_api_v1_user
+
+      head :forbidden
+    end
 end
