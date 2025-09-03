@@ -32,16 +32,6 @@ module Api
         def create_block_params
           params.expect(block: %i[blocked_id])
         end
-
-        def set_user
-          @user = User.find(params[:user_id])
-        end
-
-        def authorize_user_access
-          return if @user == current_api_v1_user
-
-          head :forbidden
-        end
     end
   end
 end
