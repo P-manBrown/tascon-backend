@@ -11,20 +11,6 @@ module Api
         }), status: :ok
       end
 
-      def search
-        @user = User.find_by(email: params[:email], is_private: false)
-
-        if @user.nil?
-          render json: {}, status: :ok
-        else
-          render json: UserResource.new(@user, params: {
-            current_user_contact: current_user_contact,
-            current_user_block: current_user_block,
-            suggestion_user_ids: current_api_v1_user.suggestion_user_ids
-          }), status: :ok
-        end
-      end
-
       def suggestions
         suggestion_users = current_api_v1_user.suggestion_users
         @pagy, users = pagy(suggestion_users, limit: 18, overflow: :last_page)
