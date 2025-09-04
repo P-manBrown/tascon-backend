@@ -2,6 +2,8 @@ module Api
   module V1
     module Auth
       class PasswordsController < DeviseTokenAuth::PasswordsController
+        include ErrorRendering
+
         def update
           super do |resource|
             # See https://is.gd/DNCnRT
@@ -53,7 +55,7 @@ module Api
           end
 
           def render_update_error
-            render json: ErrorResource.new(@resource.errors), status: :unprocessable_entity
+            render_validation_error(@resource.errors)
           end
       end
     end

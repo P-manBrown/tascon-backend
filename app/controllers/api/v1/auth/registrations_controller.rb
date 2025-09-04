@@ -2,6 +2,8 @@ module Api
   module V1
     module Auth
       class RegistrationsController < DeviseTokenAuth::RegistrationsController
+        include ErrorRendering
+
         # See https://github.com/lynndylanhurley/devise_token_auth/issues/432
         prepend_before_action :configure_permitted_parameters
 
@@ -38,7 +40,7 @@ module Api
           end
 
           def render_create_error
-            render json: ErrorResource.new(@resource.errors), status: :unprocessable_entity
+            render_validation_error(@resource.errors)
           end
 
           def render_update_success
@@ -46,7 +48,7 @@ module Api
           end
 
           def render_update_error
-            render json: ErrorResource.new(@resource.errors), status: :unprocessable_entity
+            render_validation_error(@resource.errors)
           end
 
           def render_destroy_success

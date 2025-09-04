@@ -85,15 +85,15 @@ module Api
         end
 
         def render_missing_email_error
-          render_custom_error attribute: "email", type: "blank", message: "メールアドレスを入力してください。"
+          render_custom_error source: "email", type: "blank", message: "メールアドレスを入力してください。"
         end
 
         def render_email_user_not_found_error
-          render_custom_error attribute: "email", type: "not_found", message: "メールアドレスのユーザーが見つかりません。"
+          render_custom_error source: "email", type: "not_found", message: "メールアドレスのユーザーが見つかりません。"
         end
 
         def render_contact_user_id_not_allowed_error
-          render_custom_error attribute: "contact_user_id", type: "not_allowed", message: "メールアドレスで登録してください。"
+          render_custom_error source: "contact_user_id", type: "not_allowed", message: "メールアドレスで登録してください。"
         end
     end
   end
