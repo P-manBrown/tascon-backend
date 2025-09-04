@@ -7,6 +7,7 @@ class ApplicationController < ActionController::API
 
   include DeviseTokenAuth::Concerns::SetUserByToken
   include Pagy::Backend
+  include ErrorRendering
 
   private
     def delete_user_session
@@ -21,19 +22,6 @@ class ApplicationController < ActionController::API
 
     def merge_pagy_headers
       pagy_headers_merge(@pagy)
-    end
-
-    def render_custom_error(attribute:, type:, message:, status: :unprocessable_entity)
-      error = {
-        attribute: attribute,
-        type: type,
-        full_message: message
-      }
-      render json: ErrorResource.new(error), status: status
-    end
-
-    def render_validation_error(errors)
-      render json: ErrorResource.new(errors), status: :unprocessable_entity
     end
 
     def set_user
