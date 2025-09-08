@@ -13,16 +13,15 @@ module Api
       end
 
       def create
-        target_user = find_target_user
-        return if target_user.nil?
-
-        contact = @user.contacts.build(create_contact_params.merge(contact_user: target_user))
-
-        if contact.save
-          render json: ContactResource.new(contact), status: :created, location: api_v1_user_url(contact.contact_user)
-        else
+        contact = @user.contacts.build(create_contact_params)
+        if contact.invalid?
           render_validation_error(contact.errors)
+          return
         end
+        return unless contact_user_access_allowed?(contact.contact_user)
+
+        contact.save!
+        render json: ContactResource.new(contact), status: :created, location: api_v1_user_url(contact.contact_user)
       end
 
       def update
@@ -40,7 +39,7 @@ module Api
 
       private
         def create_contact_params
-          params.expect(contact: %i[display_name note])
+          params.expect(contact: %i[contact_user_id display_name note])
         end
 
         def update_contact_params
@@ -51,49 +50,28 @@ module Api
           @contact = current_api_v1_user.contacts.find(params[:id])
         end
 
-        def find_target_user
-          if params[:contact_user_id].present? && params[:email].blank?
-            find_target_user_by_id
-          else
-            find_target_user_by_email
-          end
-        end
+        def contact_user_access_allowed?(contact_user)
+          return true if @user.suggestion_users.exists?(contact_user.id)
 
-        def find_target_user_by_id
-          target_user = @user.find_suggestion_user(params[:contact_user_id])
-          if target_user.nil?
-            render_contact_user_id_not_allowed_error
-            return
-          end
-
-          target_user
-        end
-
-        def find_target_user_by_email
           if params[:email].blank?
-            render_missing_email_error
-            return nil
+            render_contact_user_id_not_allowed_error
+            return false
           end
 
-          target_user = User.find_by(email: params[:email], is_private: false)
-          if target_user.nil? || @user.blocked_by?(target_user)
+          if params[:email] != contact_user.email || contact_user.is_private? || @user.blocked_by?(contact_user)
             render_email_user_not_found_error
-            return nil
+            return false
           end
 
-          target_user
-        end
-
-        def render_missing_email_error
-          render_custom_error source: "email", type: "blank", message: "メールアドレスを入力してください。"
-        end
-
-        def render_email_user_not_found_error
-          render_custom_error source: "email", type: "not_found", message: "メールアドレスのユーザーが見つかりません。"
+          true
         end
 
         def render_contact_user_id_not_allowed_error
           render_custom_error source: "contact_user_id", type: "not_allowed", message: "メールアドレスで登録してください。"
+        end
+
+        def render_email_user_not_found_error
+          render_custom_error source: "email", type: "not_found", message: "メールアドレスのユーザーが見つかりません。"
         end
     end
   end
