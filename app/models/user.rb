@@ -57,10 +57,6 @@ class User < ApplicationRecord
     suggestion_users.pluck(:id)
   end
 
-  def find_suggestion_user(contact_user_id)
-    suggestion_users.find_by(id: contact_user_id)
-  end
-
   def blocked_by?(user)
     reverse_blocks.exists?(blocker: user)
   end
