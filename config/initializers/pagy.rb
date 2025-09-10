@@ -9,7 +9,7 @@
 # You can set any pagy variable as a Pagy::DEFAULT. They can also be overridden per instance by just passing them to
 # Pagy.new|Pagy::Countless.new|Pagy::Calendar::*.new or any of the #pagy* controller methods
 # Here are the few that make more sense as DEFAULTs:
-# Pagy::DEFAULT[:limit]       = 20                    # default
+Pagy::DEFAULT[:limit] = 18
 # Pagy::DEFAULT[:size]        = 7                     # default
 # Pagy::DEFAULT[:ends]        = true                  # default
 # Pagy::DEFAULT[:page_param]  = :page                 # default
@@ -137,11 +137,11 @@ Pagy::DEFAULT[:headers] = { page: "Current-Page",
 
 # Limit extra: Allow the client to request a custom limit per page with an optional selector UI
 # See https://ddnexus.github.io/pagy/docs/extras/limit
-# require 'pagy/extras/limit'
+require "pagy/extras/limit"
 # set to false only if you want to make :limit_extra an opt-in variable
-# Pagy::DEFAULT[:limit_extra] = false    # default true
-# Pagy::DEFAULT[:limit_param] = :limit   # default
-# Pagy::DEFAULT[:limit_max]   = 100      # default
+Pagy::DEFAULT[:limit_extra] = true     # default true
+Pagy::DEFAULT[:limit_param] = :limit   # default
+Pagy::DEFAULT[:limit_max]   = 100      # default
 
 # Overflow extra: Allow for easy handling of overflowing pages
 # See https://ddnexus.github.io/pagy/docs/extras/overflow

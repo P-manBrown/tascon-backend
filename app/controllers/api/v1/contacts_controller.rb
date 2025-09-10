@@ -7,7 +7,7 @@ module Api
 
       def index
         user_contacts = @user.contacts.includes(contact_user: :avatar_attachment).order(created_at: :desc)
-        @pagy, contacts = pagy(user_contacts, limit: 18, overflow: :last_page)
+        @pagy, contacts = pagy(user_contacts, overflow: :last_page)
 
         render json: ContactResource.new(contacts), status: :ok
       end

@@ -13,7 +13,7 @@ module Api
 
       def suggestions
         suggestion_users = current_api_v1_user.suggestion_users
-        @pagy, users = pagy(suggestion_users, limit: 18, overflow: :last_page)
+        @pagy, users = pagy(suggestion_users, overflow: :last_page)
 
         render json: UserResource.new(users), status: :ok
       end

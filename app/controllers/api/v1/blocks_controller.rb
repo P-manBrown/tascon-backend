@@ -7,7 +7,7 @@ module Api
       def index
         user_blocks = @user.blocks.includes(blocked: :avatar_attachment).order(created_at: :desc)
 
-        @pagy, blocks = pagy(user_blocks, limit: 18, overflow: :last_page)
+        @pagy, blocks = pagy(user_blocks, overflow: :last_page)
         render json: BlockResource.new(blocks), status: :ok
       end
 

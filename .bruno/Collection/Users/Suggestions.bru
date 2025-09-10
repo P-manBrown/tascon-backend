@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{BASE_URL}}/{{API_VERSION}}/users/suggestions?page=1
+  url: {{BASE_URL}}/{{API_VERSION}}/users/suggestions?page=1&limit=6
   body: none
   auth: bearer
 }
 
 params:query {
   page: 1
+  limit: 6
 }
 
 auth:bearer {
