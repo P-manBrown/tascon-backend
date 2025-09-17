@@ -37,3 +37,4 @@ unblock
 suggestions
 reverse_contacts
 blocker
+cannot_add_blocked_user

@@ -13,38 +13,45 @@
 # Delete all users.
 User.destroy_all
 # Create a user with a fixed password.
-User.create!(
+test_user = User.create!(
   name: "テスト ユーザー",
   email: "test@example.com",
   password: "sample",
   password_confirmation: "sample",
   confirmed_at: Time.current
 )
-# Create 100 users.
-100.times do
+
+# Create 300 users.
+created_users = []
+300.times do |_i|
   password = Faker::Alphanumeric.alphanumeric(number: 10)
 
-  User.create!(
+  user = User.create!(
     name: Faker::Name.name,
     email: Faker::Internet.unique.email,
     password: password,
     password_confirmation: password,
-    is_private: Faker::Boolean.boolean,
+    is_private: Faker::Boolean.boolean(true_ratio: 0.2), # rubocop:disable Rails/ThreeStateBooleanColumn
     bio: Faker::Lorem.paragraph(sentence_count: 10),
     confirmed_at: Time.current
   )
+  created_users << user
 end
 
 # Delete all contacts.
 Contact.destroy_all
 
-# Create contacts for test user with specific relationship patterns
-test_user = User.find_by(email: "test@example.com")
-User.where.not(id: test_user.id)
-public_users = User.where(is_private: false).where.not(id: test_user.id)
+# Define user groups with clear separation to prevent data conflicts
+contact_users = created_users[0, 100]        # First 100 users for contact relationships
+block_users = created_users[100, 100]        # Second 100 users for block relationships
+other_users = created_users[200, 100]        # Third 100 users for future features
 
+# Filter for public users only
+contact_public_users = contact_users.reject(&:is_private?)
+
+# Create contacts for test user with specific relationship patterns using ONLY contact group users
 # Test user -> other users (unidirectional relationship)
-reverse_only_users = public_users.limit(25)
+reverse_only_users = contact_public_users.take(25)
 Rails.logger.debug "Creating reverse-only relationships (test_user -> others)..."
 reverse_only_users.each do |contact_user|
   Contact.create!(
@@ -60,7 +67,7 @@ end
 
 # Unidirectional relationship (other users -> test user)
 Rails.logger.debug "Creating unidirectional relationships (others -> test_user)..."
-unidirectional_users = public_users.offset(35).limit(8)
+unidirectional_users = contact_public_users.drop(25).take(25)
 unidirectional_users.each do |user|
   Contact.create!(
     user_id: user.id,
@@ -75,7 +82,8 @@ end
 
 # Mutual relationship (test user <-> other users)
 Rails.logger.debug "Creating mutual relationships (test_user <-> others)..."
-mutual_users = public_users.offset(25).limit(10)
+remaining_contact_users = contact_public_users.drop(50)
+mutual_users = remaining_contact_users.take([remaining_contact_users.count, 25].min)
 mutual_users.each do |user|
   # Test user -> other users (create forward direction)
   Contact.create!(
@@ -115,12 +123,15 @@ Rails.logger.debug do
   === Generating block relationships test data ==="
 end
 
-# Get users for block relationship patterns.
-all_other_public_users = public_users.where.not(id: test_user.id)
+# Delete all blocks.
+Block.destroy_all
 
-# Test user blocks other users (one-way block: test_user -> others) - 20 users
+# Filter for public users in block group only
+block_public_users = block_users.reject(&:is_private?)
+
+# Test user blocks other users (one-way block: test_user -> others) using ONLY block group users
 Rails.logger.debug "Creating one-way blocks (test_user blocks others)..."
-blocked_by_test_users = all_other_public_users.limit(20)
+blocked_by_test_users = block_public_users.take(25)
 blocked_by_test_users.each do |blocked_user|
   Block.create!(
     blocker_id: test_user.id,
@@ -131,9 +142,9 @@ rescue ActiveRecord::RecordInvalid => e
   next
 end
 
-# Other users block test user (one-way block: others -> test_user) - 20 users
+# Other users block test user (one-way block: others -> test_user)
 Rails.logger.debug "Creating reverse one-way blocks (others block test_user)..."
-blockers_of_test_user = all_other_public_users.offset(20).limit(20)
+blockers_of_test_user = block_public_users.drop(25).take(25)
 blockers_of_test_user.each do |blocker_user|
   Block.create!(
     blocker_id: blocker_user.id,
@@ -144,9 +155,10 @@ rescue ActiveRecord::RecordInvalid => e
   next
 end
 
-# Mutual blocking (both directions) - 10 users (20 block records)
+# Mutual blocking (both directions)
 Rails.logger.debug "Creating mutual blocks (bidirectional blocking)..."
-mutual_block_users = all_other_public_users.offset(40).limit(10)
+remaining_block_users = block_public_users.drop(50)
+mutual_block_users = remaining_block_users.take([remaining_block_users.count, 25].min)
 mutual_block_users.each do |mutual_user|
   # Test user blocks the other user
   Block.create!(
@@ -166,22 +178,22 @@ end
 
 # No blocking relationship (reference users - these have no blocks with test_user)
 Rails.logger.debug "Identifying non-blocked users (no blocking relationship)..."
-non_blocked_users = all_other_public_users.offset(50).limit(50)
-Rails.logger.debug { "Non-blocked users: #{non_blocked_users.count} users (these have no block relationship)" }
+other_public_users = other_users.reject(&:is_private?)
+Rails.logger.debug { "Non-blocked users: #{other_public_users.count} users (these have no block relationship)" }
 
 Rails.logger.debug do
   "
 === Block relationship pattern creation completed ==="
 end
-Rails.logger.debug { "- Test user blocks others: #{blocked_by_test_users.count} users (20 blocks)" }
-Rails.logger.debug { "- Others block test user: #{blockers_of_test_user.count} users (20 blocks)" }
-Rails.logger.debug { "- Mutual blocking: #{mutual_block_users.count} users (20 blocks)" }
-Rails.logger.debug { "- No blocking relationship: #{non_blocked_users.count} users" }
+Rails.logger.debug { "- Test user blocks others: #{blocked_by_test_users.count} users" }
+Rails.logger.debug { "- Others block test user: #{blockers_of_test_user.count} users" }
+Rails.logger.debug { "- Mutual blocking: #{mutual_block_users.count} users" }
+Rails.logger.debug { "- No blocking relationship: #{other_public_users.count} users" }
 
 Rails.logger.debug do
   "
 === Block functionality test data generation completed ==="
 end
 Rails.logger.debug do
-  "Total blocks created: #{Block.count} block relationships (Target: 60 blocks)"
+  "Total blocks created: #{Block.count} block relationships"
 end
