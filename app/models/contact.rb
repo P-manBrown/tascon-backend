@@ -15,7 +15,7 @@ class Contact < ApplicationRecord
     end
 
     def cannot_add_blocked_user
-      return unless user.blocked_users.exists?(contact_user.id)
+      return unless user.blocks.exists?(blocked_id: contact_user_id)
 
       errors.add(:contact_user, :cannot_add_blocked_user, message: "はブロックしているため登録できません。")
     end
