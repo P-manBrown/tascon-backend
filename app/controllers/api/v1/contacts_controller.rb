@@ -13,15 +13,17 @@ module Api
       end
 
       def create
-        contact = @user.contacts.build(create_contact_params)
-        if contact.invalid?
-          render_validation_error(contact.errors)
-          return
-        end
-        return unless contact_user_access_allowed?(contact.contact_user)
+        contact = build_contact
+        return if contact.nil?
 
-        contact.save!
-        render json: ContactResource.new(contact), status: :created, location: api_v1_user_url(contact.contact_user)
+        contact_user = contact.contact_user
+        return if contact_user.present? && !contact_user_exists?(contact_user) && !contact_user_valid?(contact_user)
+
+        if contact.save
+          render json: ContactResource.new(contact), status: :created, location: api_v1_user_url(contact_user)
+        else
+          render_validation_error(contact.errors)
+        end
       end
 
       def update
@@ -50,28 +52,70 @@ module Api
           @contact = current_api_v1_user.contacts.find(params[:id])
         end
 
-        def contact_user_access_allowed?(contact_user)
-          return true if @user.suggestion_users.exists?(contact_user.id)
+        def build_contact
+          return @user.contacts.build(create_contact_params) if params[:contact_user_id].present?
 
-          if params[:email].blank?
-            render_contact_user_id_not_allowed_error
-            return false
+          target_user = find_user_by_email
+          if target_user.nil?
+            render_registration_failed_error
+            return nil
           end
+          @user.contacts.build(create_contact_params.merge(contact_user_id: target_user.id))
+        end
 
-          if params[:email] != contact_user.email || contact_user.is_private? || @user.blocked_by?(contact_user)
-            render_email_user_not_found_error
+        def find_user_by_email
+          return nil if params[:email].blank?
+
+          User.find_by(email: params[:email])
+        end
+
+        def contact_user_exists?(contact_user)
+          @user.contacts.exists?(contact_user: contact_user)
+        end
+
+        def contact_user_valid?(contact_user)
+          return registrable_by_id?(contact_user) if params[:email].blank?
+
+          if params[:contact_user_id].present? && params[:email].present?
+            email_consistent?(contact_user) && accessible?(contact_user)
+          else
+            accessible?(contact_user)
+          end
+        end
+
+        def registrable_by_id?(contact_user)
+          unless @user.suggestion_users.exists?(contact_user.id)
+            render_email_required_error
             return false
           end
 
           true
         end
 
-        def render_contact_user_id_not_allowed_error
-          render_custom_error source: "contact_user_id", type: "not_allowed", message: "メールアドレスで登録してください。"
+        def email_consistent?(contact_user)
+          if params[:email] != contact_user.email
+            render_registration_failed_error
+            return false
+          end
+
+          true
         end
 
-        def render_email_user_not_found_error
-          render_custom_error source: "email", type: "not_found", message: "メールアドレスのユーザーが見つかりません。"
+        def accessible?(contact_user)
+          if contact_user.is_private? || @user.blocked_by?(contact_user)
+            render_registration_failed_error
+            return false
+          end
+
+          true
+        end
+
+        def render_registration_failed_error
+          render_custom_error source: "contact_user", type: "invalid", message: "ユーザーを登録できませんでした。"
+        end
+
+        def render_email_required_error
+          render_custom_error source: "email", type: "required", message: "メールアドレスが必要です。"
         end
     end
   end
