@@ -20,7 +20,7 @@ ja:
         block:
           attributes:
             blocked_id:
-              taken: "はすでに登録されています。"
+              taken: "はすでにブロックされています。"
     attributes:
       user:
         current_password: "現在のパスワード"
