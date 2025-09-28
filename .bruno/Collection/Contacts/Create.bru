@@ -7,15 +7,11 @@ meta {
 post {
   url: {{BASE_URL}}/{{API_VERSION}}/users/1/contacts
   body: json
-  auth: bearer
+  auth: inherit
 }
 
 headers {
   Origin: {{FRONTEND_ORIGIN}}
-}
-
-auth:bearer {
-  token: {{BEARER_TOKEN}}
 }
 
 body:json {
