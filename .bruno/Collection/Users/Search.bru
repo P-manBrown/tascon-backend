@@ -7,11 +7,7 @@ meta {
 get {
   url: {{BASE_URL}}/{{API_VERSION}}/users/search
   body: json
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{BEARER_TOKEN}}
+  auth: inherit
 }
 
 body:json {
