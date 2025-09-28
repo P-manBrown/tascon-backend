@@ -7,16 +7,12 @@ meta {
 get {
   url: {{BASE_URL}}/{{API_VERSION}}/users/suggestions?page=1&limit=6
   body: none
-  auth: bearer
+  auth: inherit
 }
 
 params:query {
   page: 1
   limit: 6
-}
-
-auth:bearer {
-  token: {{BEARER_TOKEN}}
 }
 
 settings {

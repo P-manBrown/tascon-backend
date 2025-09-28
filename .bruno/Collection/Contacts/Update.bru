@@ -7,15 +7,11 @@ meta {
 patch {
   url: {{BASE_URL}}/{{API_VERSION}}/contacts/1
   body: json
-  auth: bearer
+  auth: inherit
 }
 
 headers {
   Origin: {{FRONTEND_ORIGIN}}
-}
-
-auth:bearer {
-  token: {{BEARER_TOKEN}}
 }
 
 body:json {
