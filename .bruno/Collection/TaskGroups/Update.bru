@@ -1,0 +1,27 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{BASE_URL}}/{{API_VERSION}}/task_groups/1
+  body: json
+  auth: inherit
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+body:json {
+  {
+    "name": "更新されたタスクグループ",
+    "icon": "1f525",
+    "note": "最後にＫはまたそれ以上の病気は最後の一撃を待つ間際まで進んで来てくれました。ただしその意味は私にも全くの意外に相違なかったが。お嬢さんは私の問いに答えようとはしませんでした。奥さんは大方極りが悪いのだろうと思うが、父の病気はそれほど苦にならなかったのです。ついそれなりにして、ひょいと留まりました。私と妻とは元の通りの私ならば、私のためにこんな自白を私に聞いた。"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
