@@ -23,6 +23,16 @@ module Api
         end
       end
 
+      def update
+        task_group = current_api_v1_user.task_groups.find(params[:id])
+
+        if task_group.update(task_group_params)
+          render json: TaskGroupResource.new(task_group), status: :ok
+        else
+          render_validation_error(task_group.errors)
+        end
+      end
+
       private
         def task_group_params
           params.expect(task_group: %i[name icon note])
