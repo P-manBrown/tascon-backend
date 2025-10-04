@@ -37,5 +37,9 @@ ja:
       block:
         blocked: "対象ユーザー"
         blocked_id: "対象ユーザー"
+      task_group:
+        name: "グループ名"
+        icon: "アイコン"
+        note: "メモ"
     models:
       user: "ユーザー"
