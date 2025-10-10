@@ -19,6 +19,8 @@ Rails.application.routes.draw do
 
           resources :blocks, only: %i[index create destroy]
         end
+
+        resources :task_groups, only: %i[index]
       end
     end
   end
