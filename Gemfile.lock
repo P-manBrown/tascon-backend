@@ -289,7 +289,7 @@ GEM
       date
       stringio
     public_suffix (6.0.1)
-    puma (7.0.4)
+    puma (7.1.0)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.1)
@@ -474,7 +474,7 @@ DEPENDENCIES
   omniauth-google-oauth2
   omniauth-twitter (~> 1.4)
   pagy (~> 9.4)
-  puma (~> 7.0)
+  puma (~> 7.1)
   rack-cors (~> 3.0)
   rails (~> 8.0.3)
   rails-i18n (~> 8.0)
