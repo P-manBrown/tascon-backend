@@ -1,6 +1,8 @@
 module Api
   module V1
     class TaskGroupsController < ApplicationController
+      before_action :set_task_group, only: %i[show update destroy]
+
       def index
         task_groups = current_api_v1_user.task_groups.order(created_at: :desc)
 
@@ -8,9 +10,7 @@ module Api
       end
 
       def show
-        task_group = current_api_v1_user.task_groups.find(params[:id])
-
-        render json: TaskGroupResource.new(task_group), status: :ok
+        render json: TaskGroupResource.new(@task_group), status: :ok
       end
 
       def create
@@ -24,25 +24,25 @@ module Api
       end
 
       def update
-        task_group = current_api_v1_user.task_groups.find(params[:id])
-
-        if task_group.update(task_group_params)
-          render json: TaskGroupResource.new(task_group), status: :ok
+        if @task_group.update(task_group_params)
+          render json: TaskGroupResource.new(@task_group), status: :ok
         else
-          render_validation_error(task_group.errors)
+          render_validation_error(@task_group.errors)
         end
       end
 
       def destroy
-        task_group = current_api_v1_user.task_groups.find(params[:id])
-        task_group.destroy
-
+        @task_group.destroy
         head :no_content
       end
 
       private
         def task_group_params
           params.expect(task_group: %i[name icon note])
+        end
+
+        def set_task_group
+          @task_group = current_api_v1_user.task_groups.find(params[:id])
         end
     end
   end
