@@ -12,6 +12,21 @@ module Api
 
         render json: TaskGroupResource.new(task_group), status: :ok
       end
+
+      def create
+        task_group = current_api_v1_user.task_groups.build(task_group_params)
+
+        if task_group.save
+          render json: TaskGroupResource.new(task_group), status: :created, location: api_v1_task_group_url(task_group)
+        else
+          render_validation_error(task_group.errors)
+        end
+      end
+
+      private
+        def task_group_params
+          params.expect(task_group: %i[name icon note])
+        end
     end
   end
 end
