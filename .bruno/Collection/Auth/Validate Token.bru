@@ -7,9 +7,5 @@ meta {
 get {
   url: {{BASE_URL}}/{{API_VERSION}}/auth/validate_token
   body: none
-  auth: bearer
-}
-
-auth:bearer {
-  token: {{BEARER_TOKEN}}
+  auth: inherit
 }

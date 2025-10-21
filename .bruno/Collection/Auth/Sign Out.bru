@@ -7,13 +7,9 @@ meta {
 delete {
   url: {{BASE_URL}}/{{API_VERSION}}/auth/sign_out
   body: none
-  auth: bearer
+  auth: inherit
 }
 
 headers {
   Origin: {{FRONTEND_ORIGIN}}
-}
-
-auth:bearer {
-  token: {{BEARER_TOKEN}}
 }
