@@ -33,6 +33,13 @@ module Api
         end
       end
 
+      def destroy
+        task_group = current_api_v1_user.task_groups.find(params[:id])
+        task_group.destroy
+
+        head :no_content
+      end
+
       private
         def task_group_params
           params.expect(task_group: %i[name icon note])
