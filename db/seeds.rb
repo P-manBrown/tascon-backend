@@ -197,3 +197,43 @@ end
 Rails.logger.debug do
   "Total blocks created: #{Block.count} block relationships"
 end
+
+Rails.logger.debug do
+  "
+=== Generating TaskGroups ==="
+end
+
+# Delete all task_groups.
+TaskGroup.destroy_all
+
+Rails.logger.debug "Creating task groups for all users..."
+
+emoji_codepoints = %w[
+  1f423 1f525 1f4a1 1f680 1f3af 1f4da 1f4bb 1f4ca 1f3a8 1f3b5
+  1f4dd 1f4c5 1f514 1f4ce 1f4cc 1f3c6 1f451 1f48e 1f381 1f389
+  2b50 2764 1f31f 1f4ab 1f4af 1f44d 1f389 1f38a 1f38b 1f38c
+]
+
+([test_user] + created_users).each do |user|
+  15.times do
+    emoji_codepoint = emoji_codepoints.sample
+
+    TaskGroup.create!(
+      user: user,
+      name: Faker::Hobby.activity,
+      icon: emoji_codepoint,
+      note: Faker::Lorem.paragraph(sentence_count: 20)
+    )
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.debug { "TaskGroup creation failed: #{e.message}" }
+    next
+  end
+end
+
+Rails.logger.debug do
+  "
+=== TaskGroups generation completed ==="
+end
+Rails.logger.debug { "Total task groups created: #{TaskGroup.count} task groups" }
+Rails.logger.debug { "Test user task groups: #{test_user.task_groups.count}" }
+Rails.logger.debug { "Average task groups per user: #{TaskGroup.count / User.count}" }
