@@ -24,7 +24,7 @@ module Api
       def destroy
         block = current_api_v1_user.blocks.find(params[:id])
 
-        block.destroy
+        block.destroy!
         head :no_content
       end
 

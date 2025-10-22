@@ -32,7 +32,7 @@ module Api
       end
 
       def destroy
-        @task_group.destroy
+        @task_group.destroy!
         head :no_content
       end
 

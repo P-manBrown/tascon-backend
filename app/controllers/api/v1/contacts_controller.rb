@@ -35,7 +35,7 @@ module Api
       end
 
       def destroy
-        @contact.destroy
+        @contact.destroy!
         head :no_content
       end
 
