@@ -32,7 +32,7 @@ gem "pagy", "~> 9.4"
 gem "rails-i18n", "~> 8.0"
 
 group :development, :test do
-  gem "bullet", "~> 8.0"
+  gem "bullet", "~> 8.1"
 
   gem "dotenv-rails", "~> 3.1"
 
