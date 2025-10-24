@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_26_101930) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_24_000801) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -70,6 +70,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_26_101930) do
     t.index ["user_id"], name: "index_task_groups_on_user_id"
   end
 
+  create_table "tasks", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
+    t.bigint "task_group_id", null: false
+    t.string "name", null: false
+    t.datetime "starts_at"
+    t.datetime "ends_at"
+    t.integer "duration"
+    t.text "note"
+    t.boolean "is_completed", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["task_group_id"], name: "index_tasks_on_task_group_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
@@ -102,4 +115,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_26_101930) do
   add_foreign_key "contacts", "users"
   add_foreign_key "contacts", "users", column: "contact_user_id"
   add_foreign_key "task_groups", "users"
+  add_foreign_key "tasks", "task_groups"
 end
