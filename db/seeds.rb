@@ -237,3 +237,60 @@ end
 Rails.logger.debug { "Total task groups created: #{TaskGroup.count} task groups" }
 Rails.logger.debug { "Test user task groups: #{test_user.task_groups.count}" }
 Rails.logger.debug { "Average task groups per user: #{TaskGroup.count / User.count}" }
+
+Rails.logger.debug do
+  "
+=== Generating Tasks ==="
+end
+
+# Delete all tasks.
+Task.destroy_all
+
+Rails.logger.debug "Creating tasks for all task groups..."
+
+# rubocop:disable Metrics/BlockLength
+TaskGroup.find_each do |task_group|
+  20.times do
+    starts_at = if Faker::Boolean.boolean(true_ratio: 0.7) # rubocop:disable Rails/ThreeStateBooleanColumn
+      Faker::Time.between(from: 30.days.ago,
+                          to: 30.days.from_now)
+    end
+
+    ends_at = (starts_at + rand(1..8).hours if starts_at.present? && Faker::Boolean.boolean(true_ratio: 0.6)) # rubocop:disable Rails/ThreeStateBooleanColumn
+
+    # rubocop:disable Rails/ThreeStateBooleanColumn
+    time_spent = Faker::Boolean.boolean(true_ratio: 0.7) ? [15, 30, 45, 60, 90, 120, 180, 240, 480].sample : nil
+
+    estimated_minutes = if Faker::Boolean.boolean(true_ratio: 0.8)
+      [30, 60, 90, 120, 180, 240, 360, 480,
+       600].sample
+    end
+    # rubocop:enable Rails/ThreeStateBooleanColumn
+
+    is_completed = Faker::Boolean.boolean(true_ratio: 0.4) # rubocop:disable Rails/ThreeStateBooleanColumn
+
+    Task.create!(
+      task_group: task_group,
+      name: Faker::Hobby.activity,
+      starts_at: starts_at,
+      ends_at: ends_at,
+      time_spent: time_spent,
+      estimated_minutes: estimated_minutes,
+      note: Faker::Lorem.paragraph(sentence_count: 5),
+      is_completed: is_completed
+    )
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.debug { "Task creation failed: #{e.message}" }
+    next
+  end
+end
+# rubocop:enable Metrics/BlockLength
+
+Rails.logger.debug do
+  "
+=== Tasks generation completed ==="
+end
+Rails.logger.debug { "Total tasks created: #{Task.count} tasks" }
+Rails.logger.debug { "Average tasks per task group: #{Task.count / TaskGroup.count}" }
+Rails.logger.debug { "Completed tasks: #{Task.where(is_completed: true).count}" }
+Rails.logger.debug { "Incomplete tasks: #{Task.where(is_completed: false).count}" }
