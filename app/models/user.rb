@@ -24,6 +24,7 @@ class User < ApplicationRecord
   has_many :blockers, through: :reverse_blocks, source: :blocker
 
   has_many :task_groups, dependent: :destroy
+  has_many :tasks, through: :task_groups
 
   validates :name, presence: true, length: { maximum: 255 }
   validates :email, uniqueness: { case_sensitive: false }, length: { maximum: 100 }
