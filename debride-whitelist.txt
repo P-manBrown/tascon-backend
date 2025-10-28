@@ -40,3 +40,5 @@ blocker
 cannot_add_blocked_user
 cannot_block_contact
 destroy
+task_group
+tasks
