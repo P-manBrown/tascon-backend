@@ -29,7 +29,7 @@ gem "omniauth-twitter", "~> 1.4"
 
 gem "pagy", "~> 9.4"
 
-gem "rails-i18n", "~> 8.0"
+gem "rails-i18n", "~> 8.1"
 
 group :development, :test do
   gem "bullet", "~> 8.1"
