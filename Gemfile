@@ -27,7 +27,7 @@ gem "devise_token_auth", "~> 1.2"
 gem "omniauth-google-oauth2"
 gem "omniauth-twitter", "~> 1.4"
 
-gem "pagy", "~> 9.4"
+gem "pagy", "~> 43.1"
 
 gem "rails-i18n", "~> 8.0"
 
