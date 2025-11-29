@@ -5,7 +5,7 @@ class Task < ApplicationRecord
   validates :note, length: { maximum: 1000 }
   validates :time_spent, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validates :estimated_minutes, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
-  validates :ends_at, comparison: { greater_than: :starts_at }, allow_nil: true
+  validates :ends_at, comparison: { greater_than: :starts_at }, allow_nil: true, if: :starts_at?
 
   scope :actionable, lambda {
     today_start = Time.zone.now.beginning_of_day
