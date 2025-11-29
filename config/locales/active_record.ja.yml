@@ -21,6 +21,10 @@ ja:
           attributes:
             blocked_id:
               taken: "はすでにブロックされています。"
+        task:
+          attributes:
+            ends_at:
+              greater_than: "は開始日より後の日時を指定してください。"
     attributes:
       user:
         current_password: "現在のパスワード"
@@ -40,6 +44,11 @@ ja:
       task_group:
         name: "グループ名"
         icon: "アイコン"
+        note: "メモ"
+      task:
+        name: "タスク名"
+        ends_at: "期日"
+        estimated_minutes: "見積もり"
         note: "メモ"
     models:
       user: "ユーザー"
