@@ -34,7 +34,7 @@ gem "rails-i18n", "~> 8.1"
 group :development, :test do
   gem "bullet", "~> 8.1"
 
-  gem "dotenv-rails", "~> 3.1"
+  gem "dotenv-rails", "~> 3.2"
 
   gem "factory_bot_rails", "~> 6.5"
 
