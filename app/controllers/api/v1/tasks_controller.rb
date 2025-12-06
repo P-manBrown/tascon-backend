@@ -1,6 +1,8 @@
 module Api
   module V1
     class TasksController < ApplicationController
+      before_action :set_task, only: %i[show]
+
       def index
         user_tasks = fetch_tasks_with_task_group
         user_tasks = apply_filter(user_tasks) if params[:filter].present?
@@ -10,6 +12,10 @@ module Api
         @pagy, tasks = pagy(ordered_tasks, overflow: :last_page)
 
         render json: TaskResource.new(tasks, params: { include_task_group: params[:task_group_id].blank? }), status: :ok
+      end
+
+      def show
+        render json: TaskResource.new(@task, params: { include_task_group: true }), status: :ok
       end
 
       def create
@@ -27,6 +33,10 @@ module Api
       private
         def create_task_params
           params.expect(task: %i[name starts_at ends_at estimated_minutes note])
+        end
+
+        def set_task
+          @task = current_api_v1_user.tasks.find(params[:id])
         end
 
         def fetch_tasks_with_task_group
