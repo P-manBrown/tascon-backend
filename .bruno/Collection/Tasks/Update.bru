@@ -1,0 +1,34 @@
+meta {
+  name: Update
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{BASE_URL}}/{{API_VERSION}}/tasks/1
+  body: json
+  auth: inherit
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+body:json {
+  {
+    "task": {
+      "name": "更新されたタスク名",
+      "starts_at": "2025-12-07T10:00:00+09:00",
+      "ends_at": "2025-12-07T18:00:00+09:00",
+      "time_spent": 1,
+      "estimated_minutes": 1,
+      "note": "更新後のメモ内容",
+      "status": "in_progress"
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
