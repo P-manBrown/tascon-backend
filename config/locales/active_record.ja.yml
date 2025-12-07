@@ -25,6 +25,8 @@ ja:
           attributes:
             ends_at:
               greater_than: "は開始日より後の日時を指定してください。"
+            status:
+              inclusion: "には'not_started'、'in_progress'、'completed'のいずれかを指定してください。"
     attributes:
       user:
         current_password: "現在のパスワード"
@@ -50,5 +52,7 @@ ja:
         ends_at: "期日"
         estimated_minutes: "見積もり"
         note: "メモ"
+        time_spent: "作業時間"
+        status: "ステータス"
     models:
       user: "ユーザー"
