@@ -50,5 +50,6 @@ ja:
         ends_at: "期日"
         estimated_minutes: "見積もり"
         note: "メモ"
+        time_spent: "作業時間"
     models:
       user: "ユーザー"
