@@ -12,7 +12,23 @@ module Api
         render json: TaskResource.new(tasks, params: { include_task_group: params[:task_group_id].blank? }), status: :ok
       end
 
+      def create
+        task_group = current_api_v1_user.task_groups.find(params[:task_group_id])
+        task = task_group.tasks.build(create_task_params)
+
+        if task.save
+          render json: TaskResource.new(task, params: { include_task_group: true }), status: :created,
+                 location: api_v1_task_url(task)
+        else
+          render_validation_error(task.errors)
+        end
+      end
+
       private
+        def create_task_params
+          params.expect(task: %i[name starts_at ends_at estimated_minutes note])
+        end
+
         def fetch_tasks_with_task_group
           if params[:task_group_id].present?
             task_group = current_api_v1_user.task_groups.find(params[:task_group_id])
