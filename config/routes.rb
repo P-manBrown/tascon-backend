@@ -21,7 +21,7 @@ Rails.application.routes.draw do
         end
 
         resources :task_groups
-        resources :tasks, only: %i[index create show]
+        resources :tasks, only: %i[index create show update]
       end
     end
   end
