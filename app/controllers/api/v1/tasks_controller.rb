@@ -1,7 +1,7 @@
 module Api
   module V1
     class TasksController < ApplicationController
-      before_action :set_task, only: %i[show]
+      before_action :set_task, only: %i[show update]
 
       def index
         user_tasks = fetch_tasks_with_task_group
@@ -30,9 +30,21 @@ module Api
         end
       end
 
+      def update
+        if @task.update(update_task_params)
+          render json: TaskResource.new(@task, params: { include_task_group: true }), status: :ok
+        else
+          render_validation_error(@task.errors)
+        end
+      end
+
       private
         def create_task_params
           params.expect(task: %i[name starts_at ends_at estimated_minutes note])
+        end
+
+        def update_task_params
+          params.expect(task: %i[name starts_at ends_at time_spent estimated_minutes note status])
         end
 
         def set_task
