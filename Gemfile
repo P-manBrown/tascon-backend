@@ -46,7 +46,7 @@ group :development, :test do
 end
 
 group :development do
-  gem "debride", "~> 1.14", require: false
+  gem "debride", "~> 1.15", require: false
 
   gem "guard", "~> 2.19"
   gem "guard-rspec", "~> 4.7", require: false
