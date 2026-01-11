@@ -277,7 +277,9 @@ GEM
       rack
     orm_adapter (0.5.0)
     ostruct (0.6.1)
-    pagy (9.4.0)
+    pagy (43.2.3)
+      json
+      yaml
     parallel (1.27.0)
     parser (3.3.10.0)
       ast (~> 2.4.1)
@@ -447,6 +449,7 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    yaml (0.4.0)
     zeitwerk (2.7.4)
 
 PLATFORMS
@@ -476,7 +479,7 @@ DEPENDENCIES
   mysql2 (~> 0.5)
   omniauth-google-oauth2
   omniauth-twitter (~> 1.4)
-  pagy (~> 9.4)
+  pagy (~> 43.2)
   puma (~> 7.1)
   rack-cors (~> 3.0)
   rails (~> 8.1.2)
