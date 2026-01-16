@@ -1,7 +1,7 @@
 module Api
   module V1
     class TasksController < ApplicationController
-      before_action :set_task, only: %i[show update]
+      before_action :set_task, only: %i[show update destroy]
 
       def index
         user_tasks = fetch_tasks_with_task_group
@@ -36,6 +36,11 @@ module Api
         else
           render_validation_error(@task.errors)
         end
+      end
+
+      def destroy
+        @task.destroy!
+        head :no_content
       end
 
       private
