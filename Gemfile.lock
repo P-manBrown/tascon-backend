@@ -101,7 +101,7 @@ GEM
     connection_pool (3.0.2)
     crass (1.0.6)
     date (3.5.1)
-    debride (1.15.0)
+    debride (1.15.1)
       path_expander (~> 2.0)
       prism (~> 1.7)
       sexp_processor (~> 4.17)
@@ -282,11 +282,11 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
-    path_expander (2.0.0)
+    path_expander (2.0.1)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
-    prism (1.7.0)
+    prism (1.8.0)
     pry (0.16.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
