@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM nginx:1.29.4
+FROM nginx:1.29.5
 
 ARG USER_NAME=nginx
 ENV TZ=Asia/Tokyo
