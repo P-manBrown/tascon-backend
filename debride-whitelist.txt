@@ -42,3 +42,4 @@ cannot_block_contact
 destroy
 task_group
 tasks
+calendar

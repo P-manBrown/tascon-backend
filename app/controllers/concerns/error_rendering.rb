@@ -15,7 +15,7 @@ module ErrorRendering
           message: error.full_message
         )
       end
-      render json: { errors: formatted_errors }, status: :unprocessable_entity
+      render json: { errors: formatted_errors }, status: :unprocessable_content
     end
 
     def format_error_object(source:, type:, message:)
