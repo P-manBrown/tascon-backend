@@ -21,7 +21,9 @@ Rails.application.routes.draw do
         end
 
         resources :task_groups
-        resources :tasks
+        resources :tasks do
+          get :calendar, on: :collection
+        end
       end
     end
   end

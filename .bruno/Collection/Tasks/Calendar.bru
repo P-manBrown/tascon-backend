@@ -1,0 +1,23 @@
+meta {
+  name: Calendar
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/{{API_VERSION}}/tasks/calendar?start=2026-01-01&end=2026-01-31&task_group_id=1&filter=actionable
+  body: none
+  auth: inherit
+}
+
+params:query {
+  start: 2026-01-01
+  end: 2026-01-31
+  task_group_id: 1
+  filter: actionable
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
