@@ -165,9 +165,6 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashie (5.0.0)
-    herb (0.7.1-aarch64-linux-gnu)
-    herb (0.7.1-arm64-darwin)
-    herb (0.7.1-x86_64-linux-gnu)
     htmlbeautifier (1.4.3)
     i18n (1.14.8)
       concurrent-ruby (~> 1.0)
@@ -398,10 +395,6 @@ GEM
     rubocop-ast (1.49.0)
       parser (>= 3.3.7.2)
       prism (~> 1.7)
-    rubocop-erb (0.7.0)
-      herb (~> 0.7)
-      lint_roller (~> 1.1)
-      rubocop (~> 1.72, >= 1.72.1)
     rubocop-factory_bot (2.28.0)
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
@@ -484,7 +477,6 @@ DEPENDENCIES
   rails-i18n (~> 8.1)
   rspec-rails (~> 8.0)
   rubocop (~> 1.84)
-  rubocop-erb (~> 0.7.0)
   rubocop-factory_bot (~> 2.28)
   rubocop-performance (~> 1.26)
   rubocop-rails (~> 2.34)
@@ -492,7 +484,7 @@ DEPENDENCIES
   tzinfo-data
 
 RUBY VERSION
-   ruby 3.4.7p58
+   ruby 4.0.0p0
 
 BUNDLED WITH
    2.6.9
