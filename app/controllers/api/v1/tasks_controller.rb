@@ -7,7 +7,7 @@ module Api
         user_tasks = fetch_tasks
         return if user_tasks.nil?
 
-        ordered_tasks = user_tasks.ordered_by_ends_at
+        ordered_tasks = user_tasks.completed_last.ordered_by_ends_at
         @pagy, tasks = pagy(ordered_tasks, overflow: :last_page)
 
         render json: TaskResource.new(tasks, params: { include_task_group: params[:task_group_id].blank? }), status: :ok
