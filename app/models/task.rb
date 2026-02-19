@@ -18,5 +18,19 @@ class Task < ApplicationRecord
 
     today.or(overdue_incomplete)
   }
+
+  scope :with_dates_set, -> { where.not(starts_at: nil).where.not(ends_at: nil) }
+
+  scope :in_date_range, lambda { |start_date, end_date|
+    start_datetime = start_date.beginning_of_day
+    end_datetime = end_date.end_of_day
+
+    starts_in_range = where(starts_at: start_datetime..end_datetime)
+    ends_in_range = where(ends_at: start_datetime..end_datetime)
+    spans_range = where(starts_at: ..start_datetime).where(ends_at: end_datetime..)
+
+    starts_in_range.or(ends_in_range).or(spans_range)
+  }
+
   scope :ordered_by_ends_at, -> { order(arel_table[:ends_at].asc.nulls_last) }
 end

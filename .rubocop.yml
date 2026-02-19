@@ -30,6 +30,11 @@ Metrics/BlockLength:
     - "Guardfile"
     - "config/**/*"
 
+Metrics/ClassLength:
+  Max: 200
+  Exclude:
+    - "spec/**/*"
+
 Style/AsciiComments:
   Enabled: false
 
