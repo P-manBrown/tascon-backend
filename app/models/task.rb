@@ -32,5 +32,12 @@ class Task < ApplicationRecord
     starts_in_range.or(ends_in_range).or(spans_range)
   }
 
+  scope :completed_last, lambda {
+    completed_status = statuses[:completed]
+    status_col = arel_table[:status]
+    is_completed = Arel::Nodes::Case.new.when(status_col.eq(completed_status)).then(1).else(0)
+    order(is_completed.asc)
+  }
+
   scope :ordered_by_ends_at, -> { order(arel_table[:ends_at].asc.nulls_last) }
 end
