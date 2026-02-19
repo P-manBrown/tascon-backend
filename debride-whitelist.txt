@@ -43,3 +43,4 @@ destroy
 task_group
 tasks
 calendar
+index

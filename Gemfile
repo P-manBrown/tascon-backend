@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.4.7"
+ruby "4.0.0"
 
 gem "rails", "~> 8.1.2"
 
@@ -58,7 +58,6 @@ group :development do
   gem "letter_opener_web", "~> 3.0"
 
   gem "rubocop", "~> 1.84", require: false
-  gem "rubocop-erb", "~> 0.7.0", require: false
   gem "rubocop-factory_bot", "~> 2.28", require: false
   gem "rubocop-performance", "~> 1.26", require: false
   gem "rubocop-rails", "~> 2.34", require: false
