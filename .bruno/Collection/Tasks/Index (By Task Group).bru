@@ -1,0 +1,22 @@
+meta {
+  name: Index (By Task Group)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/{{API_VERSION}}/tasks?task_group_id=1&page=1&limit=18
+  body: none
+  auth: inherit
+}
+
+params:query {
+  task_group_id: 1
+  page: 1
+  limit: 18
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
