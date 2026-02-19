@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_24_000801) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_20_082335) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -58,6 +58,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_24_000801) do
     t.index ["contact_user_id"], name: "index_contacts_on_contact_user_id"
     t.index ["user_id", "contact_user_id"], name: "index_contacts_on_user_id_and_contact_user_id", unique: true
     t.index ["user_id"], name: "index_contacts_on_user_id"
+  end
+
+  create_table "task_group_shares", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "task_group_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["task_group_id", "user_id"], name: "index_task_group_shares_on_task_group_id_and_user_id", unique: true
+    t.index ["user_id"], name: "index_task_group_shares_on_user_id"
   end
 
   create_table "task_groups", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
@@ -115,6 +124,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_24_000801) do
   add_foreign_key "blocks", "users", column: "blocker_id"
   add_foreign_key "contacts", "users"
   add_foreign_key "contacts", "users", column: "contact_user_id"
+  add_foreign_key "task_group_shares", "task_groups"
+  add_foreign_key "task_group_shares", "users"
   add_foreign_key "task_groups", "users"
   add_foreign_key "tasks", "task_groups"
 end
