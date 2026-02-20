@@ -26,6 +26,8 @@ class User < ApplicationRecord
   has_many :task_groups, dependent: :destroy
   has_many :tasks, through: :task_groups
 
+  has_many :task_group_shares, dependent: :destroy
+
   validates :name, presence: true, length: { maximum: 255 }
   validates :email, uniqueness: { case_sensitive: false }, length: { maximum: 100 }
   validates :avatar, content_type: { in: %w[image/jpeg image/png] }, size: { less_than_or_equal_to: 2.megabytes },
