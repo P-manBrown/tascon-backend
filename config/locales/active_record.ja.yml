@@ -43,6 +43,8 @@ ja:
       block:
         blocked: "対象ユーザー"
         blocked_id: "対象ユーザー"
+      task_group_share:
+        user: "共有先"
       task_group:
         name: "グループ名"
         icon: "アイコン"
