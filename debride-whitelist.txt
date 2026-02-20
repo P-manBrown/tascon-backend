@@ -44,3 +44,6 @@ task_group
 tasks
 calendar
 index
+task_group_shares
+shared_users
+must_be_contact
