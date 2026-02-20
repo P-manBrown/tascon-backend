@@ -2,6 +2,10 @@ class TaskGroupShare < ApplicationRecord
   belongs_to :task_group
   belongs_to :user
 
+  scope :without_blocked_owners, lambda { |user|
+    joins(:task_group).where.not(task_groups: { user_id: user.blocked_users })
+  }
+
   validate :cannot_share_with_owner, :must_be_contact
 
   private
