@@ -63,4 +63,8 @@ class User < ApplicationRecord
   def blocked_by?(user)
     reverse_blocks.exists?(blocker: user)
   end
+
+  def contact?(user)
+    contact_users.exists?(id: user)
+  end
 end
