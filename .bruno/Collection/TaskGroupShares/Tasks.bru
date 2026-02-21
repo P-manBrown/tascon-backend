@@ -1,0 +1,21 @@
+meta {
+  name: Tasks
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/{{API_VERSION}}/task_group_shares/14/tasks?page=1&limit=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 1
+  limit: 10
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
