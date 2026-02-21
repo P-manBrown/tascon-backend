@@ -21,7 +21,7 @@ Rails.application.routes.draw do
         end
 
         resources :task_groups
-        resources :task_group_shares, only: :index
+        resources :task_group_shares, only: %i[index show]
         resources :tasks do
           get :calendar, on: :collection
         end
