@@ -1,0 +1,16 @@
+meta {
+  name: Show
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/{{API_VERSION}}/task_group_shares/14
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
