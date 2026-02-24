@@ -1,7 +1,7 @@
 module Api
   module V1
     class TaskGroupsController < ApplicationController
-      before_action :set_task_group, only: %i[show update destroy]
+      before_action :set_task_group, only: %i[show update]
 
       def index
         task_groups = current_api_v1_user.task_groups
@@ -34,7 +34,8 @@ module Api
       end
 
       def destroy
-        @task_group.destroy!
+        task_group = current_api_v1_user.task_groups.find(params[:id])
+        task_group.destroy!
         head :no_content
       end
 
