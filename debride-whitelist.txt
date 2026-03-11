@@ -42,6 +42,7 @@ cannot_block_contact
 destroy
 task_group
 tasks
+task
 calendar
 index
 task_group_shares
