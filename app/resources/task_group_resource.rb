@@ -3,5 +3,5 @@ class TaskGroupResource < ApplicationResource
 
   attributes :id, :name, :icon, :note
 
-  many :shared_users, resource: UserResource
+  many :shared_users, resource: UserResource, if: proc { params[:include_shared_users] }
 end
