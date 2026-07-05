@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_20_082335) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_060318) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -62,6 +62,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_20_082335) do
 
   create_table "task_group_shares", charset: "utf8mb4", collation: "utf8mb4_ja_0900_as_cs", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "status", default: 0, null: false
     t.bigint "task_group_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
