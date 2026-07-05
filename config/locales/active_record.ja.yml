@@ -50,6 +50,7 @@ ja:
       task_group_share:
         user: "共有先"
         user_id: "対象ユーザー"
+        status: "ステータス"
       task_group:
         name: "グループ名"
         icon: "アイコン"
