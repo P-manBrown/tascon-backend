@@ -16,7 +16,8 @@
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/P-manBrown/devcontainer-features/solargraph:1": {
       "skipYardGems": true
-    }
+    },
+    "ghcr.io/devcontainers-extra/features/bun:1": {}
   },
   "customizations": {
     "zed": {
