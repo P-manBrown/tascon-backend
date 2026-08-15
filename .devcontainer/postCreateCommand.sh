@@ -28,17 +28,17 @@ git clone \
 	"${HOME}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 oh_my_plugins="(bundler gh git rails zsh-autosuggestions)"
 sed -i "s/^plugins=(.*)/plugins=${oh_my_plugins}/" "${HOME}/.zshrc"
-sudo chown -R "${USER}" "${HOME}/shell_log"
+sudo chown -R "$(whoami)" "${HOME}/shell_log"
 
 echo 'Setting up Git...'
 set +e
 repo_root="$(git rev-parse --show-toplevel)"
 set -e
 sudo git config --system --add safe.directory "${repo_root:-${PWD}}"
-git config --local core.editor 'code --wait'
+git config --local core.editor 'zed --wait'
 
 echo 'Setting up GitHub CLI...'
-gh config set editor 'code --wait'
+gh config set editor 'zed --wait'
 
 echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install

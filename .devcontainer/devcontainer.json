@@ -3,6 +3,9 @@
   "dockerComposeFile": ["../compose.yml", "./compose.devcontainer.yml"],
   "service": "api",
   "workspaceFolder": "/home/ruby/tascon-backend",
+  // TEMP: without remoteUser, Zed connects as root
+  "remoteUser": "ruby",
+  "overrideCommand": true,
   "postCreateCommand": "bash ./.devcontainer/postCreateCommand.sh",
   "features": {
     "ghcr.io/P-manBrown/devcontainer-features/common-utils:2": {
@@ -16,6 +19,9 @@
     }
   },
   "customizations": {
+    "zed": {
+      "extensions": ["ruby", "dockerfile", "docker-compose", "env"]
+    },
     "vscode": {
       "extensions": [
         "VisualStudioExptTeam.vscodeintellicode",
