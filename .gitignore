@@ -30,3 +30,6 @@
 
 # Ignore local env files.
 .env*.local
+
+# Claude Code
+/.claude/settings.local.json
