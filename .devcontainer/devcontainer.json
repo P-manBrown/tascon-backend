@@ -6,18 +6,32 @@
   // TEMP: without remoteUser, Zed connects as root
   "remoteUser": "ruby",
   "overrideCommand": true,
+  "containerEnv": {
+    "LANG": "en_US.UTF-8"
+  },
   "postCreateCommand": "bash ./.devcontainer/postCreateCommand.sh",
   "features": {
-    "ghcr.io/P-manBrown/devcontainer-features/common-utils:2": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": true,
       "upgradePackages": false
     },
-    "ghcr.io/P-manBrown/devcontainer-features/git-from-src-fast:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/P-manBrown/devcontainer-features/solargraph:1": {
-      "skipYardGems": true
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/P-manBrown/devcontainer-features/git-spice:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "extensions": "github/gh-stack"
     },
-    "ghcr.io/devcontainers-extra/features/bun:1": {}
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers-extra/features/bun:1": {},
+    "ghcr.io/P-manBrown/devcontainer-features/claude-code:1": {},
+    "ghcr.io/P-manBrown/devcontainer-features/codex:2": {},
+    "ghcr.io/P-manBrown/devcontainer-features/codebase-memory-mcp:2": {
+      "autoIndex": true,
+      "portRelay": true
+    },
+    "ghcr.io/P-manBrown/devcontainer-features/rtk:1": {
+      "claudeCodeHook": true
+    },
+    "ghcr.io/P-manBrown/devcontainer-features/bruno-cli:1": {}
   },
   "customizations": {
     "zed": {

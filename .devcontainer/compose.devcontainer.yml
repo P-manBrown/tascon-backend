@@ -5,5 +5,7 @@ services:
     command: bash -c 'while sleep 1000; do :; done'
     env_file:
       - ./.devcontainer/environment/gh-token.env
+    ports:
+      - '127.0.0.1:${CBM_UI_PORT:-9749}:${CBM_UI_PORT:-9749}'
 volumes:
   shell-log:
