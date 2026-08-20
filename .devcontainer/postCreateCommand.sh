@@ -30,6 +30,7 @@ git config --local core.editor 'zed --wait'
 
 echo 'Setting up GitHub CLI...'
 gh config set editor 'zed --wait'
+gh extension install github/gh-stack --force
 gh skill install github/gh-stack gh-stack --agent claude-code --scope project --force
 
 echo 'Setting up Lefthook...'
