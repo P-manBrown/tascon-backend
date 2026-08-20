@@ -14,6 +14,7 @@ git-spice使用。スタック型ブランチ管理。
 
 ## コミットメッセージ作成ルール
 
+- 英語で作成
 - コミットコマンド実行前に、コミットメッセージ全文の日本語訳を提示する
 
 ### 規約
@@ -33,7 +34,8 @@ git-spice使用。スタック型ブランチ管理。
 
 ## プルリクエスト作成ルール
 
-- `.github/pull_request_template.md`テンプレート使用、英語で作成
+- `.github/pull_request_template.md`テンプレート使用
+- 英語で作成
 - 親ブランチからの差分・当該ブランチのコミットメッセージ参考
 - 該当Issue無→`Related Issues: N/A`
 - 特記事項無→`Notes: No additional information or considerations at this time.`
