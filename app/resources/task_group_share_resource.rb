@@ -2,6 +2,7 @@ class TaskGroupShareResource < ApplicationResource
   root_key :task_group_share, :task_group_shares
 
   attributes :id
+  one :user, resource: UserResource
 
   attribute :task_group do |task_group_share|
     TaskGroupResource.new(task_group_share.task_group).to_h.merge(
