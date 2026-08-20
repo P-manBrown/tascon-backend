@@ -27,6 +27,7 @@ class User < ApplicationRecord
   has_many :tasks, through: :task_groups
 
   has_many :task_group_shares, dependent: :destroy
+  has_many :owned_task_group_shares, through: :task_groups, source: :task_group_shares
 
   validates :name, presence: true, length: { maximum: 255 }
   validates :email, uniqueness: { case_sensitive: false }, length: { maximum: 100 }
