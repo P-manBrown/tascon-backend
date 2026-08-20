@@ -1,0 +1,30 @@
+{
+  "enabledPlugins": {
+    "genshijin@genshijin": true,
+    "codex@openai-codex": true,
+    "context-mode@context-mode": true
+  },
+  "extraKnownMarketplaces": {
+    "genshijin": {
+      "source": {
+        "source": "github",
+        "repo": "InterfaceX-co-jp/genshijin"
+      },
+      "autoUpdate": true
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      },
+      "autoUpdate": true
+    },
+    "context-mode": {
+      "source": {
+        "source": "github",
+        "repo": "mksglu/context-mode"
+      },
+      "autoUpdate": true
+    }
+  }
+}
