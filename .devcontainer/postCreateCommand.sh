@@ -3,15 +3,6 @@ set -eu
 
 echo 'Setting up Shell...'
 cat <<-'EOF' | tee -a "${HOME}/.bashrc" >> "${HOME}/.zshrc"
-	precmd() {
-	  last_cmd="$(history | tail -1 | sed -r 's/\s+[0-9]+\s+//')"
-	  if [[ "${last_cmd}" =~ ^(bin/)?bundle(\\s+((install|-+).*$)|$) ]]; then
-	    echo 'Running `yard gems` to generate docs for gems...'
-	    for _ in {1..3}; do
-	      yard gems -quiet && break
-	    done
-	  fi
-	}
 	SHELL="$(readlink "/proc/$$/exe")"
 	shell_log_dir="${HOME}/shell_log"
 	export HISTFILE="${shell_log_dir}/.${SHELL##*/}_history"
@@ -39,12 +30,8 @@ git config --local core.editor 'zed --wait'
 
 echo 'Setting up GitHub CLI...'
 gh config set editor 'zed --wait'
+gh extension install github/gh-stack --force
+gh skill install github/gh-stack gh-stack --agent claude-code --scope project --force
 
 echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install
-
-echo 'Setting up Solargraph...'
-sed -i -z 's/- require_not_found\n//' "${HOME}/.config/solargraph/config.yml"
-for _ in {1..3}; do
-	yard gems -quiet && break
-done
