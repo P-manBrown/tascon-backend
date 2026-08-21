@@ -35,3 +35,6 @@ gh skill install github/gh-stack gh-stack --agent claude-code --scope project --
 
 echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install
+
+echo 'Setting up Ruby LSP...'
+gem install ruby-lsp --no-document
