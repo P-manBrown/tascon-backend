@@ -1,7 +1,7 @@
 
 ---
 name: git-spice-workflow
-description: git-spiceでのコミット・ブランチ操作、Conventional Commitsのtype判断基準（PRタイトルとローカルコミットの使い分け）、プルリクエスト作成ルールを扱うスキル。「コミットして」「ブランチ作って」「PR作成して」「プルリクエスト作成」「git-spice」「gs commit」「gs branch」「gs stack」等で使用する。
+description: git-spiceでのコミット・ブランチ操作、Conventional Commitsのtype判断基準（PRタイトルとローカルコミットの使い分け）、プルリクエスト作成ルールを扱うスキル。「コミットして」「ブランチ作って」「PR作成して」「プルリクエスト作成」「git-spice」「gs commit」「gs branch」「gs stack」等の指示があった場合に加え、自律的にコミット作成・ブランチ操作・プルリクエスト作成などのGit操作を行う場合にも使用する。
 ---
 
 # git-spiceワークフロー
