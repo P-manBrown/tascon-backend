@@ -50,3 +50,4 @@ shared_users
 must_be_contact
 request_handover
 accept_handover
+decline_handover
