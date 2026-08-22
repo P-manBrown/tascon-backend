@@ -31,6 +31,7 @@ Rails.application.routes.draw do
             patch :request_handover
             patch :cancel_handover_request
             patch :accept_handover
+            patch :decline_handover
           end
         end
         resources :tasks do
