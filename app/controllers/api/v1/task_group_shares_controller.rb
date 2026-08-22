@@ -7,10 +7,7 @@ module Api
       before_action :set_tasks, only: %i[tasks task calendar]
 
       def index
-        task_group_shares = current_api_v1_user.task_group_shares
-                                               .without_blocked_owners(current_api_v1_user)
-                                               .includes(task_group: { user: :avatar_attachment })
-                                               .order(created_at: :desc)
+        task_group_shares = task_group_shares_scope.order(created_at: :desc)
 
         render json: TaskGroupShareResource.new(task_group_shares), status: :ok
       end
@@ -53,6 +50,17 @@ module Api
       end
 
       private
+        def task_group_shares_scope
+          if params[:task_group_id]
+            current_api_v1_user.task_groups.find(params[:task_group_id])
+                               .task_group_shares.includes(user: :avatar_attachment)
+          else
+            current_api_v1_user.task_group_shares
+                               .without_blocked_owners(current_api_v1_user)
+                               .includes(task_group: { user: :avatar_attachment })
+          end
+        end
+
         def set_task_group_share
           @task_group_share = current_api_v1_user.task_group_shares
                                                  .without_blocked_owners(current_api_v1_user)
