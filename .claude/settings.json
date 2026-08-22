@@ -2,7 +2,8 @@
   "enabledPlugins": {
     "genshijin@genshijin": true,
     "codex@openai-codex": true,
-    "context-mode@context-mode": true
+    "context-mode@context-mode": true,
+    "ruby-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "genshijin": {
