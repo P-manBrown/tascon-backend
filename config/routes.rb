@@ -30,6 +30,7 @@ Rails.application.routes.draw do
             get :calendar
             patch :request_handover
             patch :cancel_handover_request
+            patch :accept_handover
           end
         end
         resources :tasks do
