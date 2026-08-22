@@ -119,8 +119,7 @@ module Api
 
           ActiveRecord::Base.transaction do
             task_group.update!(user_id: successor_id)
-            task_group_share.destroy!
-            task_group.task_group_shares.create!(user_id: predecessor_id)
+            task_group_share.update!(user_id: predecessor_id, status: :shared)
           end
 
           task_group
