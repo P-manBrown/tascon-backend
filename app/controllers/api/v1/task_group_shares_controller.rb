@@ -64,14 +64,20 @@ module Api
         end
       end
 
-      def accept_handover
-        task_group_share = current_api_v1_user.task_group_shares
-                                              .without_blocked_owners(current_api_v1_user)
-                                              .find(params[:id])
+      def decline_handover
+        task_group_share = find_task_group_share_as_recipient
+        return render_invalid_handover_transition_error unless task_group_share.status_handover_pending?
 
-        unless task_group_share.status_handover_pending?
-          return render_custom_error source: "status", type: "invalid_transition", message: "引き継ぎ依頼中の状態でのみ実行できます。"
+        if task_group_share.update(status: :shared)
+          render json: TaskGroupShareResource.new(task_group_share), status: :ok
+        else
+          render_validation_error(task_group_share.errors)
         end
+      end
+
+      def accept_handover
+        task_group_share = find_task_group_share_as_recipient
+        return render_invalid_handover_transition_error unless task_group_share.status_handover_pending?
 
         task_group = transfer_task_group_ownership_with_validation(task_group_share)
         return if task_group.nil?
@@ -143,9 +149,19 @@ module Api
           @task_group_share = current_api_v1_user.owned_task_group_shares.find(params[:id])
         end
 
+        def find_task_group_share_as_recipient
+          current_api_v1_user.task_group_shares
+                             .without_blocked_owners(current_api_v1_user)
+                             .find(params[:id])
+        end
+
         def ensure_status_handover_pending
           return if @task_group_share.status_handover_pending?
 
+          render_invalid_handover_transition_error
+        end
+
+        def render_invalid_handover_transition_error
           render_custom_error source: "status", type: "invalid_transition", message: "引き継ぎ依頼中の状態でのみ実行できます。"
         end
     end
