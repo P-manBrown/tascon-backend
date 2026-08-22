@@ -29,6 +29,7 @@ Rails.application.routes.draw do
             get "tasks/:task_id", to: "task_group_shares#task", as: :task
             get :calendar
             patch :request_handover
+            patch :cancel_handover_request
           end
         end
         resources :tasks do
