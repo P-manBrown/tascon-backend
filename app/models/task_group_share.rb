@@ -6,6 +6,7 @@ class TaskGroupShare < ApplicationRecord
     joins(:task_group).where.not(task_groups: { user_id: user.blocked_users })
   }
 
+  validates :user_id, uniqueness: { scope: :task_group_id }
   validate :cannot_share_with_owner, :must_be_contact
 
   private
