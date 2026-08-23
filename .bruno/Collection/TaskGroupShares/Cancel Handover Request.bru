@@ -1,0 +1,20 @@
+meta {
+  name: Cancel Handover Request
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{BASE_URL}}/{{API_VERSION}}/task_group_shares/2/cancel_handover_request
+  body: none
+  auth: inherit
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
