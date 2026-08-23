@@ -1,7 +1,7 @@
 class TaskGroupShareResource < ApplicationResource
   root_key :task_group_share, :task_group_shares
 
-  attributes :id
+  attributes :id, :status
   one :user, resource: UserResource
 
   attribute :task_group do |task_group_share|
