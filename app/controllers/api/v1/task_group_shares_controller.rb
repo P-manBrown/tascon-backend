@@ -3,10 +3,10 @@ module Api
     class TaskGroupSharesController < ApplicationController
       include DateRangeFilter
 
-      before_action :set_task_group_share, only: :show
+      before_action :set_task_group_share, only: %i[show decline_handover accept_handover]
       before_action :set_tasks, only: %i[tasks task calendar]
       before_action :set_owned_task_group_share, only: %i[request_handover cancel_handover_request]
-      before_action :ensure_status_handover_pending, only: :cancel_handover_request
+      before_action :ensure_status_handover_pending, only: %i[cancel_handover_request decline_handover accept_handover]
 
       def index
         task_group_shares = task_group_shares_scope.order(created_at: :desc)
@@ -65,21 +65,15 @@ module Api
       end
 
       def decline_handover
-        task_group_share = find_task_group_share_as_recipient
-        return render_invalid_handover_transition_error unless task_group_share.status_handover_pending?
-
-        if task_group_share.update(status: :shared)
-          render json: TaskGroupShareResource.new(task_group_share), status: :ok
+        if @task_group_share.update(status: :shared)
+          render json: TaskGroupShareResource.new(@task_group_share), status: :ok
         else
-          render_validation_error(task_group_share.errors)
+          render_validation_error(@task_group_share.errors)
         end
       end
 
       def accept_handover
-        task_group_share = find_task_group_share_as_recipient
-        return render_invalid_handover_transition_error unless task_group_share.status_handover_pending?
-
-        task_group = transfer_task_group_ownership_with_validation(task_group_share)
+        task_group = transfer_task_group_ownership_with_validation(@task_group_share)
         return if task_group.nil?
 
         render json: TaskGroupResource.new(task_group, params: { include_shared_users: true }), status: :ok
@@ -112,10 +106,12 @@ module Api
         end
 
         def set_task_group_share
-          @task_group_share = current_api_v1_user.task_group_shares
+          task_group_shares = current_api_v1_user.task_group_shares
                                                  .without_blocked_owners(current_api_v1_user)
-                                                 .includes(task_group: { user: :avatar_attachment })
-                                                 .find(params[:id])
+          if action_name == "show"
+            task_group_shares = task_group_shares.includes(task_group: { user: :avatar_attachment })
+          end
+          @task_group_share = task_group_shares.find(params[:id])
         end
 
         def transfer_task_group_ownership(task_group_share)
@@ -148,12 +144,6 @@ module Api
 
         def set_owned_task_group_share
           @task_group_share = current_api_v1_user.owned_task_group_shares.find(params[:id])
-        end
-
-        def find_task_group_share_as_recipient
-          current_api_v1_user.task_group_shares
-                             .without_blocked_owners(current_api_v1_user)
-                             .find(params[:id])
         end
 
         def ensure_status_handover_pending

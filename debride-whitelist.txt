@@ -49,5 +49,6 @@ task_group_shares
 shared_users
 must_be_contact
 request_handover
+cancel_handover_request
 accept_handover
 decline_handover
