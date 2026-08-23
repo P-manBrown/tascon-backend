@@ -307,10 +307,11 @@ test_user_task_groups = test_user.task_groups.to_a
 
 shareable_users = (reverse_only_users + mutual_users).take(5)
 Rails.logger.debug "Creating shares from test_user to contact users (5 shares)..."
-shareable_users.each do |shared_user|
+shareable_users.each_with_index do |shared_user, index|
   TaskGroupShare.create!(
     task_group: test_user_task_groups.sample,
-    user: shared_user
+    user: shared_user,
+    status: index.zero? ? :handover_pending : :shared
   )
 rescue ActiveRecord::RecordInvalid => e
   Rails.logger.debug { "TaskGroupShare creation failed: #{e.message}" }
@@ -319,11 +320,12 @@ end
 
 sharing_users = (unidirectional_users + mutual_users).take(5)
 Rails.logger.debug "Creating shares from contact users to test_user (5 shares)..."
-sharing_users.each do |sharing_user|
+sharing_users.each_with_index do |sharing_user, index|
   task_group = sharing_user.task_groups.first
   TaskGroupShare.create!(
     task_group: task_group,
-    user: test_user
+    user: test_user,
+    status: index.zero? ? :handover_pending : :shared
   )
 rescue ActiveRecord::RecordInvalid => e
   Rails.logger.debug { "TaskGroupShare creation failed: #{e.message}" }
