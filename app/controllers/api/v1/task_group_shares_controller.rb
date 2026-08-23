@@ -88,7 +88,7 @@ module Api
 
       private
         def transfer_task_group_ownership_with_validation(task_group_share)
-          transfer_task_group_ownership(task_group_share)
+          task_group_share.accept_handover!
         rescue ActiveRecord::RecordInvalid => e
           render_validation_error(e.record.errors)
           nil
@@ -112,20 +112,6 @@ module Api
             task_group_shares = task_group_shares.includes(task_group: { user: :avatar_attachment })
           end
           @task_group_share = task_group_shares.find(params[:id])
-        end
-
-        def transfer_task_group_ownership(task_group_share)
-          task_group = task_group_share.task_group
-          successor_id = task_group_share.user_id
-          predecessor_id = task_group.user_id
-
-          ActiveRecord::Base.transaction do
-            task_group.update!(user_id: successor_id)
-            task_group_share.assign_attributes(user_id: predecessor_id, status: :shared)
-            task_group_share.save!(context: :handover)
-          end
-
-          task_group
         end
 
         def set_tasks

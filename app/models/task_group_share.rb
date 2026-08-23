@@ -13,6 +13,19 @@ class TaskGroupShare < ApplicationRecord
   validate :must_be_contact, unless: -> { validation_context == :handover }
   validate :only_one_handover_pending_per_task_group, if: :status_handover_pending?
 
+  def accept_handover!
+    successor_id = user_id
+    predecessor_id = task_group.user_id
+
+    transaction do
+      task_group.update!(user_id: successor_id)
+      assign_attributes(user_id: predecessor_id, status: :shared)
+      save!(context: :handover)
+    end
+
+    task_group
+  end
+
   private
     def cannot_share_with_owner
       return unless task_group
