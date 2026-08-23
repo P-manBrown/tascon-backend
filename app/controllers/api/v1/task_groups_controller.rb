@@ -8,18 +8,19 @@ module Api
                                          .includes(shared_users: :avatar_attachment)
                                          .order(created_at: :desc)
 
-        render json: TaskGroupResource.new(task_groups), status: :ok
+        render json: TaskGroupResource.new(task_groups, params: { include_shared_users: true }), status: :ok
       end
 
       def show
-        render json: TaskGroupResource.new(@task_group), status: :ok
+        render json: TaskGroupResource.new(@task_group, params: { include_shared_users: true }), status: :ok
       end
 
       def create
         task_group = current_api_v1_user.task_groups.build(task_group_params)
 
         if task_group.save
-          render json: TaskGroupResource.new(task_group), status: :created, location: api_v1_task_group_url(task_group)
+          render json: TaskGroupResource.new(task_group, params: { include_shared_users: true }), status: :created,
+                 location: api_v1_task_group_url(task_group)
         else
           render_validation_error(task_group.errors)
         end
@@ -27,7 +28,7 @@ module Api
 
       def update
         if @task_group.update(task_group_params)
-          render json: TaskGroupResource.new(@task_group), status: :ok
+          render json: TaskGroupResource.new(@task_group, params: { include_shared_users: true }), status: :ok
         else
           render_validation_error(@task_group.errors)
         end
