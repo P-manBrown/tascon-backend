@@ -64,6 +64,21 @@ module Api
         end
       end
 
+      def accept_handover
+        task_group_share = current_api_v1_user.task_group_shares
+                                              .without_blocked_owners(current_api_v1_user)
+                                              .find(params[:id])
+
+        unless task_group_share.status_handover_pending?
+          return render_custom_error source: "status", type: "invalid_transition", message: "引き継ぎ依頼中の状態でのみ実行できます。"
+        end
+
+        task_group = transfer_task_group_ownership_with_validation(task_group_share)
+        return if task_group.nil?
+
+        render json: TaskGroupResource.new(task_group, params: { include_shared_users: true }), status: :ok
+      end
+
       def calendar
         calendar_tasks = fetch_tasks_for_calendar
         return if calendar_tasks.nil?
@@ -72,6 +87,13 @@ module Api
       end
 
       private
+        def transfer_task_group_ownership_with_validation(task_group_share)
+          transfer_task_group_ownership(task_group_share)
+        rescue ActiveRecord::RecordInvalid => e
+          render_validation_error(e.record.errors)
+          nil
+        end
+
         def task_group_shares_scope
           if params[:task_group_id]
             current_api_v1_user.task_groups.find(params[:task_group_id])
@@ -88,6 +110,19 @@ module Api
                                                  .without_blocked_owners(current_api_v1_user)
                                                  .includes(task_group: { user: :avatar_attachment })
                                                  .find(params[:id])
+        end
+
+        def transfer_task_group_ownership(task_group_share)
+          task_group = task_group_share.task_group
+          successor_id = task_group_share.user_id
+          predecessor_id = task_group.user_id
+
+          ActiveRecord::Base.transaction do
+            task_group.update!(user_id: successor_id)
+            task_group_share.update!(user_id: predecessor_id, status: :shared)
+          end
+
+          task_group
         end
 
         def set_tasks
