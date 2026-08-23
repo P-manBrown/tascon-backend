@@ -1,8 +1,10 @@
 module Api
   module V1
     class TaskGroupSharesController < ApplicationController
+      include DateRangeFilter
+
       before_action :set_task_group_share, only: :show
-      before_action :set_tasks, only: %i[tasks task]
+      before_action :set_tasks, only: %i[tasks task calendar]
 
       def index
         task_group_shares = current_api_v1_user.task_group_shares
@@ -31,6 +33,13 @@ module Api
         render json: TaskResource.new(task, params: { include_task_group: true }), status: :ok
       end
 
+      def calendar
+        calendar_tasks = fetch_tasks_for_calendar
+        return if calendar_tasks.nil?
+
+        render json: TaskResource.new(calendar_tasks, params: { include_task_group: false }), status: :ok
+      end
+
       private
         def set_task_group_share
           @task_group_share = current_api_v1_user.task_group_shares
@@ -44,6 +53,13 @@ module Api
                                                 .without_blocked_owners(current_api_v1_user)
                                                 .find(params[:id])
           @tasks = task_group_share.task_group.tasks
+        end
+
+        def fetch_tasks_for_calendar
+          date_range = parse_date_range
+          return nil if date_range.nil?
+
+          @tasks.with_dates_set.in_date_range(*date_range).ordered_by_ends_at
         end
     end
   end
