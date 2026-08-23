@@ -125,7 +125,8 @@ module Api
 
           ActiveRecord::Base.transaction do
             task_group.update!(user_id: successor_id)
-            task_group_share.update!(user_id: predecessor_id, status: :shared)
+            task_group_share.assign_attributes(user_id: predecessor_id, status: :shared)
+            task_group_share.save!(context: :handover)
           end
 
           task_group
