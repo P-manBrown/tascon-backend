@@ -2,7 +2,7 @@ class TaskGroup < ApplicationRecord
   belongs_to :user
   has_many :tasks, dependent: :destroy
   has_many :task_group_shares, dependent: :destroy
-  has_many :shared_users, through: :task_group_shares, source: :user
+  has_many :shared_users, -> { includes(:avatar_attachment) }, through: :task_group_shares, source: :user
 
   validates :name, presence: true, length: { maximum: 255 }
   validates :icon, presence: true, length: { maximum: 255 }
