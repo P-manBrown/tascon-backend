@@ -30,6 +30,7 @@ description: 複数ファイル・複数コミットにまたがる複雑なタ�
 ## 完了処理
 
 - `Validation and Acceptance`に記載した完了条件をすべて満たしたことを確認する
+- 完了したplanの中に複数タスクを跨ぐ横断的な設計判断が含まれていた場合、`docs/design-docs/`へ抽出する。そのタスク固有の経緯は`Decision Log`に残したまま、横断的に効いてくる決定だけを個別ファイル化する
 - 完了したplanは`git mv`で`.claude/plans/active/`から`.claude/plans/completed/`へ移動する
 - 完了後も削除せず、実装判断の根拠として保持し続ける
 
