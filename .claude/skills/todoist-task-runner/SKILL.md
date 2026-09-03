@@ -9,15 +9,13 @@ Todoistをタスクキューとして、execution-plan単位の実装〜ロー�
 
 ## 対象タスクの取得
 
-- `tascon-backend`ラベル（リポジトリ判別）と`Claude`ラベル（人間がAI処理を許可した明示的opt-in）の両方が付いたタスクを`find-tasks`で取得する
-- `tascon-backend`だけでは「AIに処理してほしいタスクかどうか」を判定できないため、`Claude`ラベルで明示的に許可されたタスクのみを対象とする
+- `tascon-backend`ラベルと`Claude Code`ラベル（意味は`todoist-task-conventions` skill参照）の両方が付いたタスクを`find-tasks`で取得する
 - Todoist上のセクション順・タスク順（並び順）に従って処理する
 - 「作業する」子タスクが未完了の親タスクのみを対象とする
 
 ## タスク作成ルール
 
-- 機能実装のタスクを新規作成する場合、親タスクに以下3つの子タスクを必ず付与する: 「作業する（AI）」「最終確認する（人間）」「プルリクエストする（人間）」
-- 親タスクには`tascon-backend`ラベル（リポジトリ判別）を付与する。`Claude`ラベルは、AI処理を許可する場合のみ人間が付与する
+- 機能実装のタスクを新規作成する場合の子タスク構成・ラベル付与は`todoist-task-conventions` skillに従う
 - execution-planのStep構成が複数になっても、このタスク構成を作り直さない。以前は「Step構成確定後に仮タスクを削除してStep単位のタスクを作り直す」運用だったが廃止した。理由は、Stepごとのレビュー・動作確認・PR作成は実際には行われず`/code-review`もPR作成もexecution-plan全体の完了を待って1回だけ行われており、Todoist側もそれに合わせて機能単位で固定した方が余計な作成・削除が発生しないため。Step単位の進捗はexecution-planのProgressセクションと`add-comments`のコメントで追える
 
 ## 処理フロー
@@ -43,13 +41,7 @@ Todoistをタスクキューとして、execution-plan単位の実装〜ロー�
 
 ## 作業中に派生タスクを発見した場合
 
-今行っている作業に直接関係ないが、今後対応が必要と判明した事項（気づいたバグ、改善点、技術的負債等）を発見した場合、処理は止めず`tech-debt-tracker` skillの手順に従う（Todoist作成が先ではなく、`.claude/tech-debt/active/`への記録が先）:
-
-1. `tech-debt-tracker` skillの手順で重複確認・新規TD項目の記入を行う
-2. `add-tasks`でTodoistのインボックスへ新規タスクを作成する（プロジェクト・セクション未指定でインボックスに入る）。タスクのdescriptionに、TD IDと発見した経緯（どの作業中に何に気づいたか）を記載する。`tascon-backend`ラベルを付ける
-3. 発行されたTodoistタスクIDを、`.claude/tech-debt/active/TD-XXX.md`の`Todoist Task ID`欄へ書き戻す
-
-- `Claude`ラベルは付けない。このラベルはAI処理の明示的opt-inを意味するため、人間のトリアージを経ないタスクに付けると、次回の対象タスク取得で意図せず自動処理対象になってしまう
+今行っている作業に直接関係ないが、今後対応が必要と判明した事項（気づいたバグ、改善点、技術的負債等）を発見した場合、処理は止めず`tech-debt-tracker` skillの手順に従う（Todoist作成が先ではなく、`.claude/tech-debt/active/`への記録が先）。ラベル付与を含むタスク作成手順は`tech-debt-tracker` skillに定義されている。
 
 ## 処理を停止する場合
 
@@ -73,7 +65,7 @@ Todoistをタスクキューとして、execution-plan単位の実装〜ロー�
 
 ## 終了条件
 
-- 担当タスク（`tascon-backend`ラベル・`Claude`ラベル、「作業する」子タスクが未完了）が無くなったら、何もせずセッションを終了する
+- 担当タスク（「対象タスクの取得」の条件を満たすもの）が無くなったら、何もせずセッションを終了する
 
 ## 変更範囲
 
@@ -86,4 +78,5 @@ Todoistをタスクキューとして、execution-plan単位の実装〜ロー�
 - `git-spice-workflow`: コミット・ブランチ・PR操作を担当
 - `codex-delegation`: Codexへの実装委譲手順を担当
 - `tech-debt-tracker`: 技術的負債・将来リスクの記録とTodoist連携を担当。このskillから呼ばれる
+- `todoist-task-conventions`: Todoistタスクのラベル・子タスク構成ルールを担当。このskillから呼ばれる
 - `todoist-task-runner`: 上記を束ね、Todoistとの同期・タスクキューの消化を担当

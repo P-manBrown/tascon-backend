@@ -42,7 +42,7 @@ description: 技術的負債・懸念事項を`.claude/tech-debt/`へ記録し�
    - `Description`だけで終わらせず`Impact`まで必ず書く。「何が」だけでは、数か月後に再調査が必要になる
    - `Category`・`Priority`・`Status`は必ず上記の固定値から選ぶ。自由記述にしない（表記揺れで同種の項目が分裂するのを防ぐ）
 
-4. `add-tasks`でTodoistのインボックスへ新規タスクを作成する（プロジェクト・セクション未指定）。タスクのdescriptionに`TD-XXX`のIDと概要を記載する。`tascon-backend`ラベル（リポジトリ判別）を付ける。`Claude`ラベルは付けない（人間のトリアージ前に自動処理対象になるのを防ぐため）
+4. `add-tasks`でTodoistのインボックスへ新規タスクを作成する（プロジェクト・セクション未指定）。タスクのdescriptionに`TD-XXX`のIDと概要を記載する。ラベル付与は`todoist-task-conventions` skillに従う
 5. 発行されたTodoistタスクIDを、手順3で作成したファイルの`Todoist Task ID`欄へ書き戻す
 
 ## 解消・却下時の手順
@@ -59,3 +59,4 @@ description: 技術的負債・懸念事項を`.claude/tech-debt/`へ記録し�
 - `todoist-task-runner`: 作業中に派生タスクを発見した場合、このskillの手順でtracker記録とTodoist作成を行う
 - `execution-plan`: 完了処理時に、実装過程で生じた設計上の妥協・既知の制約があればこのskillの手順で新規記録し、解消した既存の負債があれば`completed/`へ移動する
 - `doc-gardening`: 調査中に技術的負債を発見した場合、このskillの手順で新規記録する
+- `todoist-task-conventions`: Todoistタスクのラベル付与ルールを担当。このskillから呼ばれる
