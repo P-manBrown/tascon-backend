@@ -22,7 +22,7 @@ git-spice使用。スタック型ブランチ管理。
 
 ## コミットメッセージ作成ルール
 
-- 英語で作成
+- すべて英語で作成。日本語は使用しない
 - コミットコマンド実行前に、コミットメッセージ全文の日本語訳を提示する
 - コミットは原則body付き。複数の妥当なtype候補から選択した場合、または作業中に試行錯誤・修正があった場合はbodyをほぼ必須とする。typo修正等の自明な変更はbody省略可
 
@@ -45,7 +45,7 @@ git-spice使用。スタック型ブランチ管理。
 
 - PR作成前、`ARCHITECTURE.md`・`.claude/plans/`に影響する変更（レイヤー構成の変更、plan完了等）があれば`doc-gardening` skillの実行を検討する
 - `.github/pull_request_template.md`テンプレート使用
-- 英語で作成
+- すべて英語で作成。日本語は使用しない
 - 親ブランチからの差分・当該ブランチのコミットメッセージ参考
 - 該当Issue無→`Related Issues: N/A`
 - 特記事項無→`Notes: No additional information or considerations at this time.`
