@@ -19,7 +19,7 @@ pre-commit:
       run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main'
       fail_text: "ERROR: Do NOT commit directly to 'main' branch."
   jobs:
-    - run: bash .lefthook/pre-commit/check-docs.sh {staged_files}
+    - run: bash .lefthook/pre-commit/check-docs.sh
       glob:
         - "ARCHITECTURE.md"
         - "docs/*.md"
