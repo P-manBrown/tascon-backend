@@ -18,6 +18,10 @@ pre-commit:
     protect-branch:
       run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main'
       fail_text: "ERROR: Do NOT commit directly to 'main' branch."
+  scripts:
+    "check-docs.sh":
+      runner: bash
+      fail_text: 'Read the report above.'
 pre-push:
   commands:
     check-git-clean:
