@@ -1,0 +1,13 @@
+---
+paths:
+  - ".claude/settings.json"
+  - ".claude/hooks/**"
+---
+
+# フック設計時の注意
+
+- `Stop`/`SubagentStop`で`hookSpecificOutput.additionalContext`を返すと、そのターンは継続扱いになり停止しない。無条件に注入する設計は無限ループを招く
+- `Stop`/`SubagentStop`で判定込みの指示を注入したい場合、`type: "command"`で単純に注入する設計は避ける。判定自体は`type: "prompt"`(裏側の軽量モデル呼び出し)に任せ、該当時のみ`reason`をメインエージェントへ渡して可視ターンを発生させる
+- `type: "command"`で`Stop`/`SubagentStop`を扱う場合は、入力JSONの`stop_hook_active`を確認し、`true`なら何も出力せず終了する(無限ループ防止)
+- `Agent`ツール呼び出しはこの環境では非同期起動がデフォルト。`PostToolUse(Agent)`は起動直後に発火し、サブエージェントの完了時ではない。完了は`task-notification`として新しいターンに届き、それを処理したターンの末尾で通常の`Stop`が発火する。「サブエージェント完了後」を捉えたい場合は`PostToolUse(Agent)`ではなく`Stop`を使う
+- hookスクリプトはシェルスクリプトを優先する。追加インタプリタへの依存は避ける
