@@ -8,4 +8,6 @@
 
 上記のいずれにも当てはまらない、複数タスクを跨ぐ設計判断が生じた場合にここへファイルを追加する。
 
-- [フックによるfeedback捕捉・plan完了検知の設計](hook-based-feedback-capture.md)
+- [フィードバック・決定のプロジェクト昇格タイミング](feedback-reflection-timing.md)
+- [plan完了検知の対象操作範囲](plan-completion-detection-scope.md)
+- [rules遵守確認フックの対象範囲](rules-compliance-check-scope.md)
