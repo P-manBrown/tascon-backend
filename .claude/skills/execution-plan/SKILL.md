@@ -41,10 +41,10 @@ description: 複数ファイル・複数コミットにまたがる複雑なタ�
 
 - `Validation and Acceptance`に記載した完了条件をすべて満たしたことを確認する
 - claude-memを照会し、このplanの期間中に生じた決定・ドキュメント化すべき内容・記録すべき教訓に、記録漏れがないか監査する。照会範囲は冒頭に記録した`Worktree:`のパスから解決されるproject識別子に絞る
-- 完了したplanの中に複数タスクを跨ぐ横断的な設計判断が含まれていた場合、`docs/design-docs/`へ抽出する。そのタスク固有の経緯は`Decision Log`に残したまま、横断的に効いてくる決定だけを個別ファイル化する
+- 完了したplanの中に複数タスクを跨ぐ横断的な設計判断が含まれていた場合、`docs/decisions/`へ抽出する。そのタスク固有の経緯は`Decision Log`に残したまま、横断的に効いてくる決定だけを個別ファイル化する
 - 実装過程で、今すぐ対応しないが将来問題化しうる設計上の妥協・既知の制約が生じていた場合、`tech-debt-tracker` skillの手順で記録する
 - `ARCHITECTURE.md`へ影響する変更があれば併せて更新する
-- 上記のdesign-docs抽出・`ARCHITECTURE.md`更新は、そのexecution-planの実装タスクの一環のため`CLAUDE.md`の実装の委譲原則に従い`codex-delegation` skillでCodexへ委譲する。ユーザーへ確認を求めずブランチ作成〜コミットまで自律的に行う。内容自体は新たな設計判断ではなく、plan内で既に決定済みの内容の記録先を整理する作業のため
+- 上記のdecisions抽出・`ARCHITECTURE.md`更新は、そのexecution-planの実装タスクの一環のため`CLAUDE.md`の実装の委譲原則に従い`codex-delegation` skillでCodexへ委譲する。ユーザーへ確認を求めずブランチ作成〜コミットまで自律的に行う。内容自体は新たな設計判断ではなく、plan内で既に決定済みの内容の記録先を整理する作業のため
 - 完了したplanは`git mv`で`.claude/plans/active/`から`.claude/plans/completed/`へ移動する
 - 完了後も削除せず、実装判断の根拠として保持し続ける
 

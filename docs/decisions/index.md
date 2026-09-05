@@ -1,6 +1,6 @@
-# Design Docs 索引
+# Decisions 索引
 
-複数タスクを跨ぐ永続的な設計判断（なぜこの技術・パターンを採用したか等）をここに記録する。
+複数タスクを跨ぐ永続的な設計判断（なぜこの技術・パターンを採用したか等）をここに記録する。書き方の基準は`.claude/rules/decisions-maintenance.md`を参照する。
 
 - そのタスク単体の決定・経緯 → `.claude/plans/`内の各planのDecision Logへ
 - AIの振る舞い方針（コーディング原則） → `AGENTS.md` / `.claude/CLAUDE.md`へ

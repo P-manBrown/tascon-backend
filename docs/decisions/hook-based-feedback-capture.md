@@ -17,6 +17,7 @@ claude-mem導入を機に、ユーザーからの訂正・決定をCLAUDE.md/rul
 - CLAUDE.md/rules/skills/`.claude/memory/`への反映は、`execution-plan`の完了処理（そのplanに関わる全ブランチがmainへマージ完了した時点）にまとめて行う。人間のPRレビューを経た後という位置づけになる
 - 完了処理内でclaude-memを照会し、そのplan期間中の決定・教訓に記録漏れがないか監査する。照会範囲は、plan内に記録したworktree絶対パス（サブエージェントの`isolation: "worktree"`起動時に払い出される、`.claude/worktrees/agent-<agentId>`形式のパス）から解決されるclaude-memの`project`識別子に絞る。これは時刻ではなくworktree単位でスコープを切ることで、人間のレビュー待ちで完了処理が遅延しても並行作業と混ざらないようにするため
 - plan内の`Decision Log`セクションへの記録は従来通り即時（`execution-plan` SKILL.md既存ルール）。これは対象が「plan単体の作業記録」であり、CLAUDE.md/rules/skills等プロジェクト全体への昇格とは別工程のため、遅らせる理由がない
+- claude-memの`CLAUDE_MEM_SKIP_TOOLS`はデフォルトで`AskUserQuestion`を観測対象から除外する。これを除外したままだと、`AskUserQuestion`経由の決定は即時反映（`PostToolUse(AskUserQuestion)`フック）が機能しなかった場合にclaude-mem監査でも救えない。`compose.devcontainer.yml`で`AskUserQuestion`を除いたリストへ上書きしている
 
 ## plan完了検知の一般化
 

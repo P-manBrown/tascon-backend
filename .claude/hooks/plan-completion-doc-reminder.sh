@@ -26,7 +26,7 @@ if [ "$detected" = "1" ]; then
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
       permissionDecision: "allow",
-      additionalContext: "Planをcompleted化する前に、`execution-plan` SKILL.mdの「完了処理」セクションに記載の手順(claude-mem監査・design-docs抽出・ARCHITECTURE.md更新・memory/rules/skills昇格等)を実施済みか確認してください。"
+      additionalContext: "Planをcompleted化する前に、`execution-plan` SKILL.mdの「完了処理」セクションに記載の手順(claude-mem監査・decisions抽出・ARCHITECTURE.md更新・memory/rules/skills昇格等)を実施済みか確認してください。"
     }
   }'
 else

@@ -17,7 +17,7 @@ matklad "ARCHITECTURE.md"（https://matklad.github.io/2021/02/06/ARCHITECTURE.md
 ## 書かないこと
 
 - 個々のモジュールがどう動くかという実装詳細（コード自体・コード内コメントに委ねる）
-- なぜその設計にしたかという決定理由・経緯（`docs/design-docs/`へ）
+- なぜその設計にしたかという決定理由・経緯（`docs/decisions/`へ）
 - 頻繁に変わる情報（書くほど陳腐化しやすい）
 
 ## 形式
