@@ -22,8 +22,8 @@ pre-commit:
     - run: bash .lefthook/pre-commit/check-docs.sh {staged_files}
       glob:
         - "ARCHITECTURE.md"
-        - "docs/decisions/*.md"
-        - "docs/decisions/**/*.md"
+        - "docs/*.md"
+        - "docs/**/*.md"
         - ".claude/plans/**/*.md"
         - ".claude/tech-debt/**/*.md"
       fail_text: 'Read the report above.'

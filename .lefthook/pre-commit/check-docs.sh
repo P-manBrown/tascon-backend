@@ -38,6 +38,6 @@ while IFS= read -r -d '' file; do
       status=1
     fi
   done < <(grep -oE '\]\([^)]+\)' "$file" | sed -E 's/^\]\(//; s/\)$//')
-done < <(find ARCHITECTURE.md docs/decisions .claude/plans .claude/tech-debt -name '*.md' -print0 2>/dev/null)
+done < <(find ARCHITECTURE.md docs .claude/plans .claude/tech-debt -name '*.md' -print0 2>/dev/null)
 
 exit $status
