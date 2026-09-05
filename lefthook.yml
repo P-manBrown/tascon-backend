@@ -1,4 +1,4 @@
-min_version: 1.3.0
+min_version: 1.10.0
 pre-commit:
   parallel: true
   commands:
@@ -18,9 +18,14 @@ pre-commit:
     protect-branch:
       run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main'
       fail_text: "ERROR: Do NOT commit directly to 'main' branch."
-  scripts:
-    "check-docs.sh":
-      runner: bash
+  jobs:
+    - run: bash .lefthook/pre-commit/check-docs.sh {staged_files}
+      glob:
+        - "ARCHITECTURE.md"
+        - "docs/decisions/*.md"
+        - "docs/decisions/**/*.md"
+        - ".claude/plans/**/*.md"
+        - ".claude/tech-debt/**/*.md"
       fail_text: 'Read the report above.'
 pre-push:
   commands:
