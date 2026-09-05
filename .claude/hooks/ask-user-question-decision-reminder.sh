@@ -1,8 +1,4 @@
 #!/bin/bash
-# PostToolUse(AskUserQuestion)フックから呼ばれる。
-# 質問への回答を受け取った直後に、その決定が関連する
-# execution-planのDecision Logへ反映すべきでないか確認を促す。
-# PostToolUseではpermissionDecisionは無視されるため付与しない。
 set -uo pipefail
 
 cat >/dev/null
