@@ -93,6 +93,12 @@ while IFS= read -r -d '' file; do
   fi
 done < <(find docs/decisions -maxdepth 1 -name '*.md' -print0 2>/dev/null)
 
+# --- plans: ファイル名規則 ---
+while IFS= read -r -d '' file; do
+  base=$(basename "$file")
+  is_kebab_case_md "$base" || fail "$file does not match naming convention <kebab-case-slug>.md"
+done < <(find .claude/plans -maxdepth 2 -mindepth 2 -name '*.md' -print0 2>/dev/null)
+
 # --- 全体: Markdown相対リンク切れチェック ---
 while IFS= read -r -d '' file; do
   dir=$(dirname "$file")
