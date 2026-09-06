@@ -88,6 +88,9 @@ while IFS= read -r -d '' file; do
   require_fields "$file" "Status" "Verification Status" "Date"
   require_headings "$file" "Context" "Decision" "Consequences"
 
+  placeholders=$(grep -nE '^# <[^>]+>$' "$file" || true)
+  [ -n "$placeholders" ] && fail "$file has unfilled placeholder(s) at line(s): $(echo "$placeholders" | cut -d: -f1 | tr '\n' ' ')"
+
   if [ -f docs/decisions/index.md ] && ! grep -q "($base)" docs/decisions/index.md; then
     fail "docs/decisions/$base is not linked from index.md"
   fi
