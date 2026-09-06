@@ -24,6 +24,10 @@ require_headings() {
   done
 }
 
+is_valid_date() {
+  [[ "$1" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] && date -d "$1" >/dev/null 2>&1
+}
+
 # --- tech-debt: 固定値検証 ---
 valid_td_status="Open|Accepted|Resolved"
 valid_td_priority="High|Medium|Low"
@@ -34,15 +38,30 @@ while IFS= read -r -d '' file; do
   td_priority=$(grep -oP '(?<=\*\*Priority:\*\* )\S+' "$file" || true)
   td_category=$(grep -oP '(?<=\*\*Category:\*\* )\S+' "$file" || true)
 
+  td_detected=$(grep -oP '(?<=\*\*Detected:\*\* )\S+' "$file" || true)
+
   [ -n "$td_status" ] && ! [[ "$td_status" =~ ^($valid_td_status)$ ]] && fail "$file has invalid Status: $td_status"
   [ -n "$td_priority" ] && ! [[ "$td_priority" =~ ^($valid_td_priority)$ ]] && fail "$file has invalid Priority: $td_priority"
   [ -n "$td_category" ] && ! [[ "$td_category" =~ ^($valid_td_category)$ ]] && fail "$file has invalid Category: $td_category"
+  [ -n "$td_detected" ] && ! is_valid_date "$td_detected" && fail "$file has invalid Detected date: $td_detected"
+
+  case "$file" in
+    .claude/tech-debt/active/*)
+      [ "$td_status" = "Resolved" ] && fail "$file is in active/ but Status is Resolved (should move to completed/)"
+      ;;
+    .claude/tech-debt/completed/*)
+      [ -n "$td_status" ] && [ "$td_status" != "Resolved" ] && fail "$file is in completed/ but Status is $td_status (expected Resolved)"
+      ;;
+  esac
 
   require_fields "$file" "Status" "Priority" "Category" "Area" "Detected" "Todoist Task ID" "Description" "Impact" "Proposed Resolution" "Related"
 
   placeholders=$(grep -nE '^(# TD-[0-9]+ — <[^>]+>|- \*\*[A-Za-z ]+:\*\* <[^>]+>)$' "$file" || true)
   [ -n "$placeholders" ] && fail "$file has unfilled placeholder(s) at line(s): $(echo "$placeholders" | cut -d: -f1 | tr '\n' ' ')"
 done < <(find .claude/tech-debt -name 'TD-*.md' -print0 2>/dev/null)
+
+duplicate_tds=$(find .claude/tech-debt -name 'TD-*.md' -print0 2>/dev/null | xargs -0 -n1 basename 2>/dev/null | grep -oE '^TD-[0-9]+' | sort | uniq -d)
+[ -n "$duplicate_tds" ] && fail "duplicate TD numbers found: $(echo "$duplicate_tds" | tr '\n' ' ')"
 
 # --- decisions: 固定値検証・必須フィールド/見出し・孤立ファイル検知 ---
 valid_decision_status="Proposed|Accepted|Deprecated|Superseded by .+"
@@ -54,9 +73,11 @@ while IFS= read -r -d '' file; do
 
   d_status=$(grep -oP '(?<=\*\*Status:\*\* ).+' "$file" || true)
   d_vstatus=$(grep -oP '(?<=\*\*Verification Status:\*\* )\S+' "$file" || true)
+  d_date=$(grep -oP '(?<=\*\*Date:\*\* )\S+' "$file" || true)
 
   [ -n "$d_status" ] && ! [[ "$d_status" =~ ^($valid_decision_status)$ ]] && fail "$file has invalid Status: $d_status"
   [ -n "$d_vstatus" ] && ! [[ "$d_vstatus" =~ ^($valid_verification_status)$ ]] && fail "$file has invalid Verification Status: $d_vstatus"
+  [ -n "$d_date" ] && ! is_valid_date "$d_date" && fail "$file has invalid Date: $d_date"
 
   require_fields "$file" "Status" "Verification Status" "Date"
   require_headings "$file" "Context" "Decision" "Consequences"
