@@ -32,7 +32,7 @@ is_kebab_case_md() {
   [[ "$1" =~ ^[a-z0-9]+(-[a-z0-9]+)*\.md$ ]]
 }
 
-# --- tech-debt: 固定値検証 ---
+# --- tech-debt: fixed-value validation ---
 valid_td_status="Open|Accepted|Resolved"
 valid_td_priority="High|Medium|Low"
 valid_td_category="Architecture|Code|Test|Performance|Security|Infrastructure|Dependency|Documentation"
@@ -67,7 +67,7 @@ while IFS= read -r -d '' file; do
   [ -n "$placeholders" ] && fail "$file has unfilled placeholder(s) at line(s): $(echo "$placeholders" | cut -d: -f1 | tr '\n' ' ')"
 done < <(find .claude/tech-debt -name '*.md' -print0 2>/dev/null)
 
-# --- decisions: 固定値検証・必須フィールド/見出し・孤立ファイル検知 ---
+# --- decisions: fixed-value validation, required fields/headings, orphan detection ---
 valid_decision_status="Proposed|Accepted|Deprecated|Superseded by .+"
 valid_verification_status="Verified|Unverified|Stale"
 
@@ -93,13 +93,13 @@ while IFS= read -r -d '' file; do
   fi
 done < <(find docs/decisions -maxdepth 1 -name '*.md' -print0 2>/dev/null)
 
-# --- plans: ファイル名規則 ---
+# --- plans: filename convention ---
 while IFS= read -r -d '' file; do
   base=$(basename "$file")
   is_kebab_case_md "$base" || fail "$file does not match naming convention <kebab-case-slug>.md"
 done < <(find .claude/plans -maxdepth 2 -mindepth 2 -name '*.md' -print0 2>/dev/null)
 
-# --- 全体: Markdown相対リンク切れチェック ---
+# --- all: broken relative Markdown link check ---
 while IFS= read -r -d '' file; do
   dir=$(dirname "$file")
   while IFS= read -r link; do
