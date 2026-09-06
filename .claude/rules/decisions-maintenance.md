@@ -7,6 +7,10 @@ paths:
 
 対象・書くこと・書かないことは`docs/decisions/index.md`を参照する。1決定1ファイルとする。
 
+## ファイル名
+
+内容が分かる英語kebab-case（例: `feedback-reflection-timing.md`）とする。
+
 ## 形式
 
 ```markdown

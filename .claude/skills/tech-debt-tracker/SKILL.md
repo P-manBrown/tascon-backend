@@ -9,8 +9,8 @@ description: 技術的負債・懸念事項を`.claude/tech-debt/`へ記録し�
 
 `.claude/plans/`とは別ディレクトリで管理する。plansはexecution-plan（実装計画）専用で、性質の異なるtech-debtを混ぜない。
 
-- `.claude/tech-debt/active/TD-XXX.md`：`Open`・`Accepted`の項目
-- `.claude/tech-debt/completed/TD-XXX.md`：`Resolved`の項目
+- `.claude/tech-debt/active/<slug>.md`：`Open`・`Accepted`の項目
+- `.claude/tech-debt/completed/<slug>.md`：`Resolved`の項目
 
 ## 対象範囲
 
@@ -19,12 +19,12 @@ description: 技術的負債・懸念事項を`.claude/tech-debt/`へ記録し�
 
 ## 新規記録の手順
 
-1. `.claude/tech-debt/active/`のファイル一覧（`ls`または`Glob`）を確認する。ファイル名（TD番号）だけでは中身は分からないため、似た対象範囲・カテゴリのものがあれば中身を読んで同等の項目でないか確認する。あれば新規追加せず終了
-2. `.claude/tech-debt/active/`・`.claude/tech-debt/completed/`両方のファイル名から最大のTD番号を確認し、`TD-<連番>`を採番する
-3. `.claude/tech-debt/active/TD-XXX.md`を以下のフォーマットで新規作成する（本文は日本語で記述する）
+1. `.claude/tech-debt/active/`のファイル一覧（`ls`または`Glob`）を確認する。似た対象範囲・カテゴリのものがあれば中身を読んで同等の項目でないか確認する。あれば新規追加せず終了
+2. 内容が分かる英語kebab-caseのファイル名（`<slug>.md`）を決める
+3. `.claude/tech-debt/active/<slug>.md`を以下のフォーマットで新規作成する（本文は日本語で記述する）
 
 ```markdown
-# TD-XXX — <一行要約>
+# <一行要約>
 - **Status:** Open
 - **Priority:** High / Medium / Low
 - **Category:** Architecture / Code / Test / Performance / Security / Infrastructure / Dependency / Documentation
@@ -40,16 +40,16 @@ description: 技術的負債・懸念事項を`.claude/tech-debt/`へ記録し�
    - `Description`だけで終わらせず`Impact`まで必ず書く。「何が」だけでは、数か月後に再調査が必要になる
    - `Category`・`Priority`・`Status`は必ず上記の固定値から選ぶ。自由記述にしない（表記揺れで同種の項目が分裂するのを防ぐ）
 
-4. `add-tasks`でTodoistのインボックスへ新規タスクを作成する（プロジェクト・セクション未指定）。タスクのdescriptionに`TD-XXX`のIDと概要を記載する。ラベル付与は`todoist-task-conventions` skillに従う
+4. `add-tasks`でTodoistのインボックスへ新規タスクを作成する（プロジェクト・セクション未指定）。タスクのdescriptionにファイル名と概要を記載する。ラベル付与は`todoist-task-conventions` skillに従う
 5. 発行されたTodoistタスクIDを、手順3で作成したファイルの`Todoist Task ID`欄へ書き戻す
 
 ## 解消・却下時の手順
 
 対応済みのTDは、単にTodoistタスクを完了させるだけでは扱いが終わらない。以下の手順で必ずファイル側も更新する。
 
-- **Resolved（解消済み）**: 対応するコード変更がコミットされた後、コード上で実際に負債が解消されたことを確認する。確認できたら`Status`を`Resolved`に変更し、`Resolution`（実際にどう解決したか、日本語で記述）と`Resolved`（解消日）を追記して、ファイルごと`.claude/tech-debt/active/TD-XXX.md`から`.claude/tech-debt/completed/TD-XXX.md`へ移動する（`git mv`推奨）。Todoistタスク自体の完了操作（`complete-tasks`）はいつも通り行ってよいが、それとは別にこの更新を必ず行う（タスク完了＝負債解消の確認、ではない）
+- **Resolved（解消済み）**: 対応するコード変更がコミットされた後、コード上で実際に負債が解消されたことを確認する。確認できたら`Status`を`Resolved`に変更し、`Resolution`（実際にどう解決したか、日本語で記述）と`Resolved`（解消日）を追記して、ファイルごと`.claude/tech-debt/active/<slug>.md`から`.claude/tech-debt/completed/<slug>.md`へ移動する（`git mv`推奨）。Todoistタスク自体の完了操作（`complete-tasks`）はいつも通り行ってよいが、それとは別にこの更新を必ず行う（タスク完了＝負債解消の確認、ではない）
 - **Accepted（意図的に残す）**: 検討の結果、対応せず現状のまま残すと判断した場合は`Status`を`Accepted`に変更し、その判断理由を`Resolution`相当の記述として追記する。ファイルは移動せず`.claude/tech-debt/active/`内に留める（今も意識し続けるべき項目のため）
-- どちらの場合も**ファイルを削除しない**。TD番号もそのまま維持する。削除すると、将来別セッションが同じ問題を再発見・再提起してしまう
+- どちらの場合も**ファイルを削除しない**。ファイル名もそのまま維持する。削除すると、将来別セッションが同じ問題を再発見・再提起してしまう
 - 更新のタイミングは、該当Todoistタスクの完了処理時など、対応が実際にコードへ反映された直後に行う
 
 ## 他skillとの関係

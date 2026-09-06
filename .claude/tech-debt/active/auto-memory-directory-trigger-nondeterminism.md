@@ -1,4 +1,4 @@
-# TD-001 — claude-md-maintenance.mdのpathsトリガーが環境依存のautoMemoryDirectoryに依存し確定的でない
+# claude-md-maintenance.mdのpathsトリガーが環境依存のautoMemoryDirectoryに依存し確定的でない
 - **Status:** Open
 - **Priority:** Low
 - **Category:** Documentation

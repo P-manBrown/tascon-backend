@@ -28,6 +28,10 @@ is_valid_date() {
   [[ "$1" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] && date -d "$1" >/dev/null 2>&1
 }
 
+is_kebab_case_md() {
+  [[ "$1" =~ ^[a-z0-9]+(-[a-z0-9]+)*\.md$ ]]
+}
+
 # --- tech-debt: 固定値検証 ---
 valid_td_status="Open|Accepted|Resolved"
 valid_td_priority="High|Medium|Low"
@@ -35,7 +39,7 @@ valid_td_category="Architecture|Code|Test|Performance|Security|Infrastructure|De
 
 while IFS= read -r -d '' file; do
   base=$(basename "$file")
-  [[ "$base" =~ ^TD-[0-9]+\.md$ ]] || fail "$file does not match naming convention TD-<number>.md"
+  is_kebab_case_md "$base" || fail "$file does not match naming convention <kebab-case-slug>.md"
 
   td_status=$(grep -oP '(?<=\*\*Status:\*\* )\S+' "$file" || true)
   td_priority=$(grep -oP '(?<=\*\*Priority:\*\* )\S+' "$file" || true)
@@ -59,12 +63,9 @@ while IFS= read -r -d '' file; do
 
   require_fields "$file" "Status" "Priority" "Category" "Area" "Detected" "Todoist Task ID" "Description" "Impact" "Proposed Resolution" "Related"
 
-  placeholders=$(grep -nE '^(# TD-[0-9]+ — <[^>]+>|- \*\*[A-Za-z ]+:\*\* <[^>]+>)$' "$file" || true)
+  placeholders=$(grep -nE '^(# <[^>]+>|- \*\*[A-Za-z ]+:\*\* <[^>]+>)$' "$file" || true)
   [ -n "$placeholders" ] && fail "$file has unfilled placeholder(s) at line(s): $(echo "$placeholders" | cut -d: -f1 | tr '\n' ' ')"
-done < <(find .claude/tech-debt -name 'TD-*.md' -print0 2>/dev/null)
-
-duplicate_tds=$(find .claude/tech-debt -name 'TD-*.md' -print0 2>/dev/null | xargs -0 -n1 basename 2>/dev/null | grep -oE '^TD-[0-9]+' | sort | uniq -d)
-[ -n "$duplicate_tds" ] && fail "duplicate TD numbers found: $(echo "$duplicate_tds" | tr '\n' ' ')"
+done < <(find .claude/tech-debt -name '*.md' -print0 2>/dev/null)
 
 # --- decisions: 固定値検証・必須フィールド/見出し・孤立ファイル検知 ---
 valid_decision_status="Proposed|Accepted|Deprecated|Superseded by .+"
@@ -73,6 +74,8 @@ valid_verification_status="Verified|Unverified|Stale"
 while IFS= read -r -d '' file; do
   base=$(basename "$file")
   [ "$base" = "index.md" ] && continue
+
+  is_kebab_case_md "$base" || fail "$file does not match naming convention <kebab-case-slug>.md"
 
   d_status=$(grep -oP '(?<=\*\*Status:\*\* ).+' "$file" || true)
   d_vstatus=$(grep -oP '(?<=\*\*Verification Status:\*\* )\S+' "$file" || true)
