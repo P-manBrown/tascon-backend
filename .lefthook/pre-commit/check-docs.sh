@@ -34,6 +34,9 @@ valid_td_priority="High|Medium|Low"
 valid_td_category="Architecture|Code|Test|Performance|Security|Infrastructure|Dependency|Documentation"
 
 while IFS= read -r -d '' file; do
+  base=$(basename "$file")
+  [[ "$base" =~ ^TD-[0-9]+\.md$ ]] || fail "$file does not match naming convention TD-<number>.md"
+
   td_status=$(grep -oP '(?<=\*\*Status:\*\* )\S+' "$file" || true)
   td_priority=$(grep -oP '(?<=\*\*Priority:\*\* )\S+' "$file" || true)
   td_category=$(grep -oP '(?<=\*\*Category:\*\* )\S+' "$file" || true)
