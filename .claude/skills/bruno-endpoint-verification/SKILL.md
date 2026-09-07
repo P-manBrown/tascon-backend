@@ -3,7 +3,7 @@ name: bruno-endpoint-verification
 description: APIエンドポイントの新規追加・変更時にBruno CLIで動作検証するスキル。「エンドポイントを検証して」「Bruno CLIでテストして」等の明示的な指示に加え、エンドポイント追加・変更作業の完了報告前にも使用する。
 ---
 
-# bruno-endpoint-verification
+# Bruno CLIの使用方法
 
 APIエンドポイントの追加・変更を、正規のBruno Collectionリクエストで検証する。
 
