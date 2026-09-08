@@ -17,7 +17,7 @@ Tascon Backend は、タスク管理システムの Rails API サーバーであ
 - Validator 層：複数箇所から利用できる追加の検証。
 - 設定：ルーティング、環境設定、Gem の初期設定。
 - スキーマとマイグレーション：データベース構造とその変更履歴。
-- 拡張：Rails 標準の拡張点に収まらない処理。Devise の挙動を上書きする monkey patch は `monkey_patches` にある。
+- 拡張：Rails 標準の拡張点に収まらない処理は monkey patch として `monkey_patches` に置く。
 - テスト：各層の振る舞いを検証する。
 
 API 専用構成を基本とするが、認証メールと OAuth の補助画面のために Mailer と View も持つ。
