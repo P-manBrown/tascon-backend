@@ -9,7 +9,7 @@ Tascon Backend の機能がリポジトリ内のどこに置かれ、主要な�
 
 ## 全体像
 
-Tascon Backend は、タスク管理システムの Rails API サーバーである。通常のリクエストはルーティング定義 `routes.rb` から Controller、Model、Resource へ流れ、JSON として返される。
+Tascon Backend は、タスク管理システムの Rails API サーバーである。通常のリクエストはルーティング定義から Controller、Model、Resource へ流れ、JSON として返される。
 
 - Controller 層：HTTP、認証・認可、入力、処理の組み立て。
 - Model 層：永続化、関連、データの整合性、再利用する問い合わせ。
@@ -54,7 +54,7 @@ Rails 標準だけでは表しにくい再利用可能な属性検証を置く�
 
 ## ルーティングの地図
 
-URL、HTTP Method、Controller の対応は `routes.rb` が authoritative source である。
+URL、HTTP Method、Controller の対応はルーティング定義が authoritative source である。
 
 ## レイヤー間の責務
 
@@ -79,19 +79,19 @@ Controller から Resource へは描画に必要な文脈を渡せるが、Resou
 
 ### ページネーション
 
-一覧のページネーションには Pagy を使う。導入点は `ApplicationController` と初期化ファイル `pagy.rb` である。
+一覧のページネーションには Pagy を使う。導入点は `ApplicationController` と Pagy の初期化設定である。
 
 ### 添付ファイル
 
-`User` の Avatar は Active Storage の境界に置かれる。モデル側の入口は `User`、追加検証は Validator 層、保存先設定は `storage.yml` である。
+`User` の Avatar は Active Storage の境界に置かれる。モデル側の入口は `User`、追加検証は Validator 層、保存先設定は Active Storage の初期設定である。
 
 ### オリジン制御
 
-フロントエンドからのクロスオリジンリクエストは rack-cors の初期化ファイル `cors.rb` が境界となり、許可オリジンは環境変数 `FRONTEND_ORIGIN` で指定する。
+フロントエンドからのクロスオリジンリクエストは rack-cors の初期化設定が境界となり、許可オリジンは環境変数 `FRONTEND_ORIGIN` で指定する。
 
 ## 変更時の参照先
 
-- URL や HTTP Method：`routes.rb` と対応する Controller。
+- URL や HTTP Method：ルーティング定義と対応する Controller。
 - 入力、認可、HTTP Status：`Api::V1` 配下の Controller。
 - 永続化ルール、関連、検索条件：Model 層。
 - JSON の公開項目や関連の埋め込み：Resource 層。
@@ -99,5 +99,5 @@ Controller から Resource へは描画に必要な文脈を渡せるが、Resou
 - 認証フロー：`Api::V1::Auth` 配下の Controller、`User`、各 Gem の初期化ファイル。
 - エラー JSON：`ErrorRendering`。
 - メール本文とレイアウト：`ApplicationMailer`、`DeviseMailer`、対応する View。
-- データベース構造：`schema.rb` とマイグレーション。
+- データベース構造：データベーススキーマとマイグレーション。
 - 環境ごとの差分：環境別の設定ファイル。
