@@ -1,5 +1,18 @@
 {
   "plansDirectory": "./.claude/plans",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/check-docs-hook.sh\""
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "genshijin@genshijin": true,
     "codex@openai-codex": true,
