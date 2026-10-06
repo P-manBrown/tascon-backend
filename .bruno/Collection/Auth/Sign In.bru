@@ -24,6 +24,6 @@ body:json {
 
 script:post-response {
   const authorization = res.getHeader('authorization')
-  bru.setEnvVar('BEARER_TOKEN', authorization)
+  bru.setVar('BEARER_TOKEN', authorization)
   
 }
