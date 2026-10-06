@@ -12,7 +12,13 @@ require_fields() {
   local file="$1"
   shift
   for field in "$@"; do
-    grep -q -- "\*\*${field}:\*\*" "$file" || fail "$file is missing required field: $field"
+    line=$(grep -m1 -- "\*\*${field}:\*\*" "$file" || true)
+    if [ -z "$line" ]; then
+      fail "$file is missing required field: $field"
+      continue
+    fi
+    value=$(echo "$line" | sed -E "s/.*\*\*${field}:\*\*[[:space:]]*//")
+    [ -z "$value" ] && fail "$file has empty required field: $field"
   done
 }
 
