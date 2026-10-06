@@ -39,7 +39,7 @@ OpenAI「Harness Engineering」記事の運用思想（repositoryをsystem of re
 - `.claude/plans/active/`・`.claude/plans/completed/`を作成
 - 既存3ファイルを完了状況に応じて`git mv`で仕分け（履歴保持）
   - `task-group-share-cancellation.md`: 現ブランチ`feat/task-group-share-destroy`の作業と対応している可能性が高く、実装状況を見てactive/completedを判断
-  - `reflective-puzzling-wren.md`: Step4以降未実装と明記済み → `active/`
+  - `task-group-handover.md`: Step4以降未実装と明記済み → `active/`
   - `lefthook-debride-scope-change.md`: 未着手と明記済み → `active/`
 - `.claude/plans/INDEX.md`を削除
 - `.claude/rules/claude-md-maintenance.md`または`CLAUDE.md`に「plansはactive/completed構成、git管理下」である旨を一言だけ追記（詳細手順はexecution-plan skillに書くのでここは触れる程度）

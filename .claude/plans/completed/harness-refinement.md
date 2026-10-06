@@ -2,7 +2,7 @@
 
 ## Context
 
-`dapper-hugging-phoenix.md`（AIエージェント駆動開発の運用基盤構築）完了後、matklad "ARCHITECTURE.md"記事（https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html）とCodex公式ドキュメント（developers.openai.com/codex/guides/agents-md）を踏まえて内容を精査したところ、複数の設計上の不備が見つかったため是正した。
+`harness-engineering-foundation.md`（AIエージェント駆動開発の運用基盤構築）完了後、matklad "ARCHITECTURE.md"記事（https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html）とCodex公式ドキュメント（developers.openai.com/codex/guides/agents-md）を踏まえて内容を精査したところ、複数の設計上の不備が見つかったため是正した。
 
 ## Progress
 
