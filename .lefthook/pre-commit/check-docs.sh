@@ -91,7 +91,7 @@ while IFS= read -r -d '' file; do
   [ -n "$d_vstatus" ] && ! [[ "$d_vstatus" =~ ^($valid_verification_status)$ ]] && fail "$file has invalid Verification Status: $d_vstatus"
   [ -n "$d_date" ] && ! is_valid_date "$d_date" && fail "$file has invalid Date: $d_date"
 
-  require_fields "$file" "Status" "Verification Status" "Date"
+  require_fields "$file" "Status" "Verification Status" "Date" "Related Files"
   require_headings "$file" "Context" "Decision" "Consequences"
 
   placeholders=$(grep -nE '^# <[^>]+>$' "$file" || true)
