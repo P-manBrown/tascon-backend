@@ -1,6 +1,6 @@
 # rules遵守確認フックの対象範囲
 
-- **Status:** Accepted
+- **Status:** Superseded by [リマインダー型hookの廃止](reminder-hooks-removal.md)
 - **Verification Status:** Verified
 - **Date:** 2026-09-05
 - **Related Files:** `.claude/hooks/rules-compliance-check-reminder.sh`, `.claude/rules/claude-md-maintenance.md`
