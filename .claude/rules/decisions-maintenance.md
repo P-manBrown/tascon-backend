@@ -11,7 +11,7 @@ paths:
 
 ## ファイル名
 
-内容が分かる英語kebab-case（例: `feedback-reflection-timing.md`）とする。
+内容が分かる英語kebab-case（`<slug.md>`）とする。
 
 ## 形式
 
