@@ -33,6 +33,8 @@ paths:
 ```
 
 - `Status`: この決定自体が今も有効な意思決定かを示す
+  - 有効でなくなった決定は、ファイル削除・本文の書き換えをせず`Status`のみ変更する
+  - 課題自体がなくなり、代わる決定がない場合: `Deprecated`にし、その理由を`Status`の直後に1行で記載する
 - `Verification Status`: この決定が実装で実際に検証済みかを示す
 - `Related Files`: `Verification Status`の検証時に照合する実装ファイル
 - `Considered Options`: 複数案を検討した場合のみ、それぞれの長所・短所を書く
