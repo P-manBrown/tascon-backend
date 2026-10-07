@@ -36,6 +36,7 @@ git-spice使用。スタック型ブランチ管理。
 
 ## プルリクエスト作成ルール
 
+- PR作成前、`ARCHITECTURE.md`・`.claude/plans/`に影響する変更（レイヤー構成の変更、plan完了等）があれば`doc-gardening` skillの実行を検討する
 - `.github/pull_request_template.md`テンプレート使用
 - 英語で作成
 - 親ブランチからの差分・当該ブランチのコミットメッセージ参考

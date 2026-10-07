@@ -3,6 +3,7 @@ paths:
   - ".claude/CLAUDE.md"
   - ".claude/rules/**/*.md"
   - ".claude/skills/**/*.md"
+  - ".claude/memory/**/*.md"
 ---
 
 # CLAUDE.md運用方針
@@ -12,6 +13,8 @@ paths:
 - 常に必要な文脈（プロジェクト全体の前提・振る舞い方針）→ CLAUDE.md
 - 特定ファイルパスを触るときだけ必要 → `.claude/rules/*.md`
 - 特定タスク遂行時のみ必要な手順（コミット作成・リリース手順等、パスに紐付かない） → `.claude/skills/*/SKILL.md`
+- 個人の作業スタイル・ツール利用方針など、プロジェクト全体・将来のセッションに影響しない内容 → `.claude/memory/`（git管理外のまま）
+- プロジェクト全体のルールとして今後も参照されるべき内容 → memoryへ書く前に上記CLAUDE.md/rules/skillsへ直接昇格させる。後でまとめて棚卸しするのではなく、記録する時点で判断する
 
 ## 実践
 
