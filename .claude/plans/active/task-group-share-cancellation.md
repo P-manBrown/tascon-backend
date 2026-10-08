@@ -5,9 +5,10 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a7729d0959ce38cc6
 ## Progress
 
 - [x] Step1: オーナーによる共有解除（ブランチ `feat/task-group-share-destroy`、親 `docs/doc-gardening-sync`、コミット `c603f42`）。Bruno: オーナー解除(id 15) 204、受け手(id 14) 404、`handover_pending`(id 18) 422 + `invalid_transition`
-- [x] Step2: 共有された側による自己離脱（ブランチ `feat/task-group-share-self-leave`、Step1の上にスタック、コミット `9082cb9`）。Bruno: オーナー解除(id 20) 204、受け手離脱(id 26) 204、第三者(id 16) 404、`handover_pending`(id 18) 422 + `invalid_transition`
-- [ ] 残作業: 親セッションによる `/code-review`・`/security-review`、PR作成・マージ（ユーザー指示待ち）、RSpec（本プラン対象外）
-- 検証で dev DB の共有 id 15・20・26 を削除済み（`Destroy.bru` のURLは id 2 に戻してある）
+- [x] Step2: 共有された側による自己離脱（ブランチ `feat/task-group-share-self-leave`、Step1の上にスタック、restack後のコミット `588a2b9`）。Bruno: オーナー解除(id 20) 204、受け手離脱(id 26) 204、第三者(id 16) 404、`handover_pending`(id 18) 422 + `invalid_transition`
+- [x] レビュー修正: `destroy` の競合対策（`with_lock` 内で状態と `user_id` を再確認）を `feat/task-group-share-destroy` に `d709345` として追加し、git-spiceで上位ブランチをrestack。Bruno: Step1ブランチでオーナー(id 22) 204・`handover_pending`(id 18) 422、Step2ブランチでオーナー(id 23) 204・受け手(id 29) 204・`handover_pending`(id 18) 422
+- [ ] 残作業: PR作成・マージ（ユーザー指示待ち）、RSpec（本プラン対象外）
+- 検証で dev DB の共有 id 15・20・22・23・26・29 を削除済み（`Destroy.bru` のURLは id 2 に戻してある）
 
 再開時の前提:
 - worktreeには `config/master.key` が無いため、メインリポジトリの `config/master.key` へのシンボリックリンクを置いて `bin/rails` / Puma を起動する（gitignore対象）。
@@ -17,6 +18,13 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a7729d0959ce38cc6
 
 - 2026-10-09: プラン作成後に `TaskGroupShare` 周辺がリファクタされた（`accept_handover!` のモデル移動、finder/ステータスガイドの整理）ため、着手時に現行コードと突き合わせた。`set_owned_task_group_share`・`render_custom_error`・`status_shared?` はプラン記載どおり存在し、Step1/Step2のスニペットは修正不要と判断。
 - 2026-10-09: Bruno検証の「recipient」「第三者」ケースは、別ユーザーでサインインする代わりに test ユーザーが受け手／無関係となる共有idを対象にして再現する。Sign In.bru はtestユーザー固定で、他ユーザーの認証情報を追加するとCollectionに一時的な認証ファイルが増えるため。
+- 2026-10-09: 親セッションのcode-reviewで、`destroy` の状態チェックと `destroy!` の間に引き継ぎ承認（状態変更・`user_id` 入れ替え）が割り込む競合が指摘された。`user_id` を控えたうえで `with_lock`（reloadを伴う）内で `status_shared?` と `user_id` 不変を再確認し、満たさなければ同じ422 `invalid_transition` を返す形に修正した。競合の発生源がStep1のため、Step1ブランチへ新規コミットとして積みrestackした。
+- 2026-10-09: 同レビューの以下の指摘は対応しないと判断した。
+  - RSpecが無い: テストは本プランの対象外（別途作成）と合意済みのため。
+  - `Destroy.bru` が固定idを削除する破壊的リクエストである: 他の更新系 `.bru`（Create・Request Handover等）も固定idを使っており、それに揃えているため。
+  - shared状態のガードが `request_handover` と重複している: `destroy` 側のチェックはロック内で行う必要があり、before_actionに切り出せないため。
+  - `owned_or_shared_with` scope のjoinの書き方: プラン作成時に決めた方式（`.or` の両辺に `joins(:task_group)` を明示）のため。
+  - ブロック中のオーナーに `without_blocked_owners` を適用していない: 可視性フィルタと当事者の離脱・解除権は別軸とするプラン合意済みの仕様のため。
 
 ## Validation and Acceptance
 
