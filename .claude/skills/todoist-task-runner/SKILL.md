@@ -37,9 +37,12 @@ Todoistをタスクキューとして、execution-plan単位の実装〜ロー�
 
 ## 作業中に派生タスクを発見した場合
 
-今行っている作業に直接関係ないが、今後対応が必要と判明した事項（気づいたバグ、改善点、TODO等）を発見した場合、処理は止めずに`add-tasks`でTodoistのインボックスへ新規タスクを作成する（プロジェクト・セクション未指定でインボックスに入る）。
+今行っている作業に直接関係ないが、今後対応が必要と判明した事項（気づいたバグ、改善点、技術的負債等）を発見した場合、処理は止めず`tech-debt-tracker` skillの手順に従う（Todoist作成が先ではなく、`.claude/tech-debt/active/`への記録が先）:
 
-- タスクのdescriptionに、発見した経緯（どの作業中に何に気づいたか）を記載する
+1. `tech-debt-tracker` skillの手順で重複確認・新規TD項目の記入を行う
+2. `add-tasks`でTodoistのインボックスへ新規タスクを作成する（プロジェクト・セクション未指定でインボックスに入る）。タスクのdescriptionに、TD IDと発見した経緯（どの作業中に何に気づいたか）を記載する。`tascon-backend`ラベルを付ける
+3. 発行されたTodoistタスクIDを、`.claude/tech-debt/active/TD-XXX.md`の`Todoist Task ID`欄へ書き戻す
+
 - `Claude`ラベルは付けない。このラベルはAI処理の明示的opt-inを意味するため、人間のトリアージを経ないタスクに付けると、次回の対象タスク取得で意図せず自動処理対象になってしまう
 
 ## 処理を停止する場合
@@ -76,4 +79,5 @@ Todoistをタスクキューとして、execution-plan単位の実装〜ロー�
 - `execution-plan`: 個々のplan文書管理を担当。このskillから呼ばれる
 - `git-spice-workflow`: コミット・ブランチ・PR操作を担当
 - `codex-delegation`: Codexへの実装委譲手順を担当
+- `tech-debt-tracker`: 技術的負債・将来リスクの記録とTodoist連携を担当。このskillから呼ばれる
 - `todoist-task-runner`: 上記を束ね、Todoistとの同期・タスクキューの消化を担当
