@@ -1,5 +1,29 @@
 # タスクグループ共有解除機能 実装プラン
 
+Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a7729d0959ce38cc6
+
+## Progress
+
+- [x] Step1: オーナーによる共有解除（ブランチ `feat/task-group-share-destroy`、親 `docs/doc-gardening-sync`、コミット `c603f42`）。Bruno: オーナー解除(id 15) 204、受け手(id 14) 404、`handover_pending`(id 18) 422 + `invalid_transition`
+- [x] Step2: 共有された側による自己離脱（ブランチ `feat/task-group-share-self-leave`、Step1の上にスタック、コミット `9082cb9`）。Bruno: オーナー解除(id 20) 204、受け手離脱(id 26) 204、第三者(id 16) 404、`handover_pending`(id 18) 422 + `invalid_transition`
+- [ ] 残作業: 親セッションによる `/code-review`・`/security-review`、PR作成・マージ（ユーザー指示待ち）、RSpec（本プラン対象外）
+- 検証で dev DB の共有 id 15・20・26 を削除済み（`Destroy.bru` のURLは id 2 に戻してある）
+
+再開時の前提:
+- worktreeには `config/master.key` が無いため、メインリポジトリの `config/master.key` へのシンボリックリンクを置いて `bin/rails` / Puma を起動する（gitignore対象）。
+- Bruno検証は `test@example.com`（id 302）のみで全ケースを網羅する。同ユーザーがオーナーの共有・受け手の共有・無関係な共有を、`Destroy.bru` のURL中のidを差し替えて叩き分ける（他ユーザーのパスワードはseedでランダムなため）。
+
+## Decision Log
+
+- 2026-10-09: プラン作成後に `TaskGroupShare` 周辺がリファクタされた（`accept_handover!` のモデル移動、finder/ステータスガイドの整理）ため、着手時に現行コードと突き合わせた。`set_owned_task_group_share`・`render_custom_error`・`status_shared?` はプラン記載どおり存在し、Step1/Step2のスニペットは修正不要と判断。
+- 2026-10-09: Bruno検証の「recipient」「第三者」ケースは、別ユーザーでサインインする代わりに test ユーザーが受け手／無関係となる共有idを対象にして再現する。Sign In.bru はtestユーザー固定で、他ユーザーの認証情報を追加するとCollectionに一時的な認証ファイルが増えるため。
+
+## Validation and Acceptance
+
+- Step1: `bru run` で、オーナーとしての解除が204、受け手としての解除が404（オーナー限定finderで見つからない）、`handover_pending` の共有の解除が422 + `invalid_transition` になる。1コミット。
+- Step2: `bru run` で、オーナー204、受け手204、第三者404、`handover_pending` 422 になる。1コミット。
+- `bundle exec rubocop` が変更ファイルで違反なし。
+
 ## Context
 
 現在 `TaskGroupShare` には作成(`create`)・引き継ぎワークフロー(`request_handover`/`cancel_handover_request`/`accept_handover`/`decline_handover`)はあるが、共有そのものを解除する `destroy` アクションが存在しない。一度共有すると、オーナー・共有された側どちらからも共有関係を解消できない状態になっている。これを解消するため、共有解除機能を新設する。
