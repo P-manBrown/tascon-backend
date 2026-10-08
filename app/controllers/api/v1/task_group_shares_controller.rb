@@ -5,7 +5,7 @@ module Api
 
       before_action :set_task_group_share, only: %i[show decline_handover accept_handover]
       before_action :set_tasks, only: %i[tasks task calendar]
-      before_action :set_owned_task_group_share, only: %i[request_handover cancel_handover_request]
+      before_action :set_owned_task_group_share, only: %i[request_handover cancel_handover_request destroy]
       before_action :ensure_status_handover_pending, only: %i[cancel_handover_request decline_handover accept_handover]
 
       def index
@@ -84,6 +84,15 @@ module Api
         return if calendar_tasks.nil?
 
         render json: TaskResource.new(calendar_tasks, params: { include_task_group: false }), status: :ok
+      end
+
+      def destroy
+        unless @task_group_share.status_shared?
+          return render_custom_error source: "status", type: "invalid_transition", message: "共有中の状態でのみ解除できます。"
+        end
+
+        @task_group_share.destroy!
+        head :no_content
       end
 
       private

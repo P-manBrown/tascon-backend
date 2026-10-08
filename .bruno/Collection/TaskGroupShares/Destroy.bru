@@ -1,0 +1,20 @@
+meta {
+  name: Destroy
+  type: http
+  seq: 12
+}
+
+delete {
+  url: {{BASE_URL}}/{{API_VERSION}}/task_group_shares/2
+  body: none
+  auth: inherit
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

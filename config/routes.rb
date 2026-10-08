@@ -23,7 +23,7 @@ Rails.application.routes.draw do
         resources :task_groups do
           resources :task_group_shares, only: :index
         end
-        resources :task_group_shares, only: %i[index show create] do
+        resources :task_group_shares, only: %i[index show create destroy] do
           member do
             get :tasks
             get "tasks/:task_id", to: "task_group_shares#task", as: :task
