@@ -33,6 +33,18 @@ module Api
         render json: TaskResource.new(task, params: { include_task_group: true }), status: :ok
       end
 
+      def create
+        task_group = current_api_v1_user.task_groups.find(params[:task_group_id])
+        task_group_share = task_group.task_group_shares.build(user_id: params[:user_id])
+
+        if task_group_share.save
+          render json: TaskGroupShareResource.new(task_group_share), status: :created,
+                 location: api_v1_task_group_share_url(task_group_share)
+        else
+          render_validation_error(task_group_share.errors)
+        end
+      end
+
       def calendar
         calendar_tasks = fetch_tasks_for_calendar
         return if calendar_tasks.nil?
