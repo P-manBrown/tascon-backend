@@ -5,7 +5,8 @@ module Api
 
       before_action :set_task_group_share, only: %i[show decline_handover accept_handover]
       before_action :set_tasks, only: %i[tasks task calendar]
-      before_action :set_owned_task_group_share, only: %i[request_handover cancel_handover_request destroy]
+      before_action :set_owned_task_group_share, only: %i[request_handover cancel_handover_request]
+      before_action :set_task_group_share_for_destroy, only: :destroy
       before_action :ensure_status_handover_pending, only: %i[cancel_handover_request decline_handover accept_handover]
 
       def index
@@ -144,6 +145,10 @@ module Api
 
         def set_owned_task_group_share
           @task_group_share = current_api_v1_user.owned_task_group_shares.find(params[:id])
+        end
+
+        def set_task_group_share_for_destroy
+          @task_group_share = TaskGroupShare.owned_or_shared_with(current_api_v1_user).find(params[:id])
         end
 
         def ensure_status_handover_pending

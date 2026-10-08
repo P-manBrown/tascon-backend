@@ -8,6 +8,12 @@ class TaskGroupShare < ApplicationRecord
     joins(:task_group).where.not(task_groups: { user_id: user.blocked_users })
   }
 
+  scope :owned_or_shared_with, lambda { |user|
+    joins(:task_group)
+      .where(task_groups: { user_id: user.id })
+      .or(joins(:task_group).where(user_id: user.id))
+  }
+
   validates :user_id, uniqueness: { scope: :task_group_id }
   validate :cannot_share_with_owner
   validate :must_be_contact, unless: -> { validation_context == :handover }
