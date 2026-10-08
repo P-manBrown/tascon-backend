@@ -295,3 +295,45 @@ Rails.logger.debug { "Average tasks per task group: #{Task.count / TaskGroup.cou
 Rails.logger.debug { "Not started tasks: #{Task.status_not_started.count}" }
 Rails.logger.debug { "In progress tasks: #{Task.status_in_progress.count}" }
 Rails.logger.debug { "Completed tasks: #{Task.status_completed.count}" }
+
+Rails.logger.debug do
+  "
+=== Generating TaskGroupShares ==="
+end
+
+TaskGroupShare.destroy_all
+
+test_user_task_groups = test_user.task_groups.to_a
+
+shareable_users = (reverse_only_users + mutual_users).take(5)
+Rails.logger.debug "Creating shares from test_user to contact users (5 shares)..."
+shareable_users.each do |shared_user|
+  TaskGroupShare.create!(
+    task_group: test_user_task_groups.sample,
+    user: shared_user
+  )
+rescue ActiveRecord::RecordInvalid => e
+  Rails.logger.debug { "TaskGroupShare creation failed: #{e.message}" }
+  next
+end
+
+sharing_users = (unidirectional_users + mutual_users).take(5)
+Rails.logger.debug "Creating shares from contact users to test_user (5 shares)..."
+sharing_users.each do |sharing_user|
+  task_group = sharing_user.task_groups.first
+  TaskGroupShare.create!(
+    task_group: task_group,
+    user: test_user
+  )
+rescue ActiveRecord::RecordInvalid => e
+  Rails.logger.debug { "TaskGroupShare creation failed: #{e.message}" }
+  next
+end
+
+Rails.logger.debug do
+  "
+=== TaskGroupShares generation completed ==="
+end
+Rails.logger.debug { "Total task group shares created: #{TaskGroupShare.count} shares" }
+Rails.logger.debug { "- Shares from test_user to contacts: #{shareable_users.count} shares" }
+Rails.logger.debug { "- Shares from contacts to test_user: #{sharing_users.count} shares" }
