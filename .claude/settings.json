@@ -1,33 +1,27 @@
 {
   "plansDirectory": "./.claude/plans",
   "hooks": {
-    "PreToolUse": [
+    "SubagentStop": [
       {
-        "matcher": "Bash|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/plan-completion-doc-reminder.sh"
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/plan-worktree-check.sh\""
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "AskUserQuestion",
+        "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/ask-user-question-decision-reminder.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|Read",
-        "hooks": [
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/check-docs-hook.sh\""
+          },
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/rules-compliance-check-reminder.sh"
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/rubocop-on-edit.sh\""
           }
         ]
       }
