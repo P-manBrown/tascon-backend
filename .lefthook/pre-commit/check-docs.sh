@@ -108,6 +108,18 @@ while IFS= read -r -d '' file; do
   is_kebab_case_md "$base" || fail "$file does not match naming convention <kebab-case-slug>.md"
 done < <(find .claude/plans -maxdepth 2 -mindepth 2 -name '*.md' -print0 2>/dev/null)
 
+# --- ARCHITECTURE.md: no links, no multi-segment paths (name entities, don't point at location) ---
+if [ -f ARCHITECTURE.md ]; then
+  arch_links=$(grep -noE '\]\([^)]+\)|https?://[^ )]+' ARCHITECTURE.md || true)
+  [ -n "$arch_links" ] && fail "ARCHITECTURE.md contains a link, name the entity instead: $(echo "$arch_links" | tr '\n' ' ')"
+
+  arch_paths=$(grep -noE '[A-Za-z0-9_]+/[A-Za-z0-9_./]+' ARCHITECTURE.md || true)
+  [ -n "$arch_paths" ] && fail "ARCHITECTURE.md contains a multi-segment path, name the entity instead: $(echo "$arch_paths" | tr '\n' ' ')"
+
+  arch_bare_files=$(grep -noE '\b[A-Za-z0-9_]+\.[A-Za-z]{1,4}\b' ARCHITECTURE.md || true)
+  [ -n "$arch_bare_files" ] && fail "ARCHITECTURE.md contains a bare filename, name the entity instead: $(echo "$arch_bare_files" | tr '\n' ' ')"
+fi
+
 # --- all: broken relative Markdown link check ---
 while IFS= read -r -d '' file; do
   dir=$(dirname "$file")
