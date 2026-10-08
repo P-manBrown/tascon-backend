@@ -16,7 +16,7 @@ description: 複数ファイル・複数コミットにまたがる複雑なタ�
 ## 保存ルール
 
 - planは`.claude/plans/active/*.md`に作成する
-- ファイル名は内容が分かる名前にする
+- ファイル名は内容が分かる英語kebab-case（例: `task-group-share-cancellation.md`）にする
 - 自動生成された無意味な名前が付いた場合は、内容に基づく名前へリネームする
 - `.claude/plans/`に`INDEX.md`等の索引ファイルを置かない。`active/`と`completed/`のディレクトリ構成自体を一覧として使用する
 - サブエージェントのworktree内で作成・更新する場合、そのworktreeの絶対パス(`Worktree:`)を冒頭に記録する。以後そのworktreeが変わった場合(再委任等)は追記する
