@@ -87,11 +87,16 @@ module Api
       end
 
       def destroy
-        unless @task_group_share.status_shared?
-          return render_custom_error source: "status", type: "invalid_transition", message: "共有中の状態でのみ解除できます。"
+        user_id = @task_group_share.user_id
+
+        @task_group_share.with_lock do
+          unless @task_group_share.status_shared? && @task_group_share.user_id == user_id
+            return render_custom_error source: "status", type: "invalid_transition", message: "共有中の状態でのみ解除できます。"
+          end
+
+          @task_group_share.destroy!
         end
 
-        @task_group_share.destroy!
         head :no_content
       end
 
