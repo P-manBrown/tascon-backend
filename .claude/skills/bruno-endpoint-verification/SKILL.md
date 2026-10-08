@@ -21,7 +21,7 @@ APIエンドポイントの追加・変更を、正規のBruno Collectionリク�
 
 - `.env`の`WEB_HOST=localhost`はそのまま使用しない。nginx→Pumaへ接続するため、`--env-var "BASE_URL=http://host.docker.internal/api"`を指定する
 - Sign Inから対象requestをchainし、BEARER_TOKENを引き継ぐ: `bru run "Auth/Sign In.bru" <target.bru> --env Development --env-var BASE_URL=http://host.docker.internal/api --env-var FRONTEND_ORIGIN=<origin>`
-- `--env Development`実行時、Sign Inのpost-response scriptが実tokenを`.bruno/Collection/environments/Development.bru`へ書き込む。実行後に`git status`を確認し、scope外の変更なら同ファイルを`git restore`する
+- Sign Inのpost-response scriptは`bru.setVar`でBEARER_TOKENをランタイム変数として設定する。ディスクへ永続化されないため、実行後の`Development.bru`のgit restoreは不要
 
 ## 変更範囲
 
