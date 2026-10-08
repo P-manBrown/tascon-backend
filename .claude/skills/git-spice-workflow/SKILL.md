@@ -10,21 +10,17 @@ git-spice使用。スタック型ブランチ管理。
 ## ブランチ作成ルール
 
 - ブランチ名は`<type>/<変更内容>`形式にする（`<type>`はPRタイトルと同じConventional Commits type）
-- git-spiceスタックの標準粒度は「1ブランチ = 1機能 = 1〜2コミット」。複数の異なる機能・Stepのコミットを1ブランチにまとめない
-- 複数機能・Stepをまとめた場合→`git-spice branch split --at <commit>:<name>`で機能単位のブランチへ分割する
-- `gs branch create <name> -m "..."`（ブランチ作成とコミットメッセージ指定を同時に行う形）はmainブランチ上のprotect-branchフックに阻まれてエラーになる。`gs branch create <name> --no-commit`でブランチを作成・checkoutしてから、`git commit`を別途実行する2段階の手順を使う（`--no-commit`を付けないとステージ済み変更の有無に関わらずコミットが1つ作られてしまう）
-- `Agent`ツールの`isolation: "worktree"`で起動したサブエージェント内では、初回チェックアウトブランチがgit-spiceに未追跡のため、いきなり`gs branch create`を実行すると`FTL gs: branch not tracked`で失敗する。先に`gs branch track --base <ベースブランチ>`で追跡を付与してから`gs branch create`を使う
 
 ## コミット内容ルール
 
-- 新設したprivateメソッドやassociation（`has_many`等）は、実際に呼び出す・使用するコードより先の別コミットに分離しない。使用コードと同一コミットに含める（lefthookのdebride pre-commit hookが未使用コードとして検出し失敗するため）
+- 新設したprivateメソッドやassociation（`has_many`等）は、実際に呼び出す・使用するコードより先の別コミットに分離しない。使用コードと同一コミットに含める
 - コミット実行前に、ステージした変更が単一の決定・目的に絞られているか自問する。複数の独立したテーマが混ざっていたら、先に分けてコミットする
 
 ## コミットメッセージ作成ルール
 
 - すべて英語で作成。日本語は使用しない
 - コミットコマンド実行前に、コミットメッセージ全文の日本語訳を提示する
-- コミットは原則body付き。複数の妥当なtype候補から選択した場合、または作業中に試行錯誤・修正があった場合はbodyをほぼ必須とする。typo修正等の自明な変更はbody省略可
+- コミットは原則body付き。bodyには変更の目的や理由を記述する。typo修正等の自明な変更はbody省略可
 
 ### 規約
 
