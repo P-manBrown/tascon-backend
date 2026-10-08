@@ -3,6 +3,7 @@
 - **Status:** Accepted
 - **Verification Status:** Verified
 - **Date:** 2026-09-05
+- **Related Files:** `.claude/hooks/rules-compliance-check-reminder.sh`, `.claude/rules/claude-md-maintenance.md`
 
 ## Context
 

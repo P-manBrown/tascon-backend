@@ -12,7 +12,13 @@ require_fields() {
   local file="$1"
   shift
   for field in "$@"; do
-    grep -q -- "\*\*${field}:\*\*" "$file" || fail "$file is missing required field: $field"
+    line=$(grep -m1 -- "\*\*${field}:\*\*" "$file" || true)
+    if [ -z "$line" ]; then
+      fail "$file is missing required field: $field"
+      continue
+    fi
+    value=$(echo "$line" | sed -E "s/.*\*\*${field}:\*\*[[:space:]]*//")
+    [ -z "$value" ] && fail "$file has empty required field: $field"
   done
 }
 
@@ -85,7 +91,7 @@ while IFS= read -r -d '' file; do
   [ -n "$d_vstatus" ] && ! [[ "$d_vstatus" =~ ^($valid_verification_status)$ ]] && fail "$file has invalid Verification Status: $d_vstatus"
   [ -n "$d_date" ] && ! is_valid_date "$d_date" && fail "$file has invalid Date: $d_date"
 
-  require_fields "$file" "Status" "Verification Status" "Date"
+  require_fields "$file" "Status" "Verification Status" "Date" "Related Files"
   require_headings "$file" "Context" "Decision" "Consequences"
 
   placeholders=$(grep -nE '^# <[^>]+>$' "$file" || true)
