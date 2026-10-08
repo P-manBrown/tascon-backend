@@ -50,7 +50,7 @@ description: 技術的負債・懸念事項を`.claude/tech-debt/`へ記録し�
 - **Resolved（解消済み）**: 対応するコード変更がコミットされた後、コード上で実際に負債が解消されたことを確認する。確認できたら`Status`を`Resolved`に変更し、`Resolution`（実際にどう解決したか、日本語で記述）と`Resolved`（解消日）を追記して、ファイルごと`.claude/tech-debt/active/TD-XXX.md`から`.claude/tech-debt/completed/TD-XXX.md`へ移動する（`git mv`推奨）。Todoistタスク自体の完了操作（`complete-tasks`）はいつも通り行ってよいが、それとは別にこの更新を必ず行う（タスク完了＝負債解消の確認、ではない）
 - **Accepted（意図的に残す）**: 検討の結果、対応せず現状のまま残すと判断した場合は`Status`を`Accepted`に変更し、その判断理由を`Resolution`相当の記述として追記する。ファイルは移動せず`.claude/tech-debt/active/`内に留める（今も意識し続けるべき項目のため）
 - どちらの場合も**ファイルを削除しない**。TD番号もそのまま維持する。削除すると、将来別セッションが同じ問題を再発見・再提起してしまう
-- 更新のタイミングは、execution-plan完了時・該当Todoistタスクの完了処理時など、対応が実際にコードへ反映された直後に行う
+- 更新のタイミングは、該当Todoistタスクの完了処理時など、対応が実際にコードへ反映された直後に行う
 
 ## 他skillとの関係
 

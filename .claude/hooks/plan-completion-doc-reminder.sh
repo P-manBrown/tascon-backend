@@ -1,20 +1,32 @@
 #!/bin/bash
-# PreToolUse(Bash)フックから呼ばれる。
-# .claude/plans/active/ から .claude/plans/completed/ へのファイル移動
-# (git mv / mv どちらも)を検知したら、横断的な設計判断の抽出・
-# ARCHITECTURE.mdへの影響確認を促すリマインダーをブロックせずに注入する。
 set -euo pipefail
 
 input=$(cat)
-command=$(echo "$input" | jq -r '.tool_input.command // empty' 2>/dev/null || echo "")
-command_flat=$(printf '%s' "$command" | tr '\n' ' ')
+tool_name=$(echo "$input" | jq -r '.tool_name // empty')
 
-if echo "$command_flat" | grep -qE '(git mv|mv) .*plans/active/.*plans/completed/'; then
+detected=0
+case "$tool_name" in
+  Bash)
+    command=$(echo "$input" | jq -r '.tool_input.command // empty' 2>/dev/null || echo "")
+    command_flat=$(printf '%s' "$command" | tr '\n' ' ')
+    if echo "$command_flat" | grep -q 'plans/active/' && echo "$command_flat" | grep -q 'plans/completed/'; then
+      detected=1
+    fi
+    ;;
+  Write)
+    file_path=$(echo "$input" | jq -r '.tool_input.file_path // empty' 2>/dev/null || echo "")
+    if echo "$file_path" | grep -qE '\.claude/plans/completed/.*\.md$'; then
+      detected=1
+    fi
+    ;;
+esac
+
+if [ "$detected" = "1" ]; then
   jq -n '{
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
       permissionDecision: "allow",
-      additionalContext: "plan完了処理を検知しました。completed化する前に、このplanに保存が必要な設計判断が含まれていないか(あればdocs/design-docs/へ抽出)、ARCHITECTURE.mdを更新する必要がないか確認してください。"
+      additionalContext: "Planをcompleted化する前に、`execution-plan` SKILL.mdの「完了処理」セクションに記載の手順(claude-mem監査・design-docs抽出・ARCHITECTURE.md更新・memory/rules/skills昇格等)を実施済みか確認してください。"
     }
   }'
 else
