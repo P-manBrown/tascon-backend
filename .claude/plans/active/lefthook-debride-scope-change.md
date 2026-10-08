@@ -7,11 +7,11 @@
 ```yaml
 debride:
   glob: '*.rb'
-  run: bin/bundle exec debride --rails -w debride-whitelist.txt {all_files}
+  run: bin/bundle exec debride --rails -w debride-whitelist.txt {all_files} | tee /dev/tty | grep -q 'LOC:\ 0'
   fail_text: 'Read the report above.'
 ```
 
-2026-08-22、タスクグループ引き継ぎ機能実装のStep5（`accept_handover`エンドポイント追加）で、`config/routes.rb`＋`app/controllers/api/v1/task_group_shares_controller.rb`の2ファイルのみをコミット対象にしたところ、debride pre-commitが`accept_handover`・`request_handover`を「未使用の可能性」として誤検知しコミットが失敗した（詳細調査結果は`.claude/memory/project_lefthook_debride_scope.md`参照）。
+2026-08-22、タスクグループ引き継ぎ機能実装のStep5（`accept_handover`エンドポイント追加）で、`config/routes.rb`＋`app/controllers/api/v1/task_group_shares_controller.rb`の2ファイルのみをコミット対象にしたところ、debride pre-commitが`accept_handover`・`request_handover`を「未使用の可能性」として誤検知しコミットが失敗した。
 
 調査の結果、2種類の誤検知要因が判明した:
 
@@ -27,8 +27,8 @@ debride:
 ```diff
   debride:
     glob: '*.rb'
--   run: bin/bundle exec debride --rails -w debride-whitelist.txt {all_files}
-+   run: bin/bundle exec debride --rails -w debride-whitelist.txt app config
+-   run: bin/bundle exec debride --rails -w debride-whitelist.txt {all_files} | tee /dev/tty | grep -q 'LOC:\ 0'
++   run: bin/bundle exec debride --rails -w debride-whitelist.txt app config | tee /dev/tty | grep -q 'LOC:\ 0'
     fail_text: 'Read the report above.'
 ```
 
