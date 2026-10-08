@@ -1,10 +1,12 @@
 module Api
   module V1
     class TaskGroupsController < ApplicationController
-      before_action :set_task_group, only: %i[show update destroy]
+      before_action :set_task_group, only: %i[show update]
 
       def index
-        task_groups = current_api_v1_user.task_groups.order(created_at: :desc)
+        task_groups = current_api_v1_user.task_groups
+                                         .includes(shared_users: :avatar_attachment)
+                                         .order(created_at: :desc)
 
         render json: TaskGroupResource.new(task_groups), status: :ok
       end
@@ -32,7 +34,8 @@ module Api
       end
 
       def destroy
-        @task_group.destroy!
+        task_group = current_api_v1_user.task_groups.find(params[:id])
+        task_group.destroy!
         head :no_content
       end
 
@@ -42,7 +45,9 @@ module Api
         end
 
         def set_task_group
-          @task_group = current_api_v1_user.task_groups.find(params[:id])
+          @task_group = current_api_v1_user.task_groups
+                                           .includes(shared_users: :avatar_attachment)
+                                           .find(params[:id])
         end
     end
   end
