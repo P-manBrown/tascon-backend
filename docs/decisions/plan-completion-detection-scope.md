@@ -1,6 +1,6 @@
 # plan完了検知の対象操作範囲
 
-- **Status:** Accepted
+- **Status:** Superseded by [リマインダー型hookの廃止](reminder-hooks-removal.md)
 - **Verification Status:** Verified
 - **Date:** 2026-09-05
 - **Related Files:** `.claude/hooks/plan-completion-doc-reminder.sh`
