@@ -12,7 +12,7 @@ git-spice使用。スタック型ブランチ管理。
 - ブランチ名は`<type>/<変更内容>`形式にする（`<type>`はPRタイトルと同じConventional Commits type）
 - git-spiceスタックの標準粒度は「1ブランチ = 1機能 = 1〜2コミット」。複数の異なる機能・Stepのコミットを1ブランチにまとめない
 - 複数機能・Stepをまとめた場合→`git-spice branch split --at <commit>:<name>`で機能単位のブランチへ分割する
-- `gs branch create <name> -m "..."`（ブランチ作成とコミットメッセージ指定を同時に行う形）はmainブランチ上のprotect-branchフックに阻まれてエラーになる。`gs branch create <name>`でブランチを作成・checkoutしてから、`git commit`を別途実行する2段階の手順を使う
+- `gs branch create <name> -m "..."`（ブランチ作成とコミットメッセージ指定を同時に行う形）はmainブランチ上のprotect-branchフックに阻まれてエラーになる。`gs branch create <name> --no-commit`でブランチを作成・checkoutしてから、`git commit`を別途実行する2段階の手順を使う（`--no-commit`を付けないとステージ済み変更の有無に関わらずコミットが1つ作られてしまう）
 
 ## コミット内容ルール
 

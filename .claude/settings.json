@@ -1,5 +1,29 @@
 {
   "plansDirectory": "./.claude/plans",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/plan-completion-doc-reminder.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/ask-user-question-decision-reminder.sh"
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "genshijin@genshijin": true,
     "codex@openai-codex": true,
