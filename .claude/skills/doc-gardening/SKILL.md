@@ -1,40 +1,32 @@
 ---
 name: doc-gardening
-description: `ARCHITECTURE.md`や`.claude/plans/`の記述がコードの実装と乖離していないかを定期的に検知し、修正案を提示するスキル。「ドキュメントの陳腐化をチェックして」「doc-gardeningを実行して」等の指示があった場合に加え、大きめのPR作成前後や定期実行のタイミングでも使用する。
+description: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`・`.claude/tech-debt/`の記述がそれぞれの一次ルール・実装・実際の状態と乖離していないかを検知し、修正案を提示するスキル。「ドキュメントの陳腐化をチェックして」「doc-gardeningを実行して」等の指示があった場合に加え、大きめのPR作成前後にも使用する。
 ---
 
 # doc-gardening
 
-既存のアーキテクチャ文書と計画文書の健全性を維持する。
+既存のドキュメントの健全性を維持する。
 
-## 対象と目的
+## 対象と確認基準
 
-- `ARCHITECTURE.md`と`.claude/plans/`配下の計画ファイルを対象とする
-- 記述の陳腐化、実コードとの矛盾、リンク切れ等の不整合を検知し、修正案を提示する
-
-## 使用場面
-
-- `/loop`スキルで定期起動を登録した場合はそれに従う（登録は自動では行われず、ユーザーが`/loop`コマンドで明示的に設定する必要がある）
-- `git-spice-workflow`のPR作成ルールに従い、大きめのPR作成前後に実行する
+- `ARCHITECTURE.md` → 基準: `.claude/rules/architecture-md-maintenance.md`
+- `docs/decisions/` → 基準: `.claude/rules/decisions-maintenance.md`
+- `.claude/plans/` → 基準: `.claude/skills/execution-plan/SKILL.md`
+- `.claude/tech-debt/` → 基準: `.claude/skills/tech-debt-tracker/SKILL.md`
 
 ## 調査方法
 
-- `ARCHITECTURE.md`に記載されたレイヤー構成・ディレクトリ説明と、実際の`app/`配下のコード構造を突き合わせて乖離を探す
-- `.claude/plans/active/`にあるファイルについて、実装状況と突き合わせ、実際には完了しているのに`completed/`へ移動されていないものがないか確認する
+- 各対象について、対応する基準に沿っているか、かつ実コード・実際の状態と矛盾していないかを確認する
+- `ARCHITECTURE.md`: 記載されたレイヤー構成・モジュール構成と、リポジトリ全体の実際のコード構造を突き合わせる
+- `docs/decisions/`・`.claude/tech-debt/`: 記録された`Status`と実際の対応状況の食い違いを確認する
+- `.claude/plans/active/`は完了済みなのに`completed/`未移動がないか、`.claude/plans/completed/`は横断的な決定が`docs/decisions/`へ未抽出のまま残っていないかを確認する
 - 検出した不整合を一覧化し、それぞれについてどう直すべきか修正案を提示する
 - 調査中に、今すぐ対応しないが将来問題化しうる技術的負債・設計上の妥協に気づいた場合、`tech-debt-tracker` skillの手順で記録する
 
 ## 変更範囲
 
-- 変更してよい対象: `ARCHITECTURE.md`、`.claude/plans/`配下のファイル内容修正、`tech-debt-tracker` skill経由での`.claude/tech-debt/`への記録とTodoistタスク作成。検出した不整合のうちドキュメント側の追従で解決するものは、ユーザーへ確認を求めずブランチ作成〜コミットまで自律的に行う
+- 変更してよい対象: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`配下のファイル内容修正、`tech-debt-tracker` skill経由での`.claude/tech-debt/`への記録・状態更新・Todoistタスク作成。検出した不整合のうちドキュメント側の追従で解決するものは、ユーザーへ確認を求めずブランチ作成〜コミットまで自律的に行う
 - 変更してはいけない対象: 実装コード。不整合の原因がコード側にあってもコードは修正せず、ドキュメント側の追従、またはコードとドキュメントのどちらを直すべきかの提案に留める。コード側修正が必要と判断した場合は自律的に進めず、提案として報告する
-
-## 他skillとの責務分離
-
-- `execution-plan`は新規に作成・更新する計画文書そのものを管理し、何を作るかを担当する
-- `doc-gardening`は既存のdocs・plansの健全性維持と陳腐化検知を担当し、保守する
-- `tech-debt-tracker`は調査中に発見した技術的負債の記録を担当する。このskillから呼ばれる
-- `execution-plan`と`doc-gardening`は対象領域が重なるが、前者は「作る」、後者は「保守する」という目的の違いを混在させない
 
 ## 完了条件
 
