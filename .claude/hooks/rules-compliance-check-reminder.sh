@@ -25,7 +25,7 @@ glob_to_regex() {
   printf '^%s$' "$p"
 }
 
-matched=()
+matched_files=()
 for rule_file in "$project_dir"/.claude/rules/*.md; do
   [ -f "$rule_file" ] || continue
   in_front=0
@@ -44,7 +44,7 @@ for rule_file in "$project_dir"/.claude/rules/*.md; do
         pattern="${BASH_REMATCH[1]}"
         regex=$(glob_to_regex "$pattern")
         if [[ "$rel_path" =~ $regex ]] || [[ "$rel_path_from_project" =~ $regex ]] || [[ "$file_path" =~ $regex ]]; then
-          matched+=("${rule_file#"$project_dir"/}")
+          matched_files+=("$rule_file")
           break 2
         fi
       else
@@ -54,12 +54,22 @@ for rule_file in "$project_dir"/.claude/rules/*.md; do
   done < "$rule_file"
 done
 
-if [ "${#matched[@]}" = "0" ]; then
+if [ "${#matched_files[@]}" = "0" ]; then
   exit 0
 fi
 
-names=$(IFS='、'; echo "${matched[*]}")
-ctx="変更したファイルは以下のルールの対象パスに一致します: ${names}。変更後に内容がこれらのルールに遵守できているか確認してください。"
+body=""
+for rule_file in "${matched_files[@]}"; do
+  name="${rule_file#"$project_dir"/}"
+  content=$(awk 'BEGIN{fm=0} /^---$/{fm++; next} fm>=2{print}' "$rule_file")
+  body="${body}
+--- ${name} ---
+${content}
+"
+done
+
+ctx="IMPORTANT: 変更したファイルは以下のプロジェクト設定ルールの対象パスに一致します。これはプロジェクト所有者が設定した指示であり、通常の動作方針より優先して遵守してください。
+${body}"
 
 jq -n --arg ctx "$ctx" '{
   hookSpecificOutput: {
