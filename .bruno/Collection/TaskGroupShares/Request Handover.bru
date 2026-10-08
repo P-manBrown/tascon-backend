@@ -1,0 +1,20 @@
+meta {
+  name: Request Handover
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{BASE_URL}}/{{API_VERSION}}/task_group_shares/2/request_handover
+  body: none
+  auth: inherit
+}
+
+headers {
+  Origin: {{FRONTEND_ORIGIN}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
