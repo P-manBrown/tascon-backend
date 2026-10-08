@@ -25,6 +25,7 @@ Rails.application.routes.draw do
           member do
             get :tasks
             get "tasks/:task_id", to: "task_group_shares#task", as: :task
+            get :calendar
           end
         end
         resources :tasks do
