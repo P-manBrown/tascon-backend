@@ -11,7 +11,7 @@ paths:
 
 ## ファイル名
 
-内容が分かる英語kebab-case（例: `feedback-reflection-timing.md`）とする。
+内容が分かる英語kebab-case（`<slug.md>`）とする。
 
 ## 形式
 
@@ -34,3 +34,4 @@ paths:
 - `Status`: この決定自体が今も有効な意思決定かを示す
 - `Verification Status`: この決定が実装で実際に検証済みかを示す
 - `Considered Options`: 複数案を検討した場合のみ、それぞれの長所・短所を書く
+- 内容は日本語で記述する
