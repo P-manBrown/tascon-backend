@@ -11,7 +11,7 @@ class TaskGroupShare < ApplicationRecord
   scope :owned_or_shared_with, lambda { |user|
     joins(:task_group)
       .where(task_groups: { user_id: user.id })
-      .or(joins(:task_group).where(user_id: user.id))
+      .or(where(user_id: user.id))
   }
 
   validates :user_id, uniqueness: { scope: :task_group_id }
