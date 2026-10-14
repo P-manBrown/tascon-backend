@@ -21,9 +21,11 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a4a0c7af5c561dfb8
 - `stop_hook_active`が`true`なら何も出力せずexit 0（現状維持）
 - cwdが空、またはcwdが`*/.claude/worktrees/*`でなければexit 0（現状維持）
 - `$cwd/.claude/plans/active`が存在しなければexit 0（現状維持）
-- `.claude/plans/active/*.md`のいずれかに、行全体が`Worktree: <cwd>`と完全一致する行が1つでもあればexit 0。1つもなければexit 2
+- `.claude/plans/active/`に`*.md`が1件もなければexit 0
+- 各planの冒頭（最初の`## `見出しより前の行）だけを見て、行末の空白・CRを除いた行全体が`Worktree: <cwd>`と完全一致する行が1つでもあればexit 0。1つもなければexit 2
   - 前方一致は不可（`Worktree: .../agent-x`が`agent-xy`のworktreeにマッチしない）
-- exit 2時のメッセージは「作業中のplanに`Worktree: <cwd>`を追記してください」という趣旨にする（`plans-maintenance`ルール参照の旨は残す）
+  - cwdは正規表現ではなく文字列として比較する
+- exit 2時のメッセージは「作業中のplanの冒頭に`Worktree: <cwd>`を1行で追記してください」という趣旨にする（`plans-maintenance`ルール参照の旨は残す）。あわせて「planの作業をしていない場合（レビュー・調査等）は対応不要。無関係なplanには追記しない」旨を明記する
 
 ## Steps
 
@@ -33,24 +35,36 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a4a0c7af5c561dfb8
 2. `.claude/rules/plans-maintenance.md`の記録条件を「サブエージェントのworktreeでそのplanの作業を行う場合、そのworktreeの絶対パス（`Worktree:`）を冒頭に記録する。作業するworktreeが変わった場合（再委任等）は追記する」の趣旨に修正し、言及箇所（`.claude/skills/todoist-task-runner/SKILL.md:24`等）も合わせて更新する（Codexへ委譲）。`claude-md-maintenance`ルールの「新規ルール追加時の必須手順」に従い、新規subagentで変更前後の行動を比較する
 3. tech-debt-tracker skillに従い、tech-debtを`Resolved`にして`.claude/tech-debt/completed/`へ移動する。Proposed Resolution（変更planに絞る）と実際の解決方法が異なる点を`Resolution`に明記する
 
-検証（JSON入力をパイプして実行）:
+4. レビュー指摘への対応（同ブランチに追加コミット）: フックの判定（`*.md`がない場合、冒頭部分に限定、行末の空白・CRの除去、メッセージ）を上記仕様へ修正する。`plans-maintenance`ルールに「worktreeごとに`Worktree: <path>`を1行ずつ書く」旨を明記し、`todoist-task-runner/SKILL.md`の言及箇所も揃える（いずれもCodexへ委譲）
 
-- どのactive planにもWorktree行がない（無関係なplanのみ） → exit 2
-- いずれか1件のactive planに完全一致のWorktree行がある → exit 0
-- 前方一致だけの行（`Worktree: <cwd>x`）しかない → exit 2
-- cwdがworktree外 → exit 0
-- `stop_hook_active: true` → 出力なしでexit 0
-- plans_dirが存在しない → exit 0
+検証（JSON入力をパイプして実行。確定したケース一覧）:
+
+1. どのactive planにもWorktree行がない（無関係なplanのみ） → exit 2
+2. いずれか1件のactive planに完全一致のWorktree行がある → exit 0
+3. 前方一致だけの行（`Worktree: <cwd>x`）しかない → exit 2
+4. `agent-x`の行しかないplanを`agent-xy`のworktreeで検査 → exit 2
+5. cwdがworktree外 → exit 0
+6. `stop_hook_active: true` → 出力なしでexit 0
+7. plans_dirが存在しない → exit 0
+8. `active/`は存在するが空 → exit 0
+9. 行末に空白が付いた完全一致行 → exit 0
+10. CRLFの完全一致行 → exit 0
+11. 一致する行が`## `見出しより後にしかない → exit 2
+12. パスに`.`を含むcwd（`a.12`）と、`.`の位置だけが違う行（`a_12`） → exit 2（正規表現として扱わない）
+13. このworktree自体 → exit 0
 
 ## Progress
 
 - [x] 2026-10-14 ブランチ`chore/plan-worktree-check-scope`を`docs/controller-before-action-rule`の上に作成。事前調査を実施しplanドラフトを作成
 - [x] 2026-10-14 ユーザーとの議論で方針を変更したうえでplanが承認された（Decision Log参照）
 - [x] 2026-10-14 Step 1完了（すべてCodexへ委譲し、成果物を確認してコミット）
-  - フック修正`54e6a42`: 検証ケース6件すべて想定どおり（関係のないplanのみ→2、1件に完全一致→0、前方一致のみ→2、`agent-x`の行を`agent-xy`のworktreeで検査→2、worktree外→0、`stop_hook_active: true`→出力なしで0、plans_dirなし→0）。実際のこのworktreeでも0
+  - フック修正`54e6a42`: 当時の検証ケース（上記一覧の1〜7と13）の8件すべて想定どおり
   - ルール修正`685f339`（`plans-maintenance.md`、`todoist-task-runner/SKILL.md:24`）: 新規subagentに「既存planをこのworktreeで再開し、残作業を確認して報告する（planは編集不要）」というプロンプトを与えて比較した。変更前はWorktree行を追記せず、変更後は追記した（テストでの追記は取り消し済み）
   - tech-debt解消`428183d`: `Resolved`にして`completed/`へ移動し、Proposed Resolutionと異なる方法で解決したことを`Resolution`に記載
   - 注意: Stopフックはメインcheckoutの旧スクリプト（`${CLAUDE_PROJECT_DIR}`）で動くため、このブランチがマージされるまでは無関係なplanの指摘が出続ける
+- [x] 2026-10-14 親セッションの`/code-review`指摘に対応（`/security-review`は指摘なし）。Step 1の4を実施
+  - フック修正`1fe75cd`: 検証ケース1〜13の全件が想定どおり
+  - ルール修正: 新規subagentに「既存planをこのworktreeで再開する。planファイルの`Worktree:`欄にこのworktreeのパスを追記する」というプロンプトを与えて比較した。変更前は既存の行にカンマ区切りで並べ、変更後は新しい行として追加した（テストでの変更は取り消し済み）。「planの作業開始時にルールどおり記録する」というプロンプトでは、変更前から別の行で追加しており差が出なかったため、比較には前者を使った
 
 ## Decision Log
 
@@ -62,12 +76,18 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a4a0c7af5c561dfb8
 - 2026-10-14 既知の制約として記録のみ: 将来、完了処理をサブエージェントのworktreeで行うと、planがcompletedへ移動した時点で該当するactive planがなくなり、フックが1回ブロックする（`stop_hook_active`により2回目は通る）。現状、完了処理をサブエージェントへ委ねる手順はないため対処しない
 - 2026-10-14 ブランチtypeは`chore`にする（既存のフック変更#683等と同じ）
 - 2026-10-14 `plans-maintenance`ルールの記録条件を「作成・更新する場合」から「そのplanの作業を行う場合」へ変更する。フックの判定基準と考え方を揃えるため
+- 2026-10-14 以下はcode-review指摘への対応（ユーザー承認済み）
+- 2026-10-14 `active/`に`*.md`が1件もなければexit 0にする。記録先のplanがないのでブロックしても意味がなく、旧版もexit 0だった（新版でexit 2になったのは退行）
+- 2026-10-14 exit 2のメッセージに「planの作業をしていない場合（レビュー・調査等）は対応不要。無関係なplanに追記しない」旨を明記する。`stop_hook_active`により2回目のStopは通るので、作業していないworktreeでは無視すればよい。指示どおり無関係なplanに追記されると`Worktree:`の記録が崩れる
+- 2026-10-14 比較の前に行末の空白・CRを除く。`Worktree: /path `やCRLFのファイルでも一致させるため。前方一致での誤マッチは引き続き起こさない
+- 2026-10-14 判定対象を各planの冒頭（最初の`## `見出しより前の行）に限る。ルールで「冒頭に記録する」と定めており、本文中の例示行で通過しないようにするため。代案の「`.claude/plans`を触った場合のみ検査する」は、planを編集しない作業でも記録が必要なため却下した
+- 2026-10-14 `plans-maintenance`ルールに「worktreeごとに`Worktree: <path>`を1行ずつ書く」旨を明記する。追記方法が決まっていないと1行にカンマ区切りで並べられ、フックの完全一致に当たらなくなるため。新規subagentでの比較で、変更前はカンマ区切りで追記されることを確認した。`todoist-task-runner/SKILL.md`の「`Worktree:`に追記する」も、同じ書き方を誘うため「`Worktree:`行を記録する」に改める
 
 ## Validation and Acceptance
 
 - 無関係なactive planにWorktree行がなくても、いずれか1件のactive planに完全一致のWorktree行があればフックがブロックしない
 - どのactive planにも完全一致のWorktree行がなければexit 2でブロックし、作業中のplanへの追記を促す
-- 前方一致の行では通らない
-- `stop_hook_active: true`・worktree外のcwd・plans_dirがない場合は、従来どおり何もしない
-- `plans-maintenance`ルールと言及箇所が「作業を行う場合に記録する」に揃っている
+- 前方一致の行や、最初の`## `見出しより後にしかない行では通らない。行末の空白・CRがあっても完全一致なら通る
+- `stop_hook_active: true`・worktree外のcwd・plans_dirがない・`active/`にplanがない場合は何もしない
+- `plans-maintenance`ルールと言及箇所が「作業を行う場合に、worktreeごとに1行で記録する」に揃っている
 - tech-debtファイルが`Resolved`として`.claude/tech-debt/completed/`へ移動している
