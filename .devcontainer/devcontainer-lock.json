@@ -46,9 +46,9 @@
       "integrity": "sha256:b3a5b7a6bae74f8cd896545a6225a298a5b10b04ec2e19ba049a70930379f935"
     },
     "ghcr.io/P-manBrown/devcontainer-features/rtk:1": {
-      "version": "1.0.1",
-      "resolved": "ghcr.io/p-manbrown/devcontainer-features/rtk@sha256:2f2fc1f7c041070cfca2ddadd8fafab616b1481cf6f5a57302a02c40fb6758d0",
-      "integrity": "sha256:2f2fc1f7c041070cfca2ddadd8fafab616b1481cf6f5a57302a02c40fb6758d0"
+      "version": "1.0.2",
+      "resolved": "ghcr.io/p-manbrown/devcontainer-features/rtk@sha256:0db127e3686945490baf19333c15e8f8b2a3361d7b1f89df1122fbfacf7c2ea8",
+      "integrity": "sha256:0db127e3686945490baf19333c15e8f8b2a3361d7b1f89df1122fbfacf7c2ea8"
     }
   }
 }
