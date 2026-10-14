@@ -46,6 +46,11 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a4a0c7af5c561dfb8
 
 - [x] 2026-10-14 ブランチ`chore/plan-worktree-check-scope`を`docs/controller-before-action-rule`の上に作成。事前調査を実施しplanドラフトを作成
 - [x] 2026-10-14 ユーザーとの議論で方針を変更したうえでplanが承認された（Decision Log参照）
+- [x] 2026-10-14 Step 1完了（すべてCodexへ委譲し、成果物を確認してコミット）
+  - フック修正`54e6a42`: 検証ケース6件すべて想定どおり（関係のないplanのみ→2、1件に完全一致→0、前方一致のみ→2、`agent-x`の行を`agent-xy`のworktreeで検査→2、worktree外→0、`stop_hook_active: true`→出力なしで0、plans_dirなし→0）。実際のこのworktreeでも0
+  - ルール修正`685f339`（`plans-maintenance.md`、`todoist-task-runner/SKILL.md:24`）: 新規subagentに「既存planをこのworktreeで再開し、残作業を確認して報告する（planは編集不要）」というプロンプトを与えて比較した。変更前はWorktree行を追記せず、変更後は追記した（テストでの追記は取り消し済み）
+  - tech-debt解消`428183d`: `Resolved`にして`completed/`へ移動し、Proposed Resolutionと異なる方法で解決したことを`Resolution`に記載
+  - 注意: Stopフックはメインcheckoutの旧スクリプト（`${CLAUDE_PROJECT_DIR}`）で動くため、このブランチがマージされるまでは無関係なplanの指摘が出続ける
 
 ## Decision Log
 
