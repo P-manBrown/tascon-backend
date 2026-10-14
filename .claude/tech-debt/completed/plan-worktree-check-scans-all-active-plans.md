@@ -1,0 +1,13 @@
+# plan-worktree-checkフックが、そのworktreeで扱っていないactive planにもWorktree行を要求する
+- **Status:** Resolved
+- **Priority:** Low
+- **Category:** Infrastructure
+- **Area:** `.claude/hooks/plan-worktree-check.sh`
+- **Detected:** 2026-10-09
+- **Todoist Task ID:** `6hhr8RJR4gjP8V3q`
+- **Description:** Stopフック`plan-worktree-check.sh`は、`.claude/plans/active/*.md`の全ファイルに`Worktree: <現在のworktreeの絶対パス>`という行があるかを確認し、1件でも欠けていればexit 2で停止をブロックする。一方、`plans-maintenance`ルールが`Worktree:`の記録を求めるのは、サブエージェントのworktree内で作成・更新したplanだけである。そのため、無関係な既存plan（例: `lefthook-debride-scope-change.md`、`task-group-share-cancellation.md`、`todoist-task-runner.md`）が毎回指摘される。
+- **Impact:** サブエージェントが停止するたびに誤った指摘が出る。指示どおりに無関係なplanへworktreeのパスを書き足すと、`Worktree:`欄の意味（そのplanを扱ったworktreeの履歴）が崩れる。誤検知が常態化すると、本当に記録が漏れたケースも見逃しやすくなる。
+- **Proposed Resolution:** 検査対象を、そのworktreeで変更されたplanに絞る。具体的には、ベースブランチとの差分や`git status`で追加・変更されたことが分かる`.claude/plans/active/*.md`だけを対象にする。
+- **Related:** `.claude/rules/plans-maintenance.md`、`.claude/plans/active/solid-queue-introduction.md`
+- **Resolution:** Proposed Resolution（そのworktreeで変更されたplanに検査対象を絞る）とは異なる方法で解決した。`Worktree:`の記録目的は完了処理でのclaude-mem照会であり、記録の要否はplanファイルを編集したかではなく、そのworktreeでplanの作業をしたかで決まるためである。`plan-worktree-check.sh`は、`.claude/plans/active/*.md`のいずれか1件に、行全体が`Worktree: <cwd>`と完全一致する行があれば通し、1件もなければexit 2でブロックするよう変更した。あわせて`plans-maintenance`ルールの記録条件を「そのplanの作業を行う場合」に改めた。経緯は`.claude/plans/active/plan-worktree-check-scope.md`のDecision Logを参照
+- **Resolved:** 2026-10-14
