@@ -23,18 +23,12 @@ if [ ! -d "$plans_dir" ]; then
   exit 0
 fi
 
-missing=()
 for f in "$plans_dir"/*.md; do
   [ -e "$f" ] || continue
-  if ! grep -qF "Worktree: ${cwd}" "$f"; then
-    missing+=("$f")
+  if grep -qxF "Worktree: ${cwd}" "$f"; then
+    exit 0
   fi
 done
 
-if [ "${#missing[@]}" -gt 0 ]; then
-  echo "以下のplanファイルに現在のworktree絶対パスと一致する'Worktree: ${cwd}'行がありません。plans-maintenanceルールに従い記載してください:" >&2
-  printf '%s\n' "${missing[@]}" >&2
-  exit 2
-fi
-
-exit 0
+echo "${plans_dir}のどのplanにも'Worktree: ${cwd}'行がありません。plans-maintenanceルールに従い、作業中のplanに'Worktree: ${cwd}'を追記してください。" >&2
+exit 2
