@@ -12,7 +12,7 @@ planファイルの`Worktree:`行には、作業したworktreeの絶対パス（
 `Worktree:`行の用途は次の2つである。
 
 - 完了処理でのclaude-mem照会の絞り込み（`execution-plan`スキル）
-- Stopフック`plan-worktree-check.sh`による記録漏れの検査（`cwd`との完全一致）
+- SubagentStopフック`plan-worktree-check.sh`による記録漏れの検査（`cwd`との完全一致）
 
 ## Decision
 
