@@ -5,7 +5,8 @@ module Api
 
       before_action :set_task_group_share, only: :show
       before_action :set_tasks, only: %i[tasks task calendar]
-      before_action :set_owned_task_group_share, only: :request_handover
+      before_action :set_owned_task_group_share, only: %i[request_handover cancel_handover_request]
+      before_action :ensure_status_handover_pending, only: :cancel_handover_request
 
       def index
         task_group_shares = task_group_shares_scope.order(created_at: :desc)
@@ -55,6 +56,14 @@ module Api
         end
       end
 
+      def cancel_handover_request
+        if @task_group_share.update(status: :shared)
+          render json: TaskGroupShareResource.new(@task_group_share), status: :ok
+        else
+          render_validation_error(@task_group_share.errors)
+        end
+      end
+
       def calendar
         calendar_tasks = fetch_tasks_for_calendar
         return if calendar_tasks.nil?
@@ -97,6 +106,12 @@ module Api
 
         def set_owned_task_group_share
           @task_group_share = current_api_v1_user.owned_task_group_shares.find(params[:id])
+        end
+
+        def ensure_status_handover_pending
+          return if @task_group_share.status_handover_pending?
+
+          render_custom_error source: "status", type: "invalid_transition", message: "引き継ぎ依頼中の状態でのみ実行できます。"
         end
     end
   end
