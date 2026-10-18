@@ -26,19 +26,19 @@ API 専用構成を基本とするが、認証メールと OAuth の補助画面
 
 ### Controller 層
 
-HTTP リクエストを受け、認証済みユーザーを起点に Model の操作と Resource の描画を調整する。基底は `ApplicationController`、共通のエラー描画は `ErrorRendering` である。
+HTTP リクエストを受け、認証済みユーザーを起点に Model の操作と Resource の描画を調整する。基底は `ApplicationController`、共通のエラー描画は `ErrorRendering`、日付範囲パラメータの解釈は `DateRangeFilter` である。
 
-バージョン付き API は `Api::V1` 名前空間にある。代表的な入口は `Api::V1::TasksController`、`Api::V1::TaskGroupsController`、`Api::V1::ContactsController`、`Api::V1::BlocksController`、`Api::V1::UsersController` である。認証フロー固有の拡張は `Api::V1::Auth` 名前空間に分離され、`Api::V1::Auth::SessionsController`、`Api::V1::Auth::RegistrationsController`、`Api::V1::Auth::PasswordsController`、`Api::V1::Auth::ConfirmationsController`、`Api::V1::Auth::TokenValidationsController`、`Api::V1::Auth::OmniauthCallbacksController` が並ぶ。
+バージョン付き API は `Api::V1` 名前空間にある。代表的な入口は `Api::V1::TasksController`、`Api::V1::TaskGroupsController`、`Api::V1::TaskGroupSharesController`、`Api::V1::ContactsController`、`Api::V1::BlocksController`、`Api::V1::UsersController` である。認証フロー固有の拡張は `Api::V1::Auth` 名前空間に分離され、`Api::V1::Auth::SessionsController`、`Api::V1::Auth::RegistrationsController`、`Api::V1::Auth::PasswordsController`、`Api::V1::Auth::ConfirmationsController`、`Api::V1::Auth::TokenValidationsController`、`Api::V1::Auth::OmniauthCallbacksController` が並ぶ。
 
 ### Model 層
 
-Active Record モデルと、永続化データに密接な関連・整合性・検索条件を置く。基底は `ApplicationRecord`、主要なモデルは `User`、`TaskGroup`、`Task`、`Contact`、`Block` である。
+Active Record モデルと、永続化データに密接な関連・整合性・検索条件を置く。基底は `ApplicationRecord`、主要なモデルは `User`、`TaskGroup`、`Task`、`TaskGroupShare`、`Contact`、`Block` である。
 
-中心となる所有関係は `User → TaskGroup → Task` である。`Contact` と `Block` は `User` 間の関係を表し、Avatar は Active Storage が管理する。Model に組み込む拡張は concern として置き、Devise の挙動を上書きする `UserOverride` がその例である。
+中心となる所有関係は `User → TaskGroup → Task` である。`TaskGroupShare` は `TaskGroup` を所有者以外の `User` へ共有する関係を表し、共有中か引き継ぎ（所有者の移譲）依頼中かの状態を持つ。`Contact` と `Block` は `User` 間の関係を表し、Avatar は Active Storage が管理する。Model に組み込む拡張は concern として置き、Devise の挙動を上書きする `UserOverride` がその例である。
 
 ### Resource 層
 
-Alba を使い、Model を API の JSON 表現へ変換する。共通基底は `ApplicationResource` で、代表的な Resource は `TaskResource`、`TaskGroupResource`、`UserResource`、`AccountResource`、`ContactResource`、`BlockResource` である。
+Alba を使い、Model を API の JSON 表現へ変換する。共通基底は `ApplicationResource` で、代表的な Resource は `TaskResource`、`TaskGroupResource`、`TaskGroupShareResource`、`UserResource`、`AccountResource`、`ContactResource`、`BlockResource` である。
 
 ### Validator 層
 
@@ -71,7 +71,7 @@ Controller から Resource へは描画に必要な文脈を渡せるが、Resou
 
 認証は Devise、Devise Token Auth、OmniAuth を中心に構成され、設定は各 Gem の初期化ファイル、アプリ固有の HTTP 処理は `Api::V1::Auth` 名前空間、認証主体は `User` にある。
 
-汎用の Policy レイヤーは意図的に置かれていない。データ範囲と認可は、各 Controller が `current_api_v1_user` を起点に関連を辿るか、`ApplicationController` の共通処理を使って制限する。
+汎用の Policy レイヤーは意図的に置かれていない。データ範囲と認可は、各 Controller が `current_api_v1_user` を起点に関連を辿るか、`ApplicationController` の共通処理を使って制限する。共有されたタスクグループは `TaskGroupShare` を辿って参照し、自分がブロックした所有者のものは除外する。
 
 ### JSON とエラー
 
