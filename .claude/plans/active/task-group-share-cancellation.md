@@ -151,3 +151,36 @@ end
 
 1. devcontainer内でPuma起動後、各ステップのBruno確認手順を `bru run "TaskGroupShares/Destroy.bru" --env <environment>` で実施。
 2. `bundle exec rubocop` で新規・変更ファイルのスタイル確認。
+
+## Decision Log
+
+### `destroy` の排他制御と状態チェックの設計（`d7093452`）
+
+最終的な `destroy` は次の形とした。
+
+```ruby
+def destroy
+  user_id = @task_group_share.user_id
+
+  @task_group_share.with_lock do
+    unless @task_group_share.status_shared? && @task_group_share.user_id == user_id
+      return render_custom_error source: "status", type: "invalid_transition", message: "共有中の状態でのみ解除できます。"
+    end
+
+    @task_group_share.destroy!
+  end
+
+  head :no_content
+end
+```
+
+各要素の意図:
+
+- `status_shared?` チェック: 引き継ぎ依頼は独立したレコードではなく share 行の `status` で表現されるため、`handover_pending` の share を削除すると依頼ごと消える。状態遷移を `handover_pending →（取り消し／辞退／承認）→ shared → 削除` の一本道にし、削除と承認が同じ行を奪い合わない形にするために `shared` 時のみ解除可能とした。誤操作防止は副次的な効果に過ぎない（オーナーは取り消し後に解除できる）。
+- `with_lock`: トランザクションを開き `SELECT ... FOR UPDATE` で行を再読込・ロックする。状態チェックから `destroy!` までの間に `accept_handover!` が割り込むことを防ぐ。
+- `user_id` の退避と一致確認: before_action（`set_owned_task_group_share`）の認可はロック外で行われるため、認可からロック取得までの間に `accept_handover!` が完了し得る。完了後の share は `status=shared`・`user_id=元オーナー` となり `status_shared?` だけでは通過してしまい、もはやオーナーではないユーザーが意味の変わった share を削除できてしまう。`accept_handover!` は必ず `user_id` を書き換えるため、認可時点の値と比較して入れ替わりを検出し `invalid_transition` を返す。`with_lock` は同じオブジェクトを再読込で上書きするため、認可時点の値はブロックに入る前に変数へ退避しておく必要がある。なお `user_id` は共有先ユーザーの ID であり、ログインユーザー（オーナー）の ID ではない。
+
+検討した代替案:
+
+- ロック内で認可付きに取得する（`current_api_v1_user.owned_task_group_shares.lock.find(params[:id])`）: `user_id` の退避・比較が不要になり見通しは良くなる。しかし JOIN により `task_groups` 行もロックされ、`task_group → share` の順に更新する `accept_handover!` とロック順序が逆転してデッドロックし得る（未検証）。また競合時のレスポンスが 422 から 404 に変わる。share 1 行のみをロックする現行方式を採用した。
+- 見通しを改善する場合は、ロジックを変えずに `cancel!(expected_user_id:)` のようなモデルメソッドへ切り出すのが無難。
