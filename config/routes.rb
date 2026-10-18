@@ -20,7 +20,9 @@ Rails.application.routes.draw do
           resources :blocks, only: %i[index create destroy]
         end
 
-        resources :task_groups
+        resources :task_groups do
+          resources :task_group_shares, only: :index
+        end
         resources :task_group_shares, only: %i[index show create] do
           member do
             get :tasks
