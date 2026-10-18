@@ -8,8 +8,9 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a7729d0959ce38cc6
 - [x] Step2: 共有された側による自己離脱（ブランチ `feat/task-group-share-self-leave`、Step1の上にスタック、restack後のコミット `588a2b9`）。Bruno: オーナー解除(id 20) 204、受け手離脱(id 26) 204、第三者(id 16) 404、`handover_pending`(id 18) 422 + `invalid_transition`
 - [x] レビュー修正: `destroy` の競合対策（`with_lock` 内で状態と `user_id` を再確認）を `feat/task-group-share-destroy` に `d709345` として追加し、git-spiceで上位ブランチをrestack。Bruno: Step1ブランチでオーナー(id 22) 204・`handover_pending`(id 18) 422、Step2ブランチでオーナー(id 23) 204・受け手(id 29) 204・`handover_pending`(id 18) 422
 - [x] リファクタ: Step2ブランチで `destroy` の取得処理のインライン化と `owned_or_shared_with` の冗長な join 削除を行い、上位ブランチをrestack（コンフリクトなし）。Bruno: Step2ブランチでオーナー(id 16) 204・受け手(id 41) 204・第三者(id 19) 404・`handover_pending`(id 18) 422、最上位ブランチ `docs/gh-stack-skill-v0.2.1` でオーナー(id 17) 204・受け手(id 75) 204・第三者(id 19) 404・`handover_pending`(id 18) 422
-- [x] PR作成: Step1 #691
-- [ ] 残作業: Step2のPR作成、マージ（ユーザー指示待ち）、RSpec（本プラン対象外）
+- [x] PR作成: Step1 #691、Step2 #692
+- [x] マージ: 2026-10-19 に #691・#692 を main へ squash merge（main 上は `e540091`・`d365244`。上記のコミットハッシュは restack・push 前のもの）。`rubocop` は main 上の変更ファイルで違反なし
+- RSpec は本プランの対象外（別途作成）
 - 検証で dev DB の共有 id 15・16・17・20・22・23・26・29・41・75 を削除済み（`Destroy.bru` のURLは id 2 に戻してある）
 - メインリポジトリの `.env.local` で `FRONTEND_ORIGIN=http://192.168.2.102:3000` に上書きされているため、Bruno実行時の `FRONTEND_ORIGIN` はその値を渡す（`http://localhost:3000` だと `verify_request` で400）。
 
@@ -53,6 +54,8 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a7729d0959ce38cc6
 - 2026-10-13: Step2の `set_task_group_share_for_destroy`（before_action）を廃止し、`destroy` の先頭で `@task_group_share = TaskGroupShare.owned_or_shared_with(current_api_v1_user).find(params[:id])` と取得する形にした。`destroy` 専用の取得処理であり、`create`・`task` 等の単一アクション用の取得もアクション内に書いているため。ローカル変数ではなくインスタンス変数にしたのは、上位スタックの通知系ブランチで `lock_task_group_share` 等の private ヘルパー（引き継ぎ系アクションと共有）が `@task_group_share` を前提にしているため。
 - 2026-10-13: `owned_or_shared_with` の `.or` 右辺の `joins(:task_group)` を削除した（`.or(where(user_id: user.id))`）。Step2の当初方針では「`.or` は両辺の `joins` の一致が必要」としていたが、左辺だけが `joins` を持つ形は受け付けられ、生成SQLも同一であることを `rails runner` で確認したため（逆に左辺に `joins` が無く右辺だけが持つ形は `ArgumentError` になる）。
 - 2026-10-13: `owned_or_shared_with` scope は残し、`current_api_v1_user.owned_task_group_shares.or(current_api_v1_user.task_group_shares)` への置き換えは行わない。和集合のクエリはモデルに置く方がRailsの慣習に沿い、`.or` の左右順序の制約（上記）をコントローラーにさらさずに済むため。
+- 2026-10-19: 完了時点のmainの `destroy` は、本planの形（share 1行だけをロックし `user_id` を再確認する）のままである。未マージの通知作成plan（`notification-creation.md`、`c5b7740` 等）のブランチでは、`TaskGroup` → `TaskGroupShare` の順にロックして当事者を再確認し通知を作成する形へ置き換えられている。本planのコード片と、上記の「不採用案」（`task_groups` 行もロックする方式）は実装当時の判断として残す。ロック順序の横断的な判断は通知作成planの完了処理で扱う。
+- 2026-10-19: `destroy` のRSpecを作成していないことは、tech-debt・Todoistに記録しない（ユーザー判断）。テストは本planの対象外として合意済みのため。
 
 ## Validation and Acceptance
 
