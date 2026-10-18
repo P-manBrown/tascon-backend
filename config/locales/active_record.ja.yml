@@ -27,6 +27,10 @@ ja:
               greater_than: "は開始日より後の日時を指定してください。"
             status:
               inclusion: "には'not_started'、'in_progress'、'completed'のいずれかを指定してください。"
+        task_group_share:
+          attributes:
+            user_id:
+              taken: "にすでに共有しています。"
     attributes:
       user:
         current_password: "現在のパスワード"
@@ -45,6 +49,7 @@ ja:
         blocked_id: "対象ユーザー"
       task_group_share:
         user: "共有先"
+        user_id: "対象ユーザー"
       task_group:
         name: "グループ名"
         icon: "アイコン"
