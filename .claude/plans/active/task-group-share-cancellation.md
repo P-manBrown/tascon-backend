@@ -1,5 +1,65 @@
 # タスクグループ共有解除機能 実装プラン
 
+Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a7729d0959ce38cc6
+
+## Progress
+
+- [x] Step1: オーナーによる共有解除（ブランチ `feat/task-group-share-destroy`、親 `docs/doc-gardening-sync`、コミット `c603f42`）。Bruno: オーナー解除(id 15) 204、受け手(id 14) 404、`handover_pending`(id 18) 422 + `invalid_transition`
+- [x] Step2: 共有された側による自己離脱（ブランチ `feat/task-group-share-self-leave`、Step1の上にスタック、restack後のコミット `588a2b9`）。Bruno: オーナー解除(id 20) 204、受け手離脱(id 26) 204、第三者(id 16) 404、`handover_pending`(id 18) 422 + `invalid_transition`
+- [x] レビュー修正: `destroy` の競合対策（`with_lock` 内で状態と `user_id` を再確認）を `feat/task-group-share-destroy` に `d709345` として追加し、git-spiceで上位ブランチをrestack。Bruno: Step1ブランチでオーナー(id 22) 204・`handover_pending`(id 18) 422、Step2ブランチでオーナー(id 23) 204・受け手(id 29) 204・`handover_pending`(id 18) 422
+- [x] リファクタ: Step2ブランチで `destroy` の取得処理のインライン化と `owned_or_shared_with` の冗長な join 削除を行い、上位ブランチをrestack（コンフリクトなし）。Bruno: Step2ブランチでオーナー(id 16) 204・受け手(id 41) 204・第三者(id 19) 404・`handover_pending`(id 18) 422、最上位ブランチ `docs/gh-stack-skill-v0.2.1` でオーナー(id 17) 204・受け手(id 75) 204・第三者(id 19) 404・`handover_pending`(id 18) 422
+- [x] PR作成: Step1 #691
+- [ ] 残作業: Step2のPR作成、マージ（ユーザー指示待ち）、RSpec（本プラン対象外）
+- 検証で dev DB の共有 id 15・16・17・20・22・23・26・29・41・75 を削除済み（`Destroy.bru` のURLは id 2 に戻してある）
+- メインリポジトリの `.env.local` で `FRONTEND_ORIGIN=http://192.168.2.102:3000` に上書きされているため、Bruno実行時の `FRONTEND_ORIGIN` はその値を渡す（`http://localhost:3000` だと `verify_request` で400）。
+
+再開時の前提:
+- worktreeには `config/master.key` が無いため、メインリポジトリの `config/master.key` へのシンボリックリンクを置いて `bin/rails` / Puma を起動する（gitignore対象）。
+- Bruno検証は `test@example.com`（id 302）のみで全ケースを網羅する。同ユーザーがオーナーの共有・受け手の共有・無関係な共有を、`Destroy.bru` のURL中のidを差し替えて叩き分ける（他ユーザーのパスワードはseedでランダムなため）。
+
+## Decision Log
+
+- 2026-10-09: プラン作成後に `TaskGroupShare` 周辺がリファクタされた（`accept_handover!` のモデル移動、finder/ステータスガイドの整理）ため、着手時に現行コードと突き合わせた。`set_owned_task_group_share`・`render_custom_error`・`status_shared?` はプラン記載どおり存在し、Step1/Step2のスニペットは修正不要と判断。
+- 2026-10-09: Bruno検証の「recipient」「第三者」ケースは、別ユーザーでサインインする代わりに test ユーザーが受け手／無関係となる共有idを対象にして再現する。Sign In.bru はtestユーザー固定で、他ユーザーの認証情報を追加するとCollectionに一時的な認証ファイルが増えるため。
+- 2026-10-09: 親セッションのcode-reviewで、`destroy` の状態チェックと `destroy!` の間に引き継ぎ承認（状態変更・`user_id` 入れ替え）が割り込む競合が指摘された。`user_id` を控えたうえで `with_lock`（reloadを伴う）内で `status_shared?` と `user_id` 不変を再確認し、満たさなければ同じ422 `invalid_transition` を返す形に修正した。競合の発生源がStep1のため、Step1ブランチへ新規コミットとして積みrestackした。
+- 2026-10-09: 同レビューの以下の指摘は対応しないと判断した。
+  - RSpecが無い: テストは本プランの対象外（別途作成）と合意済みのため。
+  - `Destroy.bru` が固定idを削除する破壊的リクエストである: 他の更新系 `.bru`（Create・Request Handover等）も固定idを使っており、それに揃えているため。
+  - shared状態のガードが `request_handover` と重複している: `destroy` 側のチェックはロック内で行う必要があり、before_actionに切り出せないため。
+  - ブロック中のオーナーに `without_blocked_owners` を適用していない: 可視性フィルタと当事者の離脱・解除権は別軸とするプラン合意済みの仕様のため。
+- 2026-10-13: Step1の `destroy`（`d709345` 時点）の排他制御と状態チェックについて、各要素の意図を整理した。対象のコードは次の形。
+
+  ```ruby
+  def destroy
+    user_id = @task_group_share.user_id
+
+    @task_group_share.with_lock do
+      unless @task_group_share.status_shared? && @task_group_share.user_id == user_id
+        return render_custom_error source: "status", type: "invalid_transition", message: "共有中の状態でのみ解除できます。"
+      end
+
+      @task_group_share.destroy!
+    end
+
+    head :no_content
+  end
+  ```
+
+  - `status_shared?` チェック: 引き継ぎ依頼は独立したレコードではなく share 行の `status` で表現されるため、`handover_pending` の share を削除すると依頼ごと消える。状態遷移を `handover_pending →（取り消し／辞退／承認）→ shared → 削除` の一本道にし、削除と承認が同じ行を奪い合わない形にするために `shared` 時のみ解除可能とした。誤操作防止は副次的な効果に過ぎない（オーナーは取り消し後に解除できる）。
+  - `with_lock`: トランザクションを開き `SELECT ... FOR UPDATE` で行を再読込・ロックする。状態チェックから `destroy!` までの間に `accept_handover!` が割り込むことを防ぐ。
+  - `user_id` の退避と一致確認: before_action（`set_owned_task_group_share`）の認可はロック外で行われるため、認可からロック取得までの間に `accept_handover!` が完了し得る。完了後の share は `status=shared`・`user_id=元オーナー` となり `status_shared?` だけでは通過してしまい、もはやオーナーではないユーザーが意味の変わった share を削除できてしまう。`accept_handover!` は必ず `user_id` を書き換えるため、認可時点の値と比較して入れ替わりを検出し `invalid_transition` を返す。`with_lock` は同じオブジェクトを再読込で上書きするため、認可時点の値はブロックに入る前に変数へ退避しておく必要がある。なお `user_id` は共有先ユーザーの ID であり、ログインユーザー（オーナー）の ID ではない。
+  - 不採用案: ロック内で認可付きに取得する（`current_api_v1_user.owned_task_group_shares.lock.find(params[:id])`）と、`user_id` の退避・比較が不要になり見通しは良くなる。しかし JOIN により `task_groups` 行もロックされ、`task_group → share` の順に更新する `accept_handover!` とロック順序が逆転してデッドロックし得る（未検証）。また競合時のレスポンスが 422 から 404 に変わる。share 1 行のみをロックする方式を採用した。
+  - 見通しを改善する場合は、ロジックを変えずに `cancel!(expected_user_id:)` のようなモデルメソッドへ切り出すのが無難。
+- 2026-10-13: Step2の `set_task_group_share_for_destroy`（before_action）を廃止し、`destroy` の先頭で `@task_group_share = TaskGroupShare.owned_or_shared_with(current_api_v1_user).find(params[:id])` と取得する形にした。`destroy` 専用の取得処理であり、`create`・`task` 等の単一アクション用の取得もアクション内に書いているため。ローカル変数ではなくインスタンス変数にしたのは、上位スタックの通知系ブランチで `lock_task_group_share` 等の private ヘルパー（引き継ぎ系アクションと共有）が `@task_group_share` を前提にしているため。
+- 2026-10-13: `owned_or_shared_with` の `.or` 右辺の `joins(:task_group)` を削除した（`.or(where(user_id: user.id))`）。Step2の当初方針では「`.or` は両辺の `joins` の一致が必要」としていたが、左辺だけが `joins` を持つ形は受け付けられ、生成SQLも同一であることを `rails runner` で確認したため（逆に左辺に `joins` が無く右辺だけが持つ形は `ArgumentError` になる）。
+- 2026-10-13: `owned_or_shared_with` scope は残し、`current_api_v1_user.owned_task_group_shares.or(current_api_v1_user.task_group_shares)` への置き換えは行わない。和集合のクエリはモデルに置く方がRailsの慣習に沿い、`.or` の左右順序の制約（上記）をコントローラーにさらさずに済むため。
+
+## Validation and Acceptance
+
+- Step1: `bru run` で、オーナーとしての解除が204、受け手としての解除が404（オーナー限定finderで見つからない）、`handover_pending` の共有の解除が422 + `invalid_transition` になる。1コミット。
+- Step2: `bru run` で、オーナー204、受け手204、第三者404、`handover_pending` 422 になる。1コミット。
+- `bundle exec rubocop` が変更ファイルで違反なし。
+
 ## Context
 
 現在 `TaskGroupShare` には作成(`create`)・引き継ぎワークフロー(`request_handover`/`cancel_handover_request`/`accept_handover`/`decline_handover`)はあるが、共有そのものを解除する `destroy` アクションが存在しない。一度共有すると、オーナー・共有された側どちらからも共有関係を解消できない状態になっている。これを解消するため、共有解除機能を新設する。
@@ -106,31 +166,29 @@ recipient自身も同じ `DELETE /api/v1/task_group_shares/:id` で共有から�
 scope :owned_or_shared_with, lambda { |user|
   joins(:task_group)
     .where(task_groups: { user_id: user.id })
-    .or(joins(:task_group).where(user_id: user.id))
+    .or(where(user_id: user.id))
 }
 ```
 
-`.or` はRailsの制約上、両辺の `joins` が構造的に一致している必要があるため、両方に `joins(:task_group)` を明示する。
+`.or` の右辺に `joins(:task_group)` は不要（左辺だけが `joins` を持つ形は受け付けられ、生成SQLも同一。Decision Log 2026-10-13 参照）。
 
 **`app/controllers/api/v1/task_group_shares_controller.rb`**
 
-destroy専用finderを新設し、`owned_task_group_shares` への相乗りから切り離す:
+`set_owned_task_group_share` の対象から `destroy` を外し、`destroy` の先頭で取得する（before_actionは使わない。Decision Log 2026-10-13 参照）:
 
 ```ruby
 before_action :set_task_group_share, only: %i[show decline_handover accept_handover]
 before_action :set_tasks, only: %i[tasks task calendar]
 before_action :set_owned_task_group_share, only: %i[request_handover cancel_handover_request]
-before_action :set_task_group_share_for_destroy, only: :destroy
 before_action :ensure_status_handover_pending, only: %i[cancel_handover_request decline_handover accept_handover]
 ```
 
 ```ruby
-def set_task_group_share_for_destroy
+def destroy
   @task_group_share = TaskGroupShare.owned_or_shared_with(current_api_v1_user).find(params[:id])
-end
+  user_id = @task_group_share.user_id
+  # 以降はStep1のまま
 ```
-
-`destroy` アクション本体はStep1のまま変更不要。
 
 第三者アクセスは `owned_or_shared_with` scope により `find` が `ActiveRecord::RecordNotFound` を投げ、標準の404になる(他のdestroyアクションと同じ挙動)。`destroy!` はバリデーションを経由しないため `must_be_contact` 等の影響はない。
 
@@ -151,36 +209,3 @@ end
 
 1. devcontainer内でPuma起動後、各ステップのBruno確認手順を `bru run "TaskGroupShares/Destroy.bru" --env <environment>` で実施。
 2. `bundle exec rubocop` で新規・変更ファイルのスタイル確認。
-
-## Decision Log
-
-### `destroy` の排他制御と状態チェックの設計（`d7093452`）
-
-最終的な `destroy` は次の形とした。
-
-```ruby
-def destroy
-  user_id = @task_group_share.user_id
-
-  @task_group_share.with_lock do
-    unless @task_group_share.status_shared? && @task_group_share.user_id == user_id
-      return render_custom_error source: "status", type: "invalid_transition", message: "共有中の状態でのみ解除できます。"
-    end
-
-    @task_group_share.destroy!
-  end
-
-  head :no_content
-end
-```
-
-各要素の意図:
-
-- `status_shared?` チェック: 引き継ぎ依頼は独立したレコードではなく share 行の `status` で表現されるため、`handover_pending` の share を削除すると依頼ごと消える。状態遷移を `handover_pending →（取り消し／辞退／承認）→ shared → 削除` の一本道にし、削除と承認が同じ行を奪い合わない形にするために `shared` 時のみ解除可能とした。誤操作防止は副次的な効果に過ぎない（オーナーは取り消し後に解除できる）。
-- `with_lock`: トランザクションを開き `SELECT ... FOR UPDATE` で行を再読込・ロックする。状態チェックから `destroy!` までの間に `accept_handover!` が割り込むことを防ぐ。
-- `user_id` の退避と一致確認: before_action（`set_owned_task_group_share`）の認可はロック外で行われるため、認可からロック取得までの間に `accept_handover!` が完了し得る。完了後の share は `status=shared`・`user_id=元オーナー` となり `status_shared?` だけでは通過してしまい、もはやオーナーではないユーザーが意味の変わった share を削除できてしまう。`accept_handover!` は必ず `user_id` を書き換えるため、認可時点の値と比較して入れ替わりを検出し `invalid_transition` を返す。`with_lock` は同じオブジェクトを再読込で上書きするため、認可時点の値はブロックに入る前に変数へ退避しておく必要がある。なお `user_id` は共有先ユーザーの ID であり、ログインユーザー（オーナー）の ID ではない。
-
-検討した代替案:
-
-- ロック内で認可付きに取得する（`current_api_v1_user.owned_task_group_shares.lock.find(params[:id])`）: `user_id` の退避・比較が不要になり見通しは良くなる。しかし JOIN により `task_groups` 行もロックされ、`task_group → share` の順に更新する `accept_handover!` とロック順序が逆転してデッドロックし得る（未検証）。また競合時のレスポンスが 422 から 404 に変わる。share 1 行のみをロックする現行方式を採用した。
-- 見通しを改善する場合は、ロジックを変えずに `cancel!(expected_user_id:)` のようなモデルメソッドへ切り出すのが無難。
