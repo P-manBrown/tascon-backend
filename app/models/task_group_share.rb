@@ -9,7 +9,8 @@ class TaskGroupShare < ApplicationRecord
   }
 
   validates :user_id, uniqueness: { scope: :task_group_id }
-  validate :cannot_share_with_owner, :must_be_contact
+  validate :cannot_share_with_owner
+  validate :must_be_contact, unless: -> { validation_context == :handover }
   validate :only_one_handover_pending_per_task_group, if: :status_handover_pending?
 
   private
