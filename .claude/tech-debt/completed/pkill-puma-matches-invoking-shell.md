@@ -1,5 +1,5 @@
 # `pkill -f puma`が、同じコマンド行を含む呼び出し元のシェルまで止める
-- **Status:** Open
+- **Status:** Resolved
 - **Priority:** Low
 - **Category:** Documentation
 - **Area:** `.claude/skills/bruno-endpoint-verification/SKILL.md`
@@ -9,3 +9,5 @@
 - **Impact:** Pumaの停止や「Pumaが残っていない」ことの確認（`todoist-task-runner`のworktreeの片付けの条件）が、正しく行えない・後続のコマンドが黙って実行されないことがある。
 - **Proposed Resolution:** Pumaのプロセス名（`puma 7.2.0 (unix://...)`）に合う、呼び出し元のシェルに一致しないパターン（例: `pkill -f '^puma '`）に変え、skillの停止・確認の手順を揃える。
 - **Related:** `.claude/plans/active/plan-work-records.md`
+- **Resolution:** skillの停止・確認のコマンドを、先頭で固定した`pkill -f '^puma '`・`pgrep -af '^puma '`に変えた。`puma`を含むコマンド行のシェルから実行しても、Puma本体だけに一致してシェルは止まらず、Solid Queueの子プロセスもPumaと一緒に止まることを確認した。
+- **Resolved:** 2026-10-20

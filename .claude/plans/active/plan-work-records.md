@@ -69,6 +69,7 @@
 - 2026-10-20: worktreeでのPuma起動は、`config/master.key`をコピー・リンクせず、メインcheckoutの鍵を`RAILS_MASTER_KEY`環境変数で渡し、`-b`でメインcheckoutの`tmp/sockets/puma.sock`にバインドする。nginxはメインcheckoutの`tmp/sockets`（名前付きボリューム`puma-sockets`）だけを見るため、worktree側の`tmp/sockets`にバインドしても届かない。試験用worktreeから起動し、`-b`で設定ファイルの`bind`が置き換わること（worktree側に`tmp/sockets`がなくても起動）、`bru run "Auth/Sign In.bru"`がnginx経由でPASSし、リクエストがworktreeの`log/development.log`に記録されること、ログに鍵が出ないことを確認した。worktreeから起動したPumaはworktreeの`.env*`を読むため、Brunoの`FRONTEND_ORIGIN`はそれに合わせる（メインcheckoutの`.env.local`の値とは異なり得る）。
 - 2026-10-20: skill変更前後の比較テストは、比較対象の記録（このplanの未コミットのDecision Log等）を読めない、コミット済みの状態から作ったworktree（scratchpadの`wt-before`）を文書の参照先にして行う。最初の変更前テストは、このDecision Logを読んで変更後と同じ答えを返したため、比較にならなかった。
 - 2026-10-20: 比較テストの結果。worktreeの片付けは、変更前は削除せず「削除してよいかユーザーに確認が要る」と答え（拒否されたら`--force`を付ける案も出した）、変更後は4条件を確かめて確認なしで削除すると答えた。Rails起動は、変更前も設定ファイルを読んで`-b`と`RAILS_MASTER_KEY`を自力で導いたが、`-b`が効くかは未確認として扱った（実行中のCodexのプロンプトを`pgrep`で見られる状態だったため、比較は参考程度）。変更後は手順どおりの答えになった。過去の実際のworktree作業で、master.keyのsymlink作成やworktree側`tmp/sockets`がなく起動に失敗した例があるため、起動手順はskillに残す。
+- 2026-10-20: `pkill -f puma`が呼び出し元のシェルまで止める問題は、tech-debtに回さずこのplanで直す。このplanで書いた起動・停止手順と、worktree削除の条件（Pumaが残っていない）に関わるため（ユーザー指示）。停止・確認は先頭固定の`'^puma '`にする。Pumaを起動し、`puma`を含むコマンド行のシェルから`pgrep -af '^puma '`・`pkill -f '^puma '`を実行して、Puma本体だけに一致すること、シェルが止まらず後続のコマンドが動くこと、Solid Queueの子プロセスも一緒に止まることを確認した。変更前後のサブエージェント比較は行っていない。変更前のskillは`pkill -f puma`をそのまま書いており、変更前の挙動はその文言で決まると判断したため。
 
 ## Validation and Acceptance
 

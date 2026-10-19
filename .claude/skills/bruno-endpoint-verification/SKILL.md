@@ -16,13 +16,13 @@ APIエンドポイントの追加・変更を、正規のBruno Collectionリク�
 
 - `.devcontainer/compose.devcontainer.yml`が`api` serviceの`command`をoverrideするため、Pumaは自動起動しない。`bin/bundle exec puma -C ./config/puma.rb &`で手動起動する
 - git worktree（`.claude/worktrees/`配下等）から起動する場合は、worktreeのルートで以下を行う
-  - 他のPumaが起動していないことを確認し、起動していれば停止する。同じsocketを使用するPumaは1つにする
+  - `pgrep -af '^puma '`で他のPumaが起動していないことを確認し、起動していれば`pkill -f '^puma '`で停止する。同じsocketを使用するPumaは1つにする
   - `MAIN=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")`でメインcheckoutのパスを取得する
   - nginxが接続するsocketはメインcheckoutの`tmp/sockets`（名前付きvolume `puma-sockets`）に置く。`-b`で`config/puma.rb`の`bind`を置き換え、worktreeには`tmp/sockets`を作成しない
   - `config/master.key`をworktreeへコピー・symlinkせず、起動コマンドの`RAILS_MASTER_KEY`で渡す。キーを`echo`・`env`・`printenv`等で出力せず、閲覧ツールでも読み取らない
   - `RAILS_MASTER_KEY="$(cat "$MAIN/config/master.key")" bin/bundle exec puma -C ./config/puma.rb -b "unix://$MAIN/tmp/sockets/puma.sock" &`でバックグラウンド起動する
   - リクエストはworktreeのコードで処理される。ログはworktreeの`log/development.log`で確認する
-- 作業完了後→`pkill -f puma`で起動したRails serverを必ず停止する
+- 作業完了後→`pkill -f '^puma '`で起動したRails serverを必ず停止する。`-f puma`のように先頭で固定しないパターンは使わない
 
 ## Bruno CLI接続
 
