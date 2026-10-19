@@ -37,7 +37,7 @@
 - [x] Step4: execution-plan skillの完了処理の手順2を、claude-memの通常の検索で、まだ記録されていない決定・教訓等を洗い出す指示にした（ブランチ`docs/plan-records-completion-query`。照会スクリプトは削除）。文脈を持たないサブエージェントでtask-group-share-cancellationの手順2をリハーサルし、変更前（`Worktree:`行の識別子で照会して0件になり、照会条件を独自に作った）から、通常の検索ツールで候補を集め、リポジトリと照合して分類する挙動に変わることを確認した
 - [x] Step5: decisionの見直し（ブランチ`docs/record-check-decision`）。`check-docs.sh`が通ることを確認した。`plan-worktree-path-format.md`はDeprecated、`feedback-reflection-timing.md`は新しいdecision`record-check-and-completion-reflection.md`によるSupersededにする
   - `docs/decisions/plan-worktree-path-format.md`・`docs/decisions/feedback-reflection-timing.md`の前提（worktreeごとのproject識別子で絞り込める）が実態と異なるため、`decisions-maintenance`ルールに従いStatusを更新する
-- [ ] Step6: task-group-share-cancellationの完了処理をやり直す
+- [ ] Step6: task-group-share-cancellationの完了処理をやり直す。手順1〜8を実施し報告済み（`docs/complete-task-group-share-cancellation-plan`のコミットに、Decision Logの訂正とRSpecの判断を追記）。残っていたサブエージェントのworktree 12個と`worktree-agent-*`ブランチ12本は、未コミットの変更がなく内容がブランチかmainにあることを確認して削除した。未決: worktreeでのRails起動手順の記録先・方式、worktree削除基準をskillに書くか
   - `git stash`に退避した編集（Decision Log・Progressの追記、stash名`cancellation-plan-completion-redo`）を戻して使う
   - 結果は手順ごと・候補ごとに報告する
 - ローカルの`.claude/plan-records/`（旧実装のログ）は、Step2のあとに削除する。照会スクリプトのシェル化の作業途中の変更は、stash（`abandoned: query script shell rewrite (plan-work-records)`）に退避した
@@ -59,7 +59,10 @@
   - 反映は人間のレビュー後に完了処理で行う方針: 確認対象は、その場での記録が既に定められているもの（planの`Decision Log`等）に限り、`docs/decisions/`・rules/skillへの反映は従来どおり完了処理で行う
 - 2026-10-19: 確認対象は「planのDecision Logに書くべき決定」に限らず、各skill・ruleがその場での記録を定めているものすべてにする。書き損じると後から確認する手段がないため、漏れをできるだけ減らす（ユーザー指示）。
 - 2026-10-19: 完了処理の手順に「claude-memの照会が正確でない」旨は書かない。実行時に意味がなく、自明なため（ユーザー指示）。
-- 2026-10-19: この方式で記録漏れが減らない場合は、エージェント型フック（実験的機能）を試す。
+- 2026-10-19: この方式で記録漏れが減らない場合は、エージェント型フック（実験的機能）を試す。なお、plan-worktree-check-scopeのDecision Log（2026-10-14）に、agent hookを採らない理由（公式ドキュメント上experimental、停止のたびのコスト、結果が非決定的）がある。試す場合はこれらの理由に答える必要がある。
+- 2026-10-19: AskUserQuestion向けの専用フック（廃止済みの`ask-user-question-decision-reminder.sh`の再導入）は作らない。AskUserQuestionの回答はターン内のツール結果として返り、そのターンの終わりにStopフックが確認する。実際にAskUserQuestionで4件の判断を受けたターンの終わりに、Stopフックが止めて記録の確認を求めることを確認した（ユーザー指示による検証）。
+- 2026-10-19: task-group-share-cancellationの完了処理の候補について、ユーザーの回答を受けて次のとおり扱う。`bin/rails runner`が止まる件は、再実行すると2秒で終了し`/home/ruby`にも書き込めたため、tech-debtに記録しない。旧worktree（`agent-a7729d0959ce38cc6`）は、未コミットの変更がなく、HEADのコミットと同じ内容が#692でマージ済みのため削除した。plan-worktree-check-scopeは中止としてcompletedへ移した。
+- 2026-10-19: 残すメリットのないworktreeは、確認せずに削除できるよう基準を文書化する（ユーザー指示。いちいち削除の確認をやり取りしたくないため）。
 - 2026-10-19: サブエージェント側の確認は、SubagentHandbackへのPreToolUseで行う。SubagentStopで止めても、SubagentHandbackで報告を渡したあとのサブエージェントは作業を続けなかった（サブエージェント自身のトランスクリプトで、SubagentStopのblockingErrorが最終行にあり、その後の応答がないことを確認）。報告を渡す直前に1回だけ拒否して確認を求め、2回目は通す。どのagentが確認済みかは、メインcheckoutの`.claude/record-check-state/<agent_id>`（gitignore）で持つ。SubagentHandbackを使わないサブエージェントのために、SubagentStopの確認も残し、確認済みのagentでは何もしない。
 
 ## Validation and Acceptance
