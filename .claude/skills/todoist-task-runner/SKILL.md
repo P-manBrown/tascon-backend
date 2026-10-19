@@ -32,9 +32,22 @@ Todoistをタスクキューとして、execution-plan単位の実装〜ロー�
    - 通常完了の場合: 親セッション自身が`/code-review`と`/security-review`を実行し、そのexecution-plan分のdiffをレビューする
      - 指摘があれば、`CLAUDE.md`の実装委譲原則に従って修正し、レビュー対象と同じブランチへ新規コミットとして積む
      - 事実確認や実機検証が必要で機械的に直せない指摘（複数の記述の食い違いでどちらが正しいか不明な場合等）→ 自動修正せず「処理を停止する場合」の手順でユーザーの判断を仰ぐ
-     - レビュー対応まで終わったら、サブエージェントのworktreeをdetachし、そのタスクで作ったブランチをどのworktreeでもcheckoutされていない状態に戻す。タスクの途中でセッションを中断・終了する場合も同様にする
+     - レビュー対応まで終わったら、サブエージェントのworktreeを「worktreeの片付け」に従って削除する。タスクの途中でセッションを中断・終了する場合は削除せず、worktreeをdetachし、そのタスクで作ったブランチをどのworktreeでもcheckoutされていない状態に戻す
      - 修正後の再度のレビューは行わない。指摘なしの場合はそのまま次のタスクを取得して「対象タスクの取得」、「処理フロー」に従って作業する（Todoistの対象タスクが尽きるまで繰り返す）
    - 処理停止の報告を受けた場合: 「処理を停止する場合」の手順で対応してから、そのサブエージェントを再開させる
+
+## worktreeの片付け
+
+- レビュー対応完了時のサブエージェントのworktreeと、随時発見した`.claude/worktrees/`配下の残存worktreeを対象にする
+- 以下の条件をすべて満たす場合はユーザーに確認せず削除し、結果のみ報告する。満たさない条件がある場合は削除せず、その条件を報告する
+  - 使用中のサブエージェントがなく、実行中でも再開予定でもない
+  - `git -C <worktree> status --porcelain`の出力が空である。gitignore対象のログ・キャッシュ等は削除されるものとして扱う
+  - HEADコミットが`main`または`worktree-agent-*`以外のローカルブランチに含まれることを、`git -C <worktree> branch --contains HEAD`で確認する
+  - そのworktreeから起動したPuma等のプロセスが残っていない
+- 条件を確認後、以下の順に実行する
+  1. `git worktree remove <worktree>`を`--force`なしで実行する
+  2. Agentツールが作成したブランチ`worktree-agent-<id>`を`git branch -d <branch>`で削除する。拒否された場合は、`git branch --contains <branch>`で先端コミットが`main`または`worktree-agent-*`以外のローカルブランチに含まれることを確認した場合のみ、`git branch -D <branch>`で削除する
+  3. `git worktree list`と`git branch --list 'worktree-agent-*'`で結果を確認する
 
 ## 作業中に派生タスクを発見した場合
 
