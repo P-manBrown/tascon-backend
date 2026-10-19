@@ -29,13 +29,13 @@
 ## Progress
 
 - [x] Step1: 完了検出フックの状態ファイルを`.claude/plan-completion-state/`へ移し、`.gitignore`に登録した（ブランチ`chore/plan-completion-hook`）
-- [ ] Step1追加: 完了検出フックを、`additionalContext`の注入から、検出時にexit 2でstderrへ出す形に変える（`chore/plan-completion-hook`のコミットを修正）
+- [x] Step1追加: 完了検出フックを、`additionalContext`の注入から、検出時にexit 2でstderrへ出す形に変えた（`chore/plan-completion-hook`のコミットを修正）。状態ファイルに削除済みブランチを足して実行し、検出時はexit 2とstderrの通知、同じ状態での2回目はexit 0で出力なしになることを確認した
 - [x] Step2: 確認用フックを追加した（ブランチ`chore/plan-work-records`）。`.claude/hooks/record-check.sh`をStop・SubagentStop・PreToolUse(SubagentHandback)に登録した。入力JSONによる各分岐の確認に加え、実セッションで次を確認した: Stopがターンを1回止める／SubagentHandbackの1回目が拒否され、サブエージェントが記録の要否を判断してから2回目の報告で通る／SubagentStopが状態ファイルを片付ける。ローカルの`.claude/plan-records/`は削除済み
   - 旧実装（`plan-record.sh`・`plan-record-agent.sh`・`plan-record-stop.sh`、PostToolUse(Agent)の登録、`.gitignore`の`/.claude/plan-records/`）を取り除く
   - Stop・SubagentStop共通の確認用フックを追加し、`.claude/settings.json`に登録する
 - [x] Step3: `Worktree:`行の仕組みを廃止した（ブランチ`chore/retire-plan-worktree-lines`）。コミットメッセージから作業記録ログへの言及を除いた。Step2の書き換えに伴うrestackで、`settings.json`とこのplanファイルの競合を解消した（SubagentStopから`plan-worktree-check.sh`の登録だけを外し、planは書き換え後の内容を採用）
 - [x] Step4: execution-plan skillの完了処理の手順2を、claude-memの通常の検索で、まだ記録されていない決定・教訓等を洗い出す指示にした（ブランチ`docs/plan-records-completion-query`。照会スクリプトは削除）。文脈を持たないサブエージェントでtask-group-share-cancellationの手順2をリハーサルし、変更前（`Worktree:`行の識別子で照会して0件になり、照会条件を独自に作った）から、通常の検索ツールで候補を集め、リポジトリと照合して分類する挙動に変わることを確認した
-- [ ] Step5: decisionの見直し
+- [x] Step5: decisionの見直し（ブランチ`docs/record-check-decision`）。`check-docs.sh`が通ることを確認した。`plan-worktree-path-format.md`はDeprecated、`feedback-reflection-timing.md`は新しいdecision`record-check-and-completion-reflection.md`によるSupersededにする
   - `docs/decisions/plan-worktree-path-format.md`・`docs/decisions/feedback-reflection-timing.md`の前提（worktreeごとのproject識別子で絞り込める）が実態と異なるため、`decisions-maintenance`ルールに従いStatusを更新する
 - [ ] Step6: task-group-share-cancellationの完了処理をやり直す
   - `git stash`に退避した編集（Decision Log・Progressの追記、stash名`cancellation-plan-completion-redo`）を戻して使う

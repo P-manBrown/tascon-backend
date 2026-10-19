@@ -5,3 +5,4 @@
 - [planのWorktree行のパス形式](plan-worktree-path-format.md)
 - [rules遵守確認フックの対象範囲](rules-compliance-check-scope.md)
 - [リマインダー型hookの廃止](reminder-hooks-removal.md)
+- [作業中の記録漏れの確認とplan完了時の反映](record-check-and-completion-reflection.md)
