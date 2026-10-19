@@ -74,7 +74,7 @@
 ## Validation and Acceptance
 
 - メインセッションのターンの終わりに、Stopフックが確認対象を提示してターンを1回止める。同じターンの2回目のStopでは何も出力しない
-- サブエージェントの終了時に、SubagentStopフックが同じ確認対象を提示して1回止める。2回目は何も出力しない
+- サブエージェントが報告を渡す前に、SubagentHandbackへのPreToolUseフックが同じ確認対象を提示して1回拒否し、2回目は通す。SubagentHandbackを使わずに終わるサブエージェントは、SubagentStopフックが1回止める
 - 旧実装（作業記録ログ・記録用フック・照会スクリプト）がリポジトリに残っていない
 - 完了検出フックが、検出時にexit 2でstderrへ出す
 - `.claude/plan-completion-state/`が`git status`に現れない
