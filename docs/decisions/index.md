@@ -6,3 +6,5 @@
 - [rules遵守確認フックの対象範囲](rules-compliance-check-scope.md)
 - [リマインダー型hookの廃止](reminder-hooks-removal.md)
 - [作業中の記録漏れの確認とplan完了時の反映](record-check-and-completion-reflection.md)
+- [コミットメッセージの機械チェックはPRタイトルのみ](commit-message-check-scope.md)
+- [security-reviewをdiffの種類によらず毎回実行する](security-review-every-run.md)
