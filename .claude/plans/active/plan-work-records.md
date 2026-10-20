@@ -87,6 +87,11 @@
 - 2026-10-20: 変更後テスト（A2・B・C）: bashのコメントも英語になった。push済み`feat/`ブランチは改名せずPRタイトルを`chore`にして報告する、に変わった。SKILL.mdへの確認状況の記載は引き続き起きず、未確認であることをplanへ記録する必要があると答えるようになった。ただし「未確認の手順を追加する場合も、未確認であることはplanに記録する」という文言では、変更前は外していた未確認の手順をSKILL.mdの差分に入れた（B3）。そのため「動作を確認していない手順は加えず、未確認であることをplanに記録する」に直して再テストする。
 - 2026-10-20: 文言を直した後の再テスト（B3・B4を各2回）: 4回とも、動作を確認していない手順はSKILL.mdに加えず、未確認であることをplanに記録すると答えた（B4は変更前、未確認の手順をそのまま追加していた）。行動が変わったため追記を残す。コメント言語のrule、push済みブランチを改名しない手順も変更前後で行動が変わったため残す。B4の1回はclaude-memのセッション開始時の差し込み（過去のセッション要約）を根拠の一つに挙げていた。コミットメッセージの機械チェック・security-reviewの毎回実行の2件は`docs/decisions/`へ移し、移した各memoryは削除した。
 - 2026-10-20: コミット時に、他のファイルの未コミット変更を残したまま`git-spice commit create`を実行した。上のブランチのrestack後に元のブランチへ戻れず（`FTL error: Your local changes to the following files would be overwritten by checkout`）、作業ブランチが`feat/task-due-notification`に切り替わった。次のコミットがそこへ入ったため、退避して`feat/task-due-notification`を元の先端へ戻し、`--no-restack`でコミットし直してから、作業ツリーがきれいな状態で`git-spice upstack restack`を1回実行した。最上段の差分が今回のコミット分だけであることを確認した。
+- 2026-10-20: ユーザー指示で、未コミットの変更が残っている間は`--no-restack`でコミットし、作業ツリーがきれいになってから上のブランチをrestackする手順を`git-spice-workflow` skillに加える（変更前後のテストを行う）。退避用のstash `memory-migration-wip`は、中身がコミット済みであることを確かめ、ユーザーの指示で削除した。
+- 2026-10-20: `--no-restack`の変更前テストを最初は通常のcheckoutで行ったが、2回とも直前にコミットしたDecision Logの失敗記録とclaude-memの記録を根拠に`--no-restack`を選んでおり、skillがない状態の挙動を測れていなかった。そのため、記録を書く前のコミット（`b8ae56b`）のworktreeから`claude -p`を実行してやり直す。
+- 2026-10-20: 記録前のworktreeで実行しても、claude-memのセッション開始時の差し込みに今回の失敗の記録（observation 2596〜2600）が含まれ、2回ともそれを根拠にrestackを避けた。そのため`claude -p --setting-sources project,local`でユーザー設定（claude-memプラグインを有効にしている）を外して、claude-memなしで変更前の挙動を測る。
+- 2026-10-20: claude-memなし（`--setting-sources project,local`）・記録前worktreeでの変更前テスト3回のうち2回は、Bが未コミットのまま`git-spice commit create`でAをコミットする手順を答えた（今回の失敗と同じ）。1回は素の`git commit`で2つコミットし最後に1回restackしたが、根拠は推測だった。
+- 2026-10-20: 同じ条件で追記後のskillを使った変更後テスト3回は、すべて2つのコミットを`--no-restack`で作り、作業ツリーがクリーンになってから`git-spice upstack restack`を1回実行した。行動が変わったため追記を残す。
 
 ## Validation and Acceptance
 
