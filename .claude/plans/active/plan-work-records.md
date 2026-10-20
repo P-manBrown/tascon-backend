@@ -95,6 +95,9 @@
 - 2026-10-20: Stopフックが2回続けて出るという指摘を受け、このセッションのトランスクリプトでStopの発火79回を確かめた。1つのターンの中で2回止まったことはなく、続けて出るのは、サブエージェントの報告と完了通知がそれぞれ別のターンを始めたときだった。SubagentStopは、このセッションのサブエージェントがすべてSubagentHandbackで報告したため、状態ファイルの片付けにしか使われていなかった。報告を渡さずに終わるサブエージェントへの予備としての確認が効くかは、検証していない。SubagentStopの登録を外して片付けをPreToolUseの2回目へ移す案と、完了通知だけで始まったターンでは止めない案をユーザーに提示した。
 - 2026-10-20: ユーザーの指示で、SubagentStopの登録を外し、状態ファイルの片付けをSubagentHandbackへのPreToolUseの2回目へ移す（案A）。完了通知だけで始まったターンでStopを止めない案（案B）は採らない。SubagentStopの時点でもサブエージェントは記録すべき情報を持っているが、報告を渡したあとは止めても作業を続けないため、確認は報告前に行う。ブランチは`chore/drop-subagentstop-record-check`を`docs/move-project-memories-to-docs`の上に挿入した。
 - 2026-10-20: 変更後、テスト用のサブエージェント（「テスト完了」とだけ報告する）を1つ動かし、そのトランスクリプトで確かめた。1回目のSubagentHandbackはPreToolUseのフックが確認の文言で拒否し、2回目は通った。`.claude/record-check-state/`は空で、状態ファイルは2回目で削除されていた。SubagentStopのフックは実行されていない。
+- 2026-10-20: ユーザーの指示で、Todoistの新規タスクの作成先（インボックス）を`tech-debt-tracker` skillから`todoist-task-conventions` skillへ移し、`tech-debt-tracker`は`todoist-task-conventions`の参照だけにする。共通ルールにはこれまで作成先の記述がなく、インボックスと書いてあったのはtech-debtの新規記録の手順だけだった。ブランチは`docs/todoist-inbox-default`を`chore/drop-subagentstop-record-check`の上に挿入した。
+- 2026-10-20: 変更前テスト（claude-memなし、`9e3aad5`のworktree、作業範囲外のバグをTodoistに起票する場面）は3回とも`projectId`を指定せずインボックスに作ると答え、根拠は`tech-debt-tracker`の手順3からの類推だった。今回は新しいルールの追加ではなく記述の移動のため、変更後も同じ答えになり、根拠が`todoist-task-conventions`に変わることを確かめる。
+- 2026-10-20: 変更後テスト（同じ条件で、移動後の2ファイルを使用）は3回ともインボックスに作ると答え、3回とも根拠を`todoist-task-conventions`の「作成先」に変えていた（`projectId`を省略が2回、`"inbox"`を指定が1回）。1回目の実行は使用制限で3件とも応答がなかったため、やり直した。
 
 ## Validation and Acceptance
 

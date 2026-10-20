@@ -7,6 +7,10 @@ description: Todoistで新規タスクを作成する際のラベル付与・子
 
 Todoistで新規タスクを作成する際の共通ルール。個々のワークフローskill（`todoist-task-runner`、`tech-debt-tracker`等）は、タスク作成時にここを参照する。
 
+## 作成先
+
+- 新規タスクは、Todoistのインボックスに作成する
+
 ## ラベル
 
 - `tascon-backend`: リポジトリ判別用。親タスク（親を持たない単発タスクはそのタスク自体）に付与する

@@ -11,7 +11,7 @@ description: 技術的負債・懸念事項を`.claude/tech-debt/`へ記録し�
 
 1. `.claude/tech-debt/active/`のファイル一覧を確認する。似た対象範囲・カテゴリのものがあれば中身を読んで同等の項目でないか確認する。同等の項目であれば新規追加せず終了
 2. `.claude/tech-debt/active/<slug>.md`を`tech-debt-maintenance`ルールの形式で新規作成する
-3. `todoist-task-conventions` skillに従い、`add-tasks`でTodoistのインボックスへ新規タスクを作成する。タスクのdescriptionにファイル名と概要を記載する
+3. `todoist-task-conventions` skillに従い、`add-tasks`で新規タスクを作成する。タスクのdescriptionにファイル名と概要を記載する
 4. 発行されたTodoistタスクIDを、手順2で作成したファイルの`Todoist Task ID`欄へ書き戻す
 
 ## 解消・却下時の手順
