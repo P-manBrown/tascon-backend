@@ -12,6 +12,7 @@ git-spice使用。スタック型ブランチ管理。
 - ブランチ名は`<type>/<変更内容>`形式にする（`<type>`はPRタイトルと同じConventional Commits type）。作成時点で、後述の「type判断基準」のPRタイトルの基準でtypeを決める
 - `execution-plan`の複数ステップは1ステップずつブランチを切りスタックする
 - 新しい作業のブランチは、未マージのスタックがあればその最上段に積む。内容が独立して見える変更（ドキュメントのみ等）でも`main`から切らない。作成前に`git-spice ls`で最上段を確認する
+- `git-spice branch create`には`--no-commit`を付けてブランチだけを作り、変更は`git-spice commit create`でコミットする
 
 ## コミット内容ルール
 

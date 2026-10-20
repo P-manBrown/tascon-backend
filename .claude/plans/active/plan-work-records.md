@@ -42,8 +42,8 @@
   - `git stash`に退避した編集（Decision Log・Progressの追記、stash名`cancellation-plan-completion-redo`）を戻して使う
   - 結果は手順ごと・候補ごとに報告する
 - ローカルの`.claude/plan-records/`（旧実装のログ）は、Step2のあとに削除する。照会スクリプトのシェル化の作業途中の変更は、stash（`abandoned: query script shell rewrite (plan-work-records)`）に退避した
-- [ ] Step8: ルールの比較テストを専用サブエージェント`rule-tester`（`.claude/agents/rule-tester.md`）とstash方式で行う形に変えた（ブランチ`docs/rule-test-headless-session`、コミット`412f3cc9`）。Decision Logを決定と理由だけに絞り、テストの結果は「検証結果」へ移した。残りは次のとおり
-  - 「検証結果」節の追加（`plans-maintenance`・`claude-md-maintenance`の手順5）と、ブランチを比較テストの後に作る手順（手順5）は、比較テスト済み・未コミット。Stopフックの文言の修正（Codexに委任中）とこのplanの書き直しと合わせて、`docs/plan-verification-results`を`docs/rule-test-headless-session`の上に挿入してコミットする
+- [x] Step8: ルールの比較テストを専用サブエージェント`rule-tester`（`.claude/agents/rule-tester.md`）とstash方式で行う形に変えた（ブランチ`docs/rule-test-subagent`、コミット`412f3cc9`）。Decision Logを決定と理由だけに絞り、テストの結果は「検証結果」へ移した。残りは次のとおり
+  - 「検証結果」節の追加、ブランチを比較テストの後に作る手順、Stopフックの文言の修正、このplanの書き直しは、`docs/plan-verification-results`（`docs/rule-test-subagent`の上に挿入）にコミットした（`9b7b8b4e`）。「`branch create`は`--no-commit`で作り、`commit create`でコミットする」の`git-spice-workflow` skillへの追記は、比較テストの後、`docs/plan-verification-results`の上に挿入した`docs/git-spice-branch-create-no-commit`にコミットした
 
 ## 検証結果
 
@@ -67,6 +67,10 @@
 - サブエージェントの文脈のgitStatus（実際の動作）: 組み込みのExploreには入らなかった。`rule-tester`には入っていた（ブランチ名・変更ファイル・直近のコミット5件）。セッション中に`rule-tester.md`へ足した項目と目印は反映されなかった（エージェント定義の書き換えは、起動し直すまで反映されない）
 - エージェント定義でgitStatusを外せるか（起動し直し後）: `rule-tester.md`に`omitGitStatus: true`・`env: CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS: "1"`と目印を足して起動し直すと、目印は出た（定義は反映された）が、gitStatusは入っていた。gitStatusは依頼メッセージに付くsystem-reminderの中にあり、セッション開始時点のスナップショット（ブランチ名・変更ファイル・直近のコミット5件）だった。確認後、`rule-tester.md`は元に戻した
 - ブランチを作るタイミング（`claude-md-maintenance`の手順5に「変更内容を表すブランチを作るのは、ここまで終えた後にする」を足す）: planと`plans-maintenance`を退避し、「ルールを足す作業で、ブランチ作成・編集・比較テスト・コミットをどの順で行うか」を問うと、変更前はルールを編集する前にブランチを作ると答え、変更後はテストと記録を終えてからブランチを作り、最後にコミットすると答えた（根拠は手順5）
+- Stopフックの文言の修正: `bash -n`が通り、入力JSONを与えて、Stopで`block`と新しい文言、`stop_hook_active`が真で出力なし、SubagentHandbackの1回目で`deny`と新しい文言、2回目で通過と状態ファイルの削除を確認した
+- `git-spice branch create --insert`でのコミット: lefthookの`protect-branch`（`git branch --show-current`が`main`でないことを確かめる）に失敗し、ブランチもコミットも作られなかった。HEADを切り離した状態でコミットするため、出力が空になると見られる。`--no-commit`でブランチを挿入し、`git-spice commit create --no-restack`でコミットすると通った
+- `branch create`に`--no-commit`を付ける手順（`git-spice-workflow`）: planを退避し、「ステージ済みの変更で、スタックの途中に新しいブランチを挿入して1つのコミットにするコマンド」を問うと、変更前は`git-spice branch create docs/example-change --insert -m ...`で作成と同時にコミットすると答え（`--no-commit`はステージしていない変更が残る場合だけ）、変更後は`branch create --insert --no-commit`でブランチだけを作り、`commit create`でコミットすると答えた（根拠はSKILL.md）
+- `refs/backup/reorder-20261020/*`の削除前の確認: バックアップにあるmain以外のコミット129個のsubjectを、今のブランチとmainのコミットと照合した。128個は同じsubjectがあり、残る1個（`docs: retire the git workaround noted in active plans`）は`b768188a`・`83c1e54d`の2つに分けられて今のブランチにあった
 - 無効にしたテスト: Decision Logを先に書いたplanを読んで答えたもの、claude-memの差し込み（過去の失敗の記録）を根拠にしたもの、テスト対象を退避して`rule-tester`自体が消えたもの、ブランチ名から作成中のルールを推測したものは、比較に使わずやり直した
 
 ## Decision Log
@@ -101,7 +105,10 @@
 - 2026-10-21: コミットメッセージを親コミットの状態から書き、採らなかった案を出発点にしない旨は、`git-spice-workflow` skillに書かない（ユーザー指示）。変更前テストで、既存の規定から正しく書けたため。
 - 2026-10-21: 比較テストの結果は、planの「検証結果」に書く。`plans-maintenance`ルールの各節の用途に「検証結果」を足し、`claude-md-maintenance`ルールの比較テストの手順の書き込み先をそこにする（ユーザー同意）。書き込み先が決まっておらず、結果をDecision Logに書いてしまったため。
 - 2026-10-21: 比較テストの文脈に入るgitStatusは、設定ではなく手順の側で避ける。変更内容を表すブランチは比較テストの後に作る（ユーザー指示）。エージェント定義に`omitGitStatus`・`env`を足しても外れず、外せる`includeGitInstructions`はメインセッションのgitStatusと組み込みのコミット・PRの手順まで外すため。gitStatusはセッション開始時点のスナップショットで、テスト前に作ったブランチの名前から変更内容が漏れる。
-- 2026-10-21: Stopフック・SubagentHandbackの確認文言の記録対象に、planの「検証結果」を足す（ユーザー指示）。比較テストの結果の書き込み先を「検証結果」にしたため。今回の変更は、Claude関連の変更の最上段（`docs/rule-test-headless-session`の上、`docs/notification-architecture`の下）に新しいブランチ`docs/plan-verification-results`を挿入してコミットする（ユーザー指示）。
+- 2026-10-21: Stopフック・SubagentHandbackの確認文言の記録対象に、planの「検証結果」を足す（ユーザー指示）。比較テストの結果の書き込み先を「検証結果」にしたため。今回の変更は、Claude関連の変更の最上段（`docs/rule-test-subagent`の上、`docs/notification-architecture`の下）に新しいブランチ`docs/plan-verification-results`を挿入してコミットする（ユーザー指示）。
+- 2026-10-21: 「Claude関連の変更をClaude関連の最上段に積む」は今回だけの扱いで、skillには書かない（ユーザー指示）。
+- 2026-10-21: `git-spice branch create`でブランチを作るときは`--no-commit`を付け、コミットは`git-spice commit create`で行う旨を`git-spice-workflow` skillに足す（ユーザー指示）。`branch create`で直接コミットすると、lefthookの`protect-branch`に失敗するため。
+- 2026-10-21: ブランチ`docs/rule-test-headless-session`を`docs/rule-test-subagent`に改名した（ユーザー指示）。中身がヘッドレスのセッション（`claude -p`）を使わなくなったため。スタックの並べ替え時のバックアップ`refs/backup/reorder-20261020/*`（35個）と、採らなかった照会スクリプトのstash`query script shell rewrite (plan-work-records)`は削除した（ユーザー指示）。
 
 ## Validation and Acceptance
 
