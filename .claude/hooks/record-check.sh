@@ -46,7 +46,7 @@ reason='作業を終える前に、このターン（サブエージェントは
 - planのDecision Log・Progress（plans-maintenanceルール）
 - 技術的負債の新規記録・更新（tech-debt-tracker skill）
 - Todoistへの進捗コメント（todoist-task-runner skill）
-- memory（ユーザーの指摘・好み・プロジェクトの事情）
+- ユーザーの指摘・決定（claude-md-maintenanceルールの置き場所判断に従い、プロジェクト全体のルールはCLAUDE.md・rules・skillsへ、個人の作業スタイル・ツール利用方針はmemoryへ）
 該当がなければ何もせず終了する。'
 
 if [ "$hook_event_name" = "PreToolUse" ]; then
