@@ -10,11 +10,11 @@
 - claude-memの通常のインターフェース（MCPの`search`・`timeline`・`get_observations`・`build_corpus`等）は、セッション・ターン・agentで絞り込めず、出力にもそれらのキーが含まれない（実際に呼び出して確認）
 - キーで正確に引けるのは、ワーカーの内部HTTP APIかDBの直接読み込みだけで、どちらも通常の使い方ではなく、claude-memの実装変更で使えなくなる
 
-そのため、完了処理でclaude-memから正確に記録を引くことはできない。記録の主軸を、作業中のその場での記録に移す。StopとSubagentStopのタイミングで、各skill・ruleが定める「その場で記録すべきもの」をすべて記録したかを確認させる。完了処理でのclaude-memの照会は、通常の検索で追加の記録候補を探す補助とする。
+そのため、完了処理でclaude-memから正確に記録を引くことはできない。記録の主軸を、作業中のその場での記録に移す。メインセッションのStopと、サブエージェントのSubagentHandbackへのPreToolUseのタイミングで、各skill・ruleが定める「その場で記録すべきもの」をすべて記録したかを確認させる。完了処理でのclaude-memの照会は、通常の検索で追加の記録候補を探す補助とする。
 
 ## 合意した方針
 
-- StopとSubagentStopの両方で、1つの確認用フックが、毎ターン（サブエージェントは終了時）1回だけ`decision: block`で止める。`stop_hook_active`がtrueなら何もしない
+- メインセッションではStopで、確認用フックが毎ターン1回だけ`decision: block`で止める。`stop_hook_active`がtrueなら何もしない。サブエージェントではSubagentHandbackへのPreToolUseで1回目を拒否し、2回目は状態ファイルを削除して通す
 - 確認させる対象は、各skill・ruleが作業中のその場での記録を定めているもの。具体的な内容はそれぞれのskill・ruleに任せ、フックには書き写さない
   - planの`Decision Log`・`Progress`（`plans-maintenance`ルール）
   - 技術的負債の新規記録・更新（`tech-debt-tracker` skill）
@@ -92,11 +92,14 @@
 - 2026-10-20: 記録前のworktreeで実行しても、claude-memのセッション開始時の差し込みに今回の失敗の記録（observation 2596〜2600）が含まれ、2回ともそれを根拠にrestackを避けた。そのため`claude -p --setting-sources project,local`でユーザー設定（claude-memプラグインを有効にしている）を外して、claude-memなしで変更前の挙動を測る。
 - 2026-10-20: claude-memなし（`--setting-sources project,local`）・記録前worktreeでの変更前テスト3回のうち2回は、Bが未コミットのまま`git-spice commit create`でAをコミットする手順を答えた（今回の失敗と同じ）。1回は素の`git commit`で2つコミットし最後に1回restackしたが、根拠は推測だった。
 - 2026-10-20: 同じ条件で追記後のskillを使った変更後テスト3回は、すべて2つのコミットを`--no-restack`で作り、作業ツリーがクリーンになってから`git-spice upstack restack`を1回実行した。行動が変わったため追記を残す。
+- 2026-10-20: Stopフックが2回続けて出るという指摘を受け、このセッションのトランスクリプトでStopの発火79回を確かめた。1つのターンの中で2回止まったことはなく、続けて出るのは、サブエージェントの報告と完了通知がそれぞれ別のターンを始めたときだった。SubagentStopは、このセッションのサブエージェントがすべてSubagentHandbackで報告したため、状態ファイルの片付けにしか使われていなかった。報告を渡さずに終わるサブエージェントへの予備としての確認が効くかは、検証していない。SubagentStopの登録を外して片付けをPreToolUseの2回目へ移す案と、完了通知だけで始まったターンでは止めない案をユーザーに提示した。
+- 2026-10-20: ユーザーの指示で、SubagentStopの登録を外し、状態ファイルの片付けをSubagentHandbackへのPreToolUseの2回目へ移す（案A）。完了通知だけで始まったターンでStopを止めない案（案B）は採らない。SubagentStopの時点でもサブエージェントは記録すべき情報を持っているが、報告を渡したあとは止めても作業を続けないため、確認は報告前に行う。ブランチは`chore/drop-subagentstop-record-check`を`docs/move-project-memories-to-docs`の上に挿入した。
+- 2026-10-20: 変更後、テスト用のサブエージェント（「テスト完了」とだけ報告する）を1つ動かし、そのトランスクリプトで確かめた。1回目のSubagentHandbackはPreToolUseのフックが確認の文言で拒否し、2回目は通った。`.claude/record-check-state/`は空で、状態ファイルは2回目で削除されていた。SubagentStopのフックは実行されていない。
 
 ## Validation and Acceptance
 
 - メインセッションのターンの終わりに、Stopフックが確認対象を提示してターンを1回止める。同じターンの2回目のStopでは何も出力しない
-- サブエージェントが報告を渡す前に、SubagentHandbackへのPreToolUseフックが同じ確認対象を提示して1回拒否し、2回目は通す。SubagentHandbackを使わずに終わるサブエージェントは、SubagentStopフックが1回止める
+- サブエージェントが報告を渡す前に、SubagentHandbackへのPreToolUseフックが同じ確認対象を提示して1回拒否し、2回目は状態ファイルを削除して通す
 - 旧実装（作業記録ログ・記録用フック・照会スクリプト）がリポジトリに残っていない
 - 完了検出フックが、検出時にexit 2でstderrへ出す
 - `.claude/plan-completion-state/`が`git status`に現れない
