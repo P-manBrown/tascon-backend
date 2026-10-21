@@ -44,6 +44,7 @@
 - ローカルの`.claude/plan-records/`（旧実装のログ）は、Step2のあとに削除する。照会スクリプトのシェル化の作業途中の変更は、stash（`abandoned: query script shell rewrite (plan-work-records)`）に退避した
 - [x] Step8: ルールの比較テストを専用サブエージェント`rule-tester`（`.claude/agents/rule-tester.md`）とstash方式で行う形に変えた（ブランチ`docs/rule-test-subagent`、コミット`412f3cc9`）。Decision Logを決定と理由だけに絞り、テストの結果は「検証結果」へ移した。残りは次のとおり
   - 「検証結果」節の追加、ブランチを比較テストの後に作る手順、Stopフックの文言の修正、このplanの書き直しは、`docs/plan-verification-results`（`docs/rule-test-subagent`の上に挿入）にコミットした（`9b7b8b4e`）。「`branch create`は`--no-commit`で作り、`commit create`でコミットする」の`git-spice-workflow` skillへの追記は、比較テストの後、`docs/plan-verification-results`の上に挿入した`docs/git-spice-branch-create-no-commit`にコミットした
+- [x] Step9: 完了検出フック（`plan-completion-check.sh`）が、マージ以外のローカルブランチの削除（改名、不要なブランチの削除）にも反応する問題を直す（ユーザー指摘）。改名（`docs/rule-test-headless-session`→`docs/rule-test-subagent`）と空のブランチの削除で、実際に反応した。消えたブランチは、同じ実行でmainも進んでいたときだけマージとして扱う形に直す（Decision Log）
 
 ## 検証結果
 
@@ -71,6 +72,7 @@
 - `git-spice branch create --insert`でのコミット: lefthookの`protect-branch`（`git branch --show-current`が`main`でないことを確かめる）に失敗し、ブランチもコミットも作られなかった。HEADを切り離した状態でコミットするため、出力が空になると見られる。`--no-commit`でブランチを挿入し、`git-spice commit create --no-restack`でコミットすると通った
 - `branch create`に`--no-commit`を付ける手順（`git-spice-workflow`）: planを退避し、「ステージ済みの変更で、スタックの途中に新しいブランチを挿入して1つのコミットにするコマンド」を問うと、変更前は`git-spice branch create docs/example-change --insert -m ...`で作成と同時にコミットすると答え（`--no-commit`はステージしていない変更が残る場合だけ）、変更後は`branch create --insert --no-commit`でブランチだけを作り、`commit create`でコミットすると答えた（根拠はSKILL.md）
 - `refs/backup/reorder-20261020/*`の削除前の確認: バックアップにあるmain以外のコミット129個のsubjectを、今のブランチとmainのコミットと照合した。128個は同じsubjectがあり、残る1個（`docs: retire the git workaround noted in active plans`）は`b768188a`・`83c1e54d`の2つに分けられて今のブランチにあった
+- 完了検出フックの修正（Step9）: `bash -n`が通った。一時リポジトリ（planに`feat/x`・`feat/abandon`を記載）で、改名（`feat/x`→`feat/x2`）と、mainを進めずに`feat/abandon`を削除したときは出力なし・exit 0だった。mainにコミットを足して`feat/x`を削除すると、「mainへのマージを検出した」と完了処理の候補をstderrに出してexit 2だった。修正前のフックでは、同じ改名で「mainへのマージまたはローカルブランチの削除を検出した」と出た
 - 無効にしたテスト: Decision Logを先に書いたplanを読んで答えたもの、claude-memの差し込み（過去の失敗の記録）を根拠にしたもの、テスト対象を退避して`rule-tester`自体が消えたもの、ブランチ名から作成中のルールを推測したものは、比較に使わずやり直した
 
 ## Decision Log
@@ -109,6 +111,8 @@
 - 2026-10-21: 「Claude関連の変更をClaude関連の最上段に積む」は今回だけの扱いで、skillには書かない（ユーザー指示）。
 - 2026-10-21: `git-spice branch create`でブランチを作るときは`--no-commit`を付け、コミットは`git-spice commit create`で行う旨を`git-spice-workflow` skillに足す（ユーザー指示）。`branch create`で直接コミットすると、lefthookの`protect-branch`に失敗するため。
 - 2026-10-21: ブランチ`docs/rule-test-headless-session`を`docs/rule-test-subagent`に改名した（ユーザー指示）。中身がヘッドレスのセッション（`claude -p`）を使わなくなったため。スタックの並べ替え時のバックアップ`refs/backup/reorder-20261020/*`（35個）と、採らなかった照会スクリプトのstash`query script shell rewrite (plan-work-records)`は削除した（ユーザー指示）。
+- 2026-10-21: 完了検出フックは、消えたローカルブランチを、同じ実行でmainも進んでいたときだけマージとして扱う（ユーザー指示）。ブランチは改名や不要なブランチの削除でも消え、そのたびに反応していたため。手順どおりのマージでは`git-spice repo sync`がmainの更新とマージ済みブランチの削除を1回で行うので、マージは拾える。mainの更新とブランチの削除を別のコマンドで行った場合は、そのブランチの削除を拾えないが、mainの変更が触ったplanは拾える。
+- 2026-10-21: 完了検出を、planに書いた作業ブランチの一覧とマージ済みのPRで判定する形への作り直しは、このplanではなく、新しいplanと別のブランチで行う（ユーザー指示）。作り直しに関わる検証結果は新しいplanへ移す。
 
 ## Validation and Acceptance
 
