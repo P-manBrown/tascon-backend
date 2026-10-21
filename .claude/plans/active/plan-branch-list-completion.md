@@ -37,6 +37,7 @@
 - docs/plan-step-progress-rules（Step4）
 - docs/plan-progress-format（Step5）
 - chore/plan-progress-checks（Step6）
+- chore/plan-completion-from-branches（Step7）
 
 ## Progress
 
@@ -49,7 +50,7 @@
 - [x] Step5: 今あるplanの`## Branches`にStepを書き添え、Progressを新しい書式（1つのStepに1つのチェックボックス、`- [ ]`/`- [x] StepN:`）にそろえる。機能側のplanは、それぞれを最後に変更した機能ブランチで直す
 - [x] Step6: pre-commitに、planを変更するコミットでProgressのチェックボックスの行の形と同じStepNの重複を確かめる処理を足す。pre-pushに、今のブランチの`## Branches`の行にStepがあれば、ProgressのそのStepが`- [x]`かを確かめる処理を足す
   - 2026-10-22: チェックボックスなしの`- StepN:`の行が素通りしていたため、pre-commitで止める確認を足した（結果は検証結果）
-- [ ] Step7: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
+- [x] Step7: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
 
 ## 検証結果
 
@@ -67,6 +68,7 @@
 - Stepの書き添えとStep3のpre-commitの確認（2026-10-21）: `## Branches`に`- docs/plan-step-progress-rules（Step4）`と書いてコミットすると、Step3の確認が行全体を完全一致で比べていたため「does not list the current branch」で止まった。末尾の`（…）`を取り除いてから比べる形に直し、一時リポジトリで`- test-branch（Step2）`・`` - `test-branch`（Step2） ``・`- test-branch`は通り、`- other-branch（Step2）`と節がない場合は止まることを確かめた。Step3のときの9場面も、直した後に同じ結果だった
 - Step5の確認（2026-10-21、スタックの最上段`feat/task-due-notification`）: 14個のplanすべてで、Progressのチェックボックスの行が`- [ ]`/`- [x] StepN: `の形で、同じStepNの重複がなく、`## Branches`にStepの書き添えが1つ以上あった。各コミットは新しいpre-commitの確認を通り、restack後に`needs restack`は出なかった。最初のコミットは、planを変更するブランチ（`docs/plan-progress-format`）が`plan-work-records`・`todoist-task-runner`の一覧になく止まったため、両planに足した
 - Step6のpre-commitとpre-pushの確認（2026-10-21、一時リポジトリ）: `bash -n`が通った。pre-commitは、正しいProgress→0、字下げしたチェックボックス・Stepでないチェックボックス・コロンのないStep行・大文字の`[X]`・同じStepの重複→1、Progress以外の節のチェックボックス→0、detached HEADでも書式の誤り→1、ステージ済みの内容で判定、サブディレクトリのplanは対象外、の11場面とも期待どおりだった。pre-pushは、`（Step2）`でStep2がチェック済み→0、未チェック→1、Stepの書き添えなし・一覧にない・削除のpush・ブランチ以外のref→0、2本のうち1本が未チェック→1、pushするコミット時点のplanで判定する（作業ツリーとは逆の結果）、の11場面とも期待どおりだった。実際のリポジトリでは、全ローカルブランチを入力してexit 0、`lefthook run pre-push`経由でも標準入力が渡り、Step4を未チェックにした一時コミットで止まることを確かめた
+- Step7の完了検出フック（2026-10-21、`gh`をスタブにした一時リポジトリ）: `bash -n`が通った。初回の状態なし→0・状態を記録、mainが変わらない→0、全ブランチがマージ済みでProgressに未チェックなし→2で該当planを表示、一部だけマージ済み→0、全部マージ済みでもProgressに`- [ ]`→0、マージ済みブランチがローカルに残ったままmainが進む→2、その後mainを変えずにブランチを削除→0、ローカルの先端がマージ済みPRの最後のコミットと同じ→マージ済み、同じ名前で先端が違う（使い回し）→0、改名・不要なブランチの削除（mainは進まない）→0、`gh api`・`gh pr list`の失敗→2で判定できなかった旨を出し状態は古いshaのまま、`gh`が復旧した次の実行（mainは同じ）→同じ範囲を判定し直して2、早送りでないmain→0、作業ツリーのplanが未チェックでもmainの版がチェック済み→mainの版で2、planがmainにだけある→2、関係のないブランチのマージ→0、複数コミットにまたがるマージ→2、gitリポジトリでない・mainがない→0の、22場面とも期待どおりだった。実際のリポジトリでは、mainが変わらないため何も出なかった
 - チェックボックスなしのStep行の確認（2026-10-22、一時リポジトリ）: Progressに`- Step2: b`を書いたplanをステージするとpre-commitが止まり、入れ子の`  - Step2の補足`とトップレベルの`- 注記`では止まらなかった。StepNの重複、`- [X]`、入れ子のチェックボックスはこれまでどおり止まった。実際のリポジトリでは、このplanを変更するコミットが通った
 
 ## Decision Log
@@ -87,6 +89,7 @@
 - 2026-10-21: 書き方が守られているかを機械的に確かめる（ユーザー指摘）。pre-commitで、planを変更するコミットのときProgressのチェックボックスの行の形と同じStepNの重複を確かめる。pre-pushで、今のブランチの`## Branches`の行にStepがあれば、ProgressのそのStepが`- [x]`かを確かめる。pushはStepを終えてレビューへ出すときなので、作業途中のコミットは止めないため。planを変更しないStepのブランチも、Stepを終えたらチェックを付けるコミットでplanを変更するので、pre-commitの一覧の確認を通る。
 - 2026-10-21: `rule-tester`に、`.claude/memory/`配下を読まない指示を足す（ユーザー指示）。`omitClaudeMd`でmemoryの自動の差し込みは外れるが、`.claude/memory/`は作業ディレクトリ内にありReadで読めてしまい、gitignoreのため`git stash -u`でも退避されない。Step4の変更前テストで実際に`feedback_plan_section_usage.md`を根拠に読んでいた。
 - 2026-10-21: pre-pushの確認は、今のブランチではなく、pushされる各ブランチ（pre-pushの標準入力）を対象にし、planはそのブランチのコミット時点の内容で読む。git-spiceは別のブランチを開いたままpushすることがあり、作業ツリーのplanはpushされるブランチの内容と違いうるため。
+- 2026-10-21: 完了検出フックは、`gh`が失敗したときは状態ファイルのmainのshaを更新せず、次の実行で同じ範囲を判定し直す。先に更新すると、次の実行でmainが変わっていない扱いになり、一時的な`gh`の失敗（認証切れ・通信不可）でその範囲の完了の知らせが二度と出ないため。
 - 2026-10-22: pre-commitで、Progressのトップレベルにチェックボックスなしで`- StepN:`と書いた行も止める（ユーザー指摘）。チェックボックスを含む行だけを確かめていたため、Stepの行をチェックボックスなしで書くと素通りしていた。入れ子の箇条書きと、トップレベルのStepでない注記は止めない。
 
 ## Validation and Acceptance
