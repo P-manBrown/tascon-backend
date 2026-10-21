@@ -28,25 +28,27 @@
 
 ## Branches
 
-- docs/complete-task-group-share-cancellation-plan
-- chore/plan-completion-hook
-- chore/plan-work-records
-- chore/retire-plan-worktree-lines
-- docs/plan-records-completion-query
-- docs/record-check-decision
-- docs/worktree-startup-and-cleanup
+- docs/complete-task-group-share-cancellation-plan（Step6）
+- chore/plan-completion-hook（Step1）
+- chore/plan-work-records（Step2）
+- chore/retire-plan-worktree-lines（Step3）
+- docs/plan-records-completion-query（Step4）
+- docs/record-check-decision（Step5）
+- docs/worktree-startup-and-cleanup（Step7）
 - docs/move-project-memories-to-docs
 - chore/drop-subagentstop-record-check
 - docs/todoist-inbox-default
-- docs/rule-test-subagent
+- docs/rule-test-subagent（Step8）
 - docs/plan-verification-results
 - docs/git-spice-branch-create-no-commit
-- chore/plan-completion-ignore-branch-deletes
+- chore/plan-completion-ignore-branch-deletes（Step9）
+- docs/plan-branches-backfill
+- docs/plan-progress-format
 
 ## Progress
 
 - [x] Step1: 完了検出フックの状態ファイルを`.claude/plan-completion-state/`へ移し、`.gitignore`に登録した（ブランチ`chore/plan-completion-hook`）
-- [x] Step1追加: 完了検出フックを、`additionalContext`の注入から、検出時にexit 2でstderrへ出す形に変えた（`chore/plan-completion-hook`のコミットを修正）。状態ファイルに削除済みブランチを足して実行し、検出時はexit 2とstderrの通知、同じ状態での2回目はexit 0で出力なしになることを確認した
+  - 追加: 完了検出フックを、`additionalContext`の注入から、検出時にexit 2でstderrへ出す形に変えた（`chore/plan-completion-hook`のコミットを修正）。状態ファイルに削除済みブランチを足して実行し、検出時はexit 2とstderrの通知、同じ状態での2回目はexit 0で出力なしになることを確認した
 - [x] Step2: 確認用フックを追加した（ブランチ`chore/plan-work-records`）。`.claude/hooks/record-check.sh`をStop・SubagentStop・PreToolUse(SubagentHandback)に登録した。入力JSONによる各分岐の確認に加え、実セッションで次を確認した: Stopがターンを1回止める／SubagentHandbackの1回目が拒否され、サブエージェントが記録の要否を判断してから2回目の報告で通る／SubagentStopが状態ファイルを片付ける。ローカルの`.claude/plan-records/`は削除済み
   - 旧実装（`plan-record.sh`・`plan-record-agent.sh`・`plan-record-stop.sh`、PostToolUse(Agent)の登録、`.gitignore`の`/.claude/plan-records/`）を取り除く
   - Stop・SubagentStop共通の確認用フックを追加し、`.claude/settings.json`に登録する

@@ -30,11 +30,12 @@
 
 ## Branches
 
-- docs/plan-branches-section
+- docs/plan-branches-section（Step1）
 - docs/git-spice-insert-no-restack
-- docs/plan-branches-backfill
-- chore/plan-branch-precommit
+- docs/plan-branches-backfill（Step2）
+- chore/plan-branch-precommit（Step3）
 - docs/plan-step-progress-rules（Step4）
+- docs/plan-progress-format（Step5）
 
 ## Progress
 
@@ -44,7 +45,7 @@
   - 機能側の`notification-creation`の「残作業: PR作成・マージ」は、マージ前にチェックできないため、チェックボックスを外した注記にした（`feat/notification-on-share-destroy`）。`push-subscription-registration`の未チェックのStep2は、チェック済みのStep2と重複した消し忘れの行だったので消した（`feat/vapid-public-key`）。どちらのコミットも新しいpre-commitを通った
 - [x] Step4: `plans-maintenance`ルールに、`## Branches`のStepのブランチには`（StepN）`を書き添えること、Progressのチェックボックスは1つのStepに1つで、変化はその下に箇条書きで時系列に書き足し、Stepでない注記はチェックボックスにしないことを足す。`execution-plan` skillに、Stepを終えたら同じブランチでそのStepにチェックを付けてコミットすることを足す。比較テストを行う
   - `rule-tester`に`.claude/memory/`配下を読まない指示を足し、起動し直してから比較テストをやり直した（結果は検証結果）
-- [ ] Step5: 今あるplanの`## Branches`にStepを書き添え、Progressを新しい書式（1つのStepに1つのチェックボックス、`- [ ]`/`- [x] StepN:`）にそろえる。機能側のplanは、それぞれを最後に変更した機能ブランチで直す
+- [x] Step5: 今あるplanの`## Branches`にStepを書き添え、Progressを新しい書式（1つのStepに1つのチェックボックス、`- [ ]`/`- [x] StepN:`）にそろえる。機能側のplanは、それぞれを最後に変更した機能ブランチで直す
 - [ ] Step6: pre-commitに、planを変更するコミットでProgressのチェックボックスの行の形と同じStepNの重複を確かめる処理を足す。pre-pushに、今のブランチの`## Branches`の行にStepがあれば、ProgressのそのStepが`- [x]`かを確かめる処理を足す
 - [ ] Step7: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
 
@@ -62,6 +63,7 @@
 - `rule-tester`がmemoryを読まないか（2026-10-21、起動し直し後）: 「できるだけ多くの文書を探して読め」と指示しても、トランスクリプトのツール呼び出し24回に`.claude/memory/`配下を読んだものはなかった。ファイルを探す検索の結果にmemoryのファイル名の一覧だけは出たが、中身は入らなかった
 - Step4の比較テスト（planと`rule-tester.md`以外の変更を退避）: 「Step2を途中で方針を一部変えつつブランチ`feat/example-step2`で終えた。`## Branches`と`## Progress`に何をどう書くか」を問うと、変更前は`- feat/example-step2`（Stepなし）を足し、Step2の行の文面を書き換えて経緯も同じ行に書いた。変更後は`- feat/example-step2（Step2）`とし、Step2のチェックボックスにチェックを付け、方針の変更はその下に箇条書きで書き足し、同じブランチでコミットすると答えた（根拠は`plans-maintenance`と`execution-plan`）。memoryが混ざった最初の変更前テストは無効にした
 - Stepの書き添えとStep3のpre-commitの確認（2026-10-21）: `## Branches`に`- docs/plan-step-progress-rules（Step4）`と書いてコミットすると、Step3の確認が行全体を完全一致で比べていたため「does not list the current branch」で止まった。末尾の`（…）`を取り除いてから比べる形に直し、一時リポジトリで`- test-branch（Step2）`・`` - `test-branch`（Step2） ``・`- test-branch`は通り、`- other-branch（Step2）`と節がない場合は止まることを確かめた。Step3のときの9場面も、直した後に同じ結果だった
+- Step5の確認（2026-10-21、スタックの最上段`feat/task-due-notification`）: 14個のplanすべてで、Progressのチェックボックスの行が`- [ ]`/`- [x] StepN: `の形で、同じStepNの重複がなく、`## Branches`にStepの書き添えが1つ以上あった。各コミットは新しいpre-commitの確認を通り、restack後に`needs restack`は出なかった。最初のコミットは、planを変更するブランチ（`docs/plan-progress-format`）が`plan-work-records`・`todoist-task-runner`の一覧になく止まったため、両planに足した
 
 ## Decision Log
 
