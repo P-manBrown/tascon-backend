@@ -113,7 +113,7 @@ branch=$(git branch --show-current)
 if [ -n "$branch" ]; then
   while IFS= read -r file; do
     [[ "${file#.claude/plans/active/}" == */* ]] && continue
-    branches=$(git show ":$file" | sed -n '/^## Branches$/,/^## /{ /^## Branches$/d; /^## /d; /^- /{ s/^- //; s/^[[:space:]`]*//; s/[[:space:]`]*$//; p; }; }')
+    branches=$(git show ":$file" | sed -n '/^## Branches$/,/^## /{ /^## Branches$/d; /^## /d; /^- /{ s/^- //; s/[[:space:]]*（[^）]*）[[:space:]]*$//; s/^[[:space:]`]*//; s/[[:space:]`]*$//; p; }; }')
     if ! grep -Fxq -- "$branch" <<< "$branches"; then
       fail "$file does not list the current branch $branch in its ## Branches section"
     fi
