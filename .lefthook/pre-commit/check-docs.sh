@@ -120,6 +120,24 @@ if [ -n "$branch" ]; then
   done < <(git diff --cached --name-only --diff-filter=ACMR -- '.claude/plans/active/*.md')
 fi
 
+# --- plans: Progress checkbox format ---
+while IFS= read -r file; do
+  [[ "${file#.claude/plans/active/}" == */* ]] && continue
+  seen_steps=" "
+  while IFS= read -r line; do
+    [[ "$line" =~ -\ \[[\ xX]\] ]] || continue
+    if ! [[ "$line" =~ ^-\ \[[\ x]\]\ (Step[0-9]+):\  ]]; then
+      fail "$file has a Progress checkbox that is not a top-level \"- [ ] StepN: \" line: $line"
+      continue
+    fi
+    step="${BASH_REMATCH[1]}"
+    if [[ "$seen_steps" == *" $step "* ]]; then
+      fail "$file has more than one Progress checkbox for $step"
+    fi
+    seen_steps+="$step "
+  done < <(git show ":$file" | sed -n '/^## Progress$/,/^## /{ /^## Progress$/d; /^## /d; p; }')
+done < <(git diff --cached --name-only --diff-filter=ACMR -- '.claude/plans/active/*.md')
+
 # --- ARCHITECTURE.md: no links, no multi-segment paths (name entities, don't point at location) ---
 if [ -f ARCHITECTURE.md ]; then
   arch_links=$(grep -noE '\]\([^)]+\)|https?://[^ )]+' ARCHITECTURE.md || true)
