@@ -10,6 +10,21 @@
 - `/loop`も不採用。ユーザーが手動で1回セッションを起動し、その中で対象タスクを連続処理し、尽きたら終了する、という単純な構造で目的を達せられるため
 - 自動化の境界線は「取り返しがつくかどうか」で引く。ローカルのコミット・ブランチのスタックはやり直しがきくため全自動でよいが、**PR作成（リモートへの最初のプッシュ）とマージは、リカバリーが難しい分岐点**のため人間の指示を必須とする
 
+## Branches
+
+- docs/todoist-task-runner-plan
+- docs/todoist-runner-verification-and-fixes
+- docs/remote-control-notifications
+- docs/worktree-isolation-for-subagents
+- docs/todoist-task-workflow-simplification
+- docs/todoist-instructions-on-work-subtask
+- docs/todoist-task-runner-validation
+
+## Progress
+
+- [x] 実装すべきもの（skill・execution-planの更新・ラベル・子タスク構成）の実装と実機検証
+- [x] 実際のTodoistタスクでの検証（ブランチ`docs/todoist-task-runner-validation`）
+
 ## 決定事項サマリ
 
 1. **実行環境**: devcontainer内のローカルClaude Codeセッション。手動起動（Zed/ターミナルからdevcontainerを開いて起動）

@@ -26,6 +26,23 @@
 - `Worktree:`行は廃止する（照会に使えないため）
 - 完了検出フック（`plan-completion-check.sh`）の状態ファイルは`.claude/plan-completion-state/`（gitignore）に置き、検出時はexit 2でstderrへ出す
 
+## Branches
+
+- docs/complete-task-group-share-cancellation-plan
+- chore/plan-completion-hook
+- chore/plan-work-records
+- chore/retire-plan-worktree-lines
+- docs/plan-records-completion-query
+- docs/record-check-decision
+- docs/worktree-startup-and-cleanup
+- docs/move-project-memories-to-docs
+- chore/drop-subagentstop-record-check
+- docs/todoist-inbox-default
+- docs/rule-test-subagent
+- docs/plan-verification-results
+- docs/git-spice-branch-create-no-commit
+- chore/plan-completion-ignore-branch-deletes
+
 ## Progress
 
 - [x] Step1: 完了検出フックの状態ファイルを`.claude/plan-completion-state/`へ移し、`.gitignore`に登録した（ブランチ`chore/plan-completion-hook`）
