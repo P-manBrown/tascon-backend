@@ -33,12 +33,14 @@
 - docs/plan-branches-section
 - docs/git-spice-insert-no-restack
 - docs/plan-branches-backfill
+- chore/plan-branch-precommit
 
 ## Progress
 
 - [x] Step1: `plans-maintenance`ルールに`## Branches`の用途と保ち方（作成時に足す、改名で書き換え、PRにせず捨てたら外す）を足し、`execution-plan` skillのブランチを切る手順に、`## Branches`へ足すことを入れる。比較テストを行う。ブランチは比較テストの後に`chore/plan-completion-ignore-branch-deletes`の上へ挿入し、このplanファイルも一緒にコミットする。コミット後、作業ツリーがきれいになってから上の段を`git-spice upstack restack`する。`a717615e`としてコミットした
 - [x] Step2: 今あるactive planすべてに`## Branches`を書き足した。Claude関連の段の`plan-work-records`・`todoist-task-runner`（Progressの節も新設）・このplanは`docs/plan-branches-backfill`で、機能側の11個のplanは、それぞれを最後に変更した機能ブランチ（`build/solid-queue`〜`feat/task-due-notification`）にコミットを足した
-- [ ] Step3: pre-commit（`.lefthook/pre-commit/check-docs.sh`）に、planを変更するコミットのとき今のブランチがそのplanの`## Branches`にあることの確認を足す。ブランチ名が取れないとき（detached HEAD）は確かめない
+- [x] Step3: pre-commit（`.lefthook/pre-commit/check-docs.sh`）に、planを変更するコミットのとき今のブランチがそのplanの`## Branches`にあることの確認を足す。ブランチ名が取れないとき（detached HEAD）は確かめない
+  - 未決: 機能側の`notification-creation`はProgressに「残作業: PR作成・マージ」が未チェックで残り、マージ前にチェックできないため、新しい判定では完了にならない。`push-subscription-registration`はStep2が未チェックだがブランチ`feat/vapid-public-key`は作られている。Step3の後に両planのProgressを実態に合わせて直す（ユーザー同意）
 - [ ] Step4: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
 
 ## 検証結果
@@ -50,6 +52,7 @@
 - `--insert`時に`--no-restack`を付ける手順（`git-spice-workflow`）の比較テスト: planを退避し、「上の段が`needs restack`の状態で、ステージした変更を、途中に挿入する新しいブランチの1つのコミットにするコマンド」を問うと、変更前は`branch create --insert --no-commit`（`--no-restack`なし）と答え、変更後は`branch create --insert --no-restack --no-commit`、`commit create --no-restack`、作業ツリーがきれいになってから`upstack restack`と答えた（根拠はSKILL.md）
 - ステージが外れる仕組み（2026-10-21、一時リポジトリで`GIT_TRACE`を取得）: `git-spice branch create --insert`は、上の段のrestackで`git rebase --onto <新しい親> --autostash <旧base> <上の段のブランチ>`を実行する。gitの`--autostash`は`git stash create`で作業ツリーとステージを退避し、rebase後に`git stash apply`（`--index`なし）で戻す。`--index`なしのapplyはステージを戻さないため、変更ファイルはステージが外れ、新規ファイルだけがステージされた状態で戻る
 - Step2の確認（2026-10-21）: スタックの最上段（`feat/task-due-notification`）で、`.claude/plans/active/`の14個のplanすべてに`## Branches`があり、1本以上のブランチが書かれていることを確かめた。機能側の11個のコミットのあと、`needs restack`は出なかった。Progressはすべてチェックボックスの書式だった
+- Step3のpre-commitの確認（2026-10-21、一時リポジトリ）: `bash -n`が通った。一覧にある→exit 0、一覧にない→exit 1と「does not list the current branch」、`## Branches`がない→exit 1、active planをステージしていない→exit 0、detached HEAD→確かめずexit 0、バッククォートと空白付きの記載→exit 0、ステージ済みの内容が正しく作業ツリーが誤り→exit 0、その逆→exit 1、`active/`配下のサブディレクトリのplan→対象外でexit 0、の9場面とも期待どおりだった
 
 ## Decision Log
 
