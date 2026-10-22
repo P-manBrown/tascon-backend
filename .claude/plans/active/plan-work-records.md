@@ -52,7 +52,7 @@
   - `chore/plan-steps-fail-text`は`docs/notification-architecture`と同じ`docs/trim-verification-status-rule`から枝分かれしていたため、`docs/notification-architecture`以上を`chore/hook-state-dir`の上へ移し、一直線にした（ユーザー指示）。枝分かれを見落としたのは、`git-spice ls`が`--all`なしでは今のブランチの上下だけを表示し、兄弟のブランチを表示しないため。`git-spice-workflow` skillの「作成前に`git-spice ls`で最上段を確認する」の扱いは未決
   - skillの確認手順を`git-spice ls --all`にする（ユーザー指示、Decision Log）。比較テストを終えてコミットした
   - 比較テストでSkillツールが古い内容を返す問題に、`claude-md-maintenance`ルールの手順で対処する（ユーザー指示、Decision Log）。比較テストを終えた（検証結果）
-  - 未確認: 公式ドキュメントでは、SubagentHandbackはauto modeで用意されるツールとされる。auto mode以外ではサブエージェントがテキストで報告を返すため、SubagentStopの登録を外した今の構成では、サブエージェント側の確認が出ないとみられる。auto mode以外での挙動は確かめておらず、tech-debtとして記録するかはユーザーと決める
+  - auto mode以外ではサブエージェント側の確認が出ないことを確かめた（検証結果）。対処の仕方はユーザーと決める
 
 ## 検証結果
 
@@ -67,6 +67,7 @@
 - `git-spice ls --all`（Step10）: 「READMEの誤字修正のブランチを作る前に何を実行し、どのブランチの上に作るか」を問うと、変更前（`77f97711^`）は2回とも`git-spice ls`（`--all`なし）と答え、変更後は2回とも`git-spice ls --all`で枝分かれを含めて最上段を確かめると答えた。変更後の最初の2回は、Skillツールが変更前の内容を返したため`git-spice ls`と答えており、判定に使っていない。`git stash pop`でSKILL.mdを戻しただけでは変更後の内容が読み込まれず、`touch`で更新日時を変えた後に読み込まれた
 - Skillツールの内容の一致を確かめる手順（Step10、対象: `claude-md-maintenance.md`）: 「`execution-plan`のSKILL.mdの完了処理に1行足した。コミットまでに何をするか、コマンドや起動するエージェントまで具体的に」を問うと、変更前は2回ともSkillツールの内容を確かめる手順に触れず、変更後は2回とも、変更前・変更後のテストの前に`rule-tester`にSkillツールで引用させて作業ツリーと一致するか確かめ、ずれていれば`touch`してから確かめ直すと答えた。ルールはどの回も差し込まれていた（変更を退避した変更前の状態でテストし、テスト対象のコミット・detachは不要だった）
 - SubagentHandbackの確認の再確認（Step10の後、ユーザー依頼）: テスト用サブエージェントの1回目の報告が拒否され（拒否理由の1行目を引用して返した）、2回目で通り、その状態ファイルは残らなかった。一方、比較テストの変更後テスト（`rule-tester`2体）の報告中の時刻（21:00:59）に作られた状態ファイル`a4d769c4a853802b0`が残っていた。このidはどちらの会話記録にも出てこず、どの報告で作られ、なぜ消されなかったかは特定できていない。24時間後の片付けで消える
+- auto mode以外でのサブエージェントの確認（Step10の後、ユーザー依頼）: マニュアルモードに切り替えてテスト用サブエージェントを動かすと、SubagentHandbackを呼ばず（本人は報告用のツールが見当たらないと答えた）、テキストで報告を返して終わった。記録の確認は出ず、状態ファイルも作られなかった。公式ドキュメントのとおり、SubagentHandbackはauto modeでだけ使われ、SubagentStopの登録を外した今の構成では、auto mode以外のサブエージェントは記録の確認を受けない
 - `--no-restack`: claude-memなし・記録前のworktreeで、変更前は3回中2回が未コミットのまま`git-spice commit create`を使い、変更後は3回とも`--no-restack`でコミットし、作業ツリーがきれいになってから1回restackした
 - SubagentStopの登録を外した件: テスト用のサブエージェントのトランスクリプトで、1回目のSubagentHandbackが拒否され、2回目で通り、状態ファイルが削除され、SubagentStopのフックが実行されないことを確認した
 - Todoistの作成先の移動: 変更前も変更後もインボックスに作ると答え、根拠が`tech-debt-tracker`から`todoist-task-conventions`に変わった
