@@ -32,6 +32,7 @@ pre-push:
     check-plan-steps:
       run: bash .lefthook/pre-push/check-plan-steps.sh
       use_stdin: true
+      fail_text: 'Read the report above.'
     check-git-clean:
       run: test -z "$(git status --porcelain | tee /dev/tty)"
       fail_text: 'ERROR: Commit or stash changes before pushing.'
