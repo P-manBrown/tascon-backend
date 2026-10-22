@@ -73,6 +73,7 @@
 - `branch create`に`--no-commit`を付ける手順（`git-spice-workflow`）: planを退避し、「ステージ済みの変更で、スタックの途中に新しいブランチを挿入して1つのコミットにするコマンド」を問うと、変更前は`git-spice branch create docs/example-change --insert -m ...`で作成と同時にコミットすると答え（`--no-commit`はステージしていない変更が残る場合だけ）、変更後は`branch create --insert --no-commit`でブランチだけを作り、`commit create`でコミットすると答えた（根拠はSKILL.md）
 - `refs/backup/reorder-20261020/*`の削除前の確認: バックアップにあるmain以外のコミット129個のsubjectを、今のブランチとmainのコミットと照合した。128個は同じsubjectがあり、残る1個（`docs: retire the git workaround noted in active plans`）は`b768188a`・`83c1e54d`の2つに分けられて今のブランチにあった
 - 完了検出フックの修正（Step9）: `bash -n`が通った。一時リポジトリ（planに`feat/x`・`feat/abandon`を記載）で、改名（`feat/x`→`feat/x2`）と、mainを進めずに`feat/abandon`を削除したときは出力なし・exit 0だった。mainにコミットを足して`feat/x`を削除すると、「mainへのマージを検出した」と完了処理の候補をstderrに出してexit 2だった。修正前のフックでは、同じ改名で「mainへのマージまたはローカルブランチの削除を検出した」と出た
+- 「動作確認の状況（確認済み・未確認）や進行状況は書かない。書く場所は対象のplanファイル。」を`claude-md-maintenance`の執筆原則から削る件: skillに試して動いた手順Aと未確認の手順Bを足す場面で、SKILL.mdの文面とほかに書くことを問うと、変更前・変更後とも3回ずつ、Bは加えずplanに未確認と記録し、Aにも確認状況を書かず、確認したことはplanに書くと答えた。変更前は削る文を、変更後は「理由・経緯は書かない…今の正しい手順だけに絞る」を根拠に挙げた
 - 無効にしたテスト: Decision Logを先に書いたplanを読んで答えたもの、claude-memの差し込み（過去の失敗の記録）を根拠にしたもの、テスト対象を退避して`rule-tester`自体が消えたもの、ブランチ名から作成中のルールを推測したものは、比較に使わずやり直した
 
 ## Decision Log
@@ -113,6 +114,7 @@
 - 2026-10-21: ブランチ`docs/rule-test-headless-session`を`docs/rule-test-subagent`に改名した（ユーザー指示）。中身がヘッドレスのセッション（`claude -p`）を使わなくなったため。スタックの並べ替え時のバックアップ`refs/backup/reorder-20261020/*`（35個）と、採らなかった照会スクリプトのstash`query script shell rewrite (plan-work-records)`は削除した（ユーザー指示）。
 - 2026-10-21: 完了検出フックは、消えたローカルブランチを、同じ実行でmainも進んでいたときだけマージとして扱う（ユーザー指示）。ブランチは改名や不要なブランチの削除でも消え、そのたびに反応していたため。手順どおりのマージでは`git-spice repo sync`がmainの更新とマージ済みブランチの削除を1回で行うので、マージは拾える。mainの更新とブランチの削除を別のコマンドで行った場合は、そのブランチの削除を拾えないが、mainの変更が触ったplanは拾える。
 - 2026-10-21: 完了検出を、planに書いた作業ブランチの一覧とマージ済みのPRで判定する形への作り直しは、このplanではなく、新しいplanと別のブランチで行う（ユーザー指示）。作り直しに関わる検証結果は新しいplanへ移す。
+- 2026-10-22: `claude-md-maintenance`の執筆原則から「動作確認の状況（確認済み・未確認）や進行状況は書かない。書く場所は対象のplanファイル。」を削り、「動作を確認していない手順は加えず、未確認であることをplanに記録する」だけを残す（ユーザー指示）。確認状況を書かないことは「今の正しい手順だけに絞る」で足り、書く場所は残した一文とplanの節の用途で足りるため。
 
 ## Validation and Acceptance
 
