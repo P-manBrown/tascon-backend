@@ -13,7 +13,7 @@ if ! git -C "$cwd" rev-parse --verify -q "refs/heads/$main_ref" >/dev/null; then
   exit 0
 fi
 
-state_dir="$(dirname "$(git -C "$cwd" rev-parse --path-format=absolute --git-common-dir)")/.claude/plan-completion-state"
+state_dir="$(dirname "$(git -C "$cwd" rev-parse --path-format=absolute --git-common-dir)")/.claude/hook-state/plan-completion"
 mkdir -p "$state_dir"
 main_file="$state_dir/main"
 current_main=$(git -C "$cwd" rev-parse "refs/heads/$main_ref")

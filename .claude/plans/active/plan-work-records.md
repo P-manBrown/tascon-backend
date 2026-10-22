@@ -45,6 +45,10 @@
 - [x] Step8: ルールの比較テストを専用サブエージェント`rule-tester`（`.claude/agents/rule-tester.md`）とstash方式で行う形に変えた（ブランチ`docs/rule-test-subagent`、コミット`412f3cc9`）。Decision Logを決定と理由だけに絞り、テストの結果は「検証結果」へ移した。残りは次のとおり
   - 「検証結果」節の追加、ブランチを比較テストの後に作る手順、Stopフックの文言の修正、このplanの書き直しは、`docs/plan-verification-results`（`docs/rule-test-subagent`の上に挿入）にコミットした（`9b7b8b4e`）。「`branch create`は`--no-commit`で作り、`commit create`でコミットする」の`git-spice-workflow` skillへの追記は、比較テストの後、`docs/plan-verification-results`の上に挿入した`docs/git-spice-branch-create-no-commit`にコミットした
 - [x] Step9: 完了検出フック（`plan-completion-check.sh`）が、マージ以外のローカルブランチの削除（改名、不要なブランチの削除）にも反応する問題を直す（ユーザー指摘）。改名（`docs/rule-test-headless-session`→`docs/rule-test-subagent`）と空のブランチの削除で、実際に反応した。消えたブランチは、同じ実行でmainも進んでいたときだけマージとして扱う形に直す（Decision Log）
+- [x] Step10: フックの状態ファイルを`.claude/hook-state/<フック名>/`へまとめ、`record-check.sh`に古い状態ファイルの片付けを足す（ブランチ`chore/hook-state-dir`、`chore/plan-steps-fail-text`の上）
+  - 変更対象: `record-check.sh`（`.claude/hook-state/record-check/`、実行のたびに24時間より古いファイルを削除）、`plan-completion-check.sh`（`.claude/hook-state/plan-completion/`）、`.gitignore`（2行を`/.claude/hook-state/`の1行に）
+  - 実装はCodexへ委譲する。既存の状態ファイルの移行は手作業で1回だけ行う（`plan-completion-state/main`は新しい場所へ移し、`record-check-state/`の取り残し9個は削除）
+  - 実装・移行・確認を終えた（検証結果）
 
 ## 検証結果
 
@@ -55,6 +59,7 @@
 - 「今のplanに関わる問題はその場で直す」: コミット済みの状態（`f00d0a9`）で、直前のStepで実装したコードのN+1に気づく場面を与えると、AGENTS.mdとplanの受け入れ基準を根拠に、そのplanで直すと答えた（変更前から正しい）
 - フック文言・execution-plan手順3の修正: 修正前（`e79492e`）も修正後も、記録先は`.claude/rules/controllers.md`・`codex-delegation` skillで同じだった。修正前は食い違いを指摘してルールを優先し、修正後は指摘がなくなった
 - コメント言語のrule・SKILL.mdに確認状況を書かない件・push済みブランチ: 変更前は、コメントを日本語で書き（根拠はシステムプロンプトの言語指定）、未確認の手順をSKILL.mdに加え、push済み`feat/`ブランチの改名を提案した。変更後は、コメントを英語で書き（根拠は`code-comments.md`）、未確認の手順は加えずplanに記録し、改名せずPRタイトルを`chore`にすると答えた。「未確認の手順を追加する場合も…」の文言では未確認の手順を加えたため、今の文言に直して再テストした（4回とも加えなかった）
+- 状態ファイルの置き場所と片付け（Step10）: 入力JSONを与えて直接実行し、次を確認した。SubagentHandbackの1回目は`deny`を返し`.claude/hook-state/record-check/<agent_id>`を作り、2回目は何も出さずに削除する。25時間前のファイルは消え、23時間前のファイルは残る。対象外のツール・`stop_hook_active: true`・ディレクトリがない場合は何も出さずexit 0。`plan-completion-check.sh`は、ディレクトリがなければ`.claude/hook-state/plan-completion/main`を作り、今のmainを記録する。`.claude/hook-state/`は`git status --ignored`で無視対象と表示される。実セッションでは、変更後のスクリプトでStopがターンを1回止め、テスト用サブエージェントのSubagentHandbackが1回だけ拒否されて2回目で通り、状態ファイルが残らなかった
 - `--no-restack`: claude-memなし・記録前のworktreeで、変更前は3回中2回が未コミットのまま`git-spice commit create`を使い、変更後は3回とも`--no-restack`でコミットし、作業ツリーがきれいになってから1回restackした
 - SubagentStopの登録を外した件: テスト用のサブエージェントのトランスクリプトで、1回目のSubagentHandbackが拒否され、2回目で通り、状態ファイルが削除され、SubagentStopのフックが実行されないことを確認した
 - Todoistの作成先の移動: 変更前も変更後もインボックスに作ると答え、根拠が`tech-debt-tracker`から`todoist-task-conventions`に変わった
@@ -115,6 +120,8 @@
 - 2026-10-21: 完了検出フックは、消えたローカルブランチを、同じ実行でmainも進んでいたときだけマージとして扱う（ユーザー指示）。ブランチは改名や不要なブランチの削除でも消え、そのたびに反応していたため。手順どおりのマージでは`git-spice repo sync`がmainの更新とマージ済みブランチの削除を1回で行うので、マージは拾える。mainの更新とブランチの削除を別のコマンドで行った場合は、そのブランチの削除を拾えないが、mainの変更が触ったplanは拾える。
 - 2026-10-21: 完了検出を、planに書いた作業ブランチの一覧とマージ済みのPRで判定する形への作り直しは、このplanではなく、新しいplanと別のブランチで行う（ユーザー指示）。作り直しに関わる検証結果は新しいplanへ移す。
 - 2026-10-22: `claude-md-maintenance`の執筆原則から「動作確認の状況（確認済み・未確認）や進行状況は書かない。書く場所は対象のplanファイル。」を削り、「動作を確認していない手順は加えず、未確認であることをplanに記録する」だけを残す（ユーザー指示）。確認状況を書かないことは「今の正しい手順だけに絞る」で足り、書く場所は残した一文とplanの節の用途で足りるため。
+- 2026-10-22: SubagentHandbackの1回目だけを止めるための状態ファイルは残す。公式ドキュメント（hooks reference）では、`stop_hook_active`はStop・SubagentStopの入力にしかなく、PreToolUseの入力には前回拒否したかを示す欄も`agent_transcript_path`もなく、`once: true`はskill・agentで定義したフックにしか効かないため。ただし2回目の報告が来ないと状態ファイルが残り続け、実際に9個残っていたので、`record-check.sh`が実行のたびに24時間より古いものを消す（ユーザー指示）。誤って消しても確認がもう1回出るだけで済む。
+- 2026-10-22: フックの状態ファイルは、メインcheckoutの`.claude/hook-state/<フック名>/`にまとめる（ユーザー同意）。どのフックの状態かを名前で分かるようにするため。git管理の`.claude/hooks/`に混ぜると管理対象と対象外が同じ場所に並び、worktree間で共有するのでworktree内の`.claude/hooks/`は使えないため、別のディレクトリにする。名前は、保存した状態の意味のstateが不可算で使われるため単数形にする（XDGの`~/.local/state`と同じ）。
 
 ## Validation and Acceptance
 
@@ -122,6 +129,7 @@
 - サブエージェントが報告を渡す前に、SubagentHandbackへのPreToolUseフックが同じ確認対象を提示して1回拒否し、2回目は状態ファイルを削除して通す
 - 旧実装（作業記録ログ・記録用フック・照会スクリプト）がリポジトリに残っていない
 - 完了検出フックが、検出時にexit 2でstderrへ出す
-- `.claude/plan-completion-state/`が`git status`に現れない
+- `.claude/hook-state/`が`git status`に現れない
+- `record-check.sh`の実行で、`.claude/hook-state/record-check/`の24時間より古い状態ファイルが削除され、新しいものは残る
 - skill・ルールの変更は、`claude-md-maintenance`ルールの新規ルール追加時の手順（変更前後でのサブエージェントの挙動比較）を満たす
 - `bash -n`でフックスクリプトの構文エラーがない。フックの各分岐を、入力JSONを与えて実行して確認する

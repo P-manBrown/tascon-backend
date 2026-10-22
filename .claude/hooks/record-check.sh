@@ -10,7 +10,8 @@ fi
 
 git_common_dir=$(git -C "$cwd" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || exit 0
 main=$(dirname "$git_common_dir")
-state_dir="$main/.claude/record-check-state"
+state_dir="$main/.claude/hook-state/record-check"
+[ -d "$state_dir" ] && find "$state_dir" -type f -mmin +1440 -delete 2>/dev/null
 
 hook_event_name=$(echo "$input" | jq -r '.hook_event_name // empty')
 agent_id=$(echo "$input" | jq -r '.agent_id // empty')
