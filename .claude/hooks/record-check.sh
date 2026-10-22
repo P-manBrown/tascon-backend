@@ -36,16 +36,17 @@ reason='作業を終える前に、このターン（サブエージェントは
 - planのDecision Log・検証結果・Progress（plans-maintenanceルール）
 - 技術的負債の新規記録・更新（tech-debt-tracker skill）
 - Todoistへの進捗コメント（todoist-task-runner skill）
-- ユーザーの指摘・決定（claude-md-maintenanceルールの置き場所判断に従い、プロジェクト全体のルールはCLAUDE.md・rules・skillsへ、個人の作業スタイル・ツール利用方針はmemoryへ）
-該当がなければ何もせず終了する。'
+- ユーザーの指摘・決定（claude-md-maintenanceルールの置き場所判断に従い、プロジェクト全体のルールはCLAUDE.md・rules・skillsへ、個人の作業スタイル・ツール利用方針はmemoryへ）'
 
 if [ "$hook_event_name" = "PreToolUse" ]; then
   mkdir -p "$state_dir"
   touch "$state_dir/$agent_id"
   reason="$reason
-記録が済んだら、もう一度SubagentHandbackで報告する。"
+記録が済んだら（該当がなければそのまま）、もう一度SubagentHandbackで報告する。"
   jq -n --arg reason "$reason" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
 else
+  reason="$reason
+該当がなければ「該当なし」とだけ出力して終了する。"
   jq -n --arg reason "$reason" '{decision: "block", reason: $reason}'
 fi
 exit 0
