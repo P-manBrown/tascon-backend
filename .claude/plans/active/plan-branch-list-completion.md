@@ -48,7 +48,7 @@
   - `rule-tester`に`.claude/memory/`配下を読まない指示を足し、起動し直してから比較テストをやり直した（結果は検証結果）
 - [x] Step5: 今あるplanの`## Branches`にStepを書き添え、Progressを新しい書式（1つのStepに1つのチェックボックス、`- [ ]`/`- [x] StepN:`）にそろえる。機能側のplanは、それぞれを最後に変更した機能ブランチで直す
 - [x] Step6: pre-commitに、planを変更するコミットでProgressのチェックボックスの行の形と同じStepNの重複を確かめる処理を足す。pre-pushに、今のブランチの`## Branches`の行にStepがあれば、ProgressのそのStepが`- [x]`かを確かめる処理を足す
-  - 2026-10-22: チェックボックスなしの`- StepN:`の行が素通りしていたため、pre-commitで止める確認を足した。一時リポジトリで、`- Step2: b`は止まり、入れ子の`  - Step2の補足`とトップレベルの`- 注記`は止まらないことを確かめた
+  - 2026-10-22: チェックボックスなしの`- StepN:`の行が素通りしていたため、pre-commitで止める確認を足した（結果は検証結果）
 - [ ] Step7: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
 
 ## 検証結果
@@ -67,6 +67,7 @@
 - Stepの書き添えとStep3のpre-commitの確認（2026-10-21）: `## Branches`に`- docs/plan-step-progress-rules（Step4）`と書いてコミットすると、Step3の確認が行全体を完全一致で比べていたため「does not list the current branch」で止まった。末尾の`（…）`を取り除いてから比べる形に直し、一時リポジトリで`- test-branch（Step2）`・`` - `test-branch`（Step2） ``・`- test-branch`は通り、`- other-branch（Step2）`と節がない場合は止まることを確かめた。Step3のときの9場面も、直した後に同じ結果だった
 - Step5の確認（2026-10-21、スタックの最上段`feat/task-due-notification`）: 14個のplanすべてで、Progressのチェックボックスの行が`- [ ]`/`- [x] StepN: `の形で、同じStepNの重複がなく、`## Branches`にStepの書き添えが1つ以上あった。各コミットは新しいpre-commitの確認を通り、restack後に`needs restack`は出なかった。最初のコミットは、planを変更するブランチ（`docs/plan-progress-format`）が`plan-work-records`・`todoist-task-runner`の一覧になく止まったため、両planに足した
 - Step6のpre-commitとpre-pushの確認（2026-10-21、一時リポジトリ）: `bash -n`が通った。pre-commitは、正しいProgress→0、字下げしたチェックボックス・Stepでないチェックボックス・コロンのないStep行・大文字の`[X]`・同じStepの重複→1、Progress以外の節のチェックボックス→0、detached HEADでも書式の誤り→1、ステージ済みの内容で判定、サブディレクトリのplanは対象外、の11場面とも期待どおりだった。pre-pushは、`（Step2）`でStep2がチェック済み→0、未チェック→1、Stepの書き添えなし・一覧にない・削除のpush・ブランチ以外のref→0、2本のうち1本が未チェック→1、pushするコミット時点のplanで判定する（作業ツリーとは逆の結果）、の11場面とも期待どおりだった。実際のリポジトリでは、全ローカルブランチを入力してexit 0、`lefthook run pre-push`経由でも標準入力が渡り、Step4を未チェックにした一時コミットで止まることを確かめた
+- チェックボックスなしのStep行の確認（2026-10-22、一時リポジトリ）: Progressに`- Step2: b`を書いたplanをステージするとpre-commitが止まり、入れ子の`  - Step2の補足`とトップレベルの`- 注記`では止まらなかった。StepNの重複、`- [X]`、入れ子のチェックボックスはこれまでどおり止まった。実際のリポジトリでは、このplanを変更するコミットが通った
 
 ## Decision Log
 
