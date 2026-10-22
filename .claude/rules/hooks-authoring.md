@@ -10,3 +10,11 @@ paths:
 - `Stop`/`SubagentStop`で判定込みの指示を注入したい場合、`type: "command"`で単純に注入する設計は避ける。判定自体は`type: "prompt"`(裏側の軽量モデル呼び出し)に任せ、該当時のみ`reason`をメインエージェントへ渡して可視ターンを発生させる
 - `type: "command"`で`Stop`/`SubagentStop`を扱う場合は、入力JSONの`stop_hook_active`を確認し、`true`なら何も出力せず終了する(無限ループ防止)
 - hookスクリプトはシェルスクリプトを優先する。追加インタプリタへの依存は避ける
+
+## 作成・変更時の確認
+
+hookスクリプト、または`settings.json`のhookの登録を作成・変更したら、コミット前に次を確かめる。
+
+- 発火すべき入力のJSONをstdinへ与えてスクリプトを直接実行し、出力と終了コードが想定どおりになる
+- 発火すべきでない入力（matcherの対象外、`stop_hook_active`が`true`等）では何も出力しない
+- `settings.json`へ登録した状態の実セッションで、想定した場面に発火する
