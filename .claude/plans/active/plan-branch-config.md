@@ -33,6 +33,7 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
 ## Branches
 
 - docs/plan-branch-config-rules（Step1）
+- chore/plan-branch-config-git-hooks（Step2）
 
 ## Progress
 
@@ -40,7 +41,8 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
   - ブランチを作ったときの設定は、ブランチ作成時に読み込まれる`git-spice-workflow` skillの「ブランチ作成ルール」に書き、`execution-plan`の手順5はそれを参照する形にした。planに属さないブランチ（`none`）は`execution-plan`も`plans-maintenance`も読み込まれない場面で作られるため。3ファイルの編集をCodexへ委譲した
   - 比較テストを終え（検証結果）、`chore/record-check-no-match-reply`の上に`docs/plan-branch-config-rules`を`--insert --no-restack`で作った。Claude関連の段に積んだ。`## Branches`はStep4までは今の方式（pre-commitの確認）のため残し、このブランチを書き足した。新しい方式の設定（`plan`・`planStep`）も入れた
   - gitの設定のキーは、最後の部分の大文字と小文字を区別せず、`planStep`は`.git/config`に`planstep`と書かれる。`git config branch.<name>.planStep`では読める。Step2・3でキーを`--get-regexp`等で照合するときは、小文字で照合する
-- [ ] Step2: pre-commitの`## Branches`の確認を外し、pre-pushがStepを`branch.<name>.planStep`から引くように変える。今のpre-commitは`## Branches`に今のブランチがないと止めるため、Step4で`## Branches`を消すより前に行う
+- [x] Step2: pre-commitの`## Branches`の確認を外し、pre-pushがStepを`branch.<name>.planStep`から引くように変える。今のpre-commitは`## Branches`に今のブランチがないと止めるため、Step4で`## Branches`を消すより前に行う
+  - `docs/plan-branch-config-rules`の上に`chore/plan-branch-config-git-hooks`を`--insert --no-restack`で作り、設定を入れた。2スクリプトの編集と、一時リポジトリでの直接実行の確認をCodexへ委譲した。直接実行で確かめた（検証結果）。pre-pushは、`planStep`があるのにpushされるコミットに`.claude/plans/active/<plan>.md`がないときも止める形にした
 - [ ] Step3: 既存のローカルブランチに設定を入れる（active planの`## Branches`から。どのplanにも載っていないブランチは`none`）。完了検出フックを設定から判定する形に作り直し、設定のないブランチの検出を足す。`.claude/plan-completion-state/branches`を消す。`hooks-authoring`ルールの確認（直接実行・実セッションでの発火）を行う。worktreeの間でブランチ設定が共有されるかもここで確かめる
 - [ ] Step4: Claude関連の段にあるactive planから`## Branches`を消す。機能側のブランチにしかないplanは、そのplanを最後に変更した機能ブランチで消す
 
@@ -50,6 +52,7 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
 - Step1の比較テスト（2026-10-22、対象: `git-spice-workflow`・`execution-plan`・`plans-maintenance`）: 「`rule-and-hook-change-tests`のplanにStep4を足し、Step4用の`docs/rule-test-step4`を`--no-commit`で作った。最初のコミットまでに、ブランチを作ったことに関してやることは」を問い、期待する行動を「`branch.<name>.plan`と`planStep`を設定する」とした。変更前はplanの`Branches`に書き足すと答え、変更後は`branch.docs/rule-test-step4.plan`に`rule-and-hook-change-tests`、`planStep`に`4`を設定すると答えた。行動が変わったため変更を残す。どちらもskillはSkillツールで読み込んでいた
   - 1回目の変更前テストは、stashで変更を退避した直後に起動すると、Skillツールが変更後の`git-spice-workflow`を返し、変更後と同じ答えになった。ディスク上は変更前だった。少し置いてから`rule-tester`にSkillツールでブランチ作成ルールを引用させ、変更前に戻ったことを確かめてからやり直した。変更後のテストの前も、同じ方法で変更後の内容になったことを確かめた。エージェント定義と同じく、skillもファイルの変更から少し遅れて読み込み直されるとみられる（仕組みは確かめていない）
   - `plans-maintenance`の変更（`Branches`節の削除）は、`rule-tester`では確かめられなかった。新しいplanの節の構成を問うと、変更前のテストで`plans-maintenance`が差し込まれず、節の構成は分からないと答えた。このルールは`.claude/plans/`配下を読んだときに差し込まれるが、`rule-tester`はガードで`.claude/plans/`を読めないため。削除しないと、廃止した`Branches`を書く指示が残り、変更後の手順と食い違うため、変更を残す
+- Step2のpre-pushの直接実行（2026-10-22、scratchpadの一時リポジトリ、Codexの確認とClaudeの再実行）: pre-pushの標準入力の形の行を与えると、`planStep`のStepがProgressで`- [ ]`のときと、pushされるコミットにplanのファイルがないときはエラーを出してexit 1、`- [x]`のとき、`planStep`がない・`plan`が`none`・設定がない・`plan`が空のとき、削除のpush、tagのrefではexit 0で何も出さなかった。Progress節の外にある`- [x] Step2:`は数えなかった。`check-docs.sh`・`check-plan-steps.sh`とも`bash -n`を通った
 
 ## Decision Log
 
