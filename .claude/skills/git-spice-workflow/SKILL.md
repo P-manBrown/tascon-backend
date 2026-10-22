@@ -13,6 +13,7 @@ git-spice使用。スタック型ブランチ管理。
 - `execution-plan`の複数ステップは1ステップずつブランチを切りスタックする
 - 新しい作業のブランチは、未マージのスタックがあればその最上段に積む。内容が独立して見える変更（ドキュメントのみ等）でも`main`から切らない。作成前に`git-spice ls`で最上段を確認する
 - `git-spice branch create`には`--no-commit`を付けてブランチだけを作り、変更は`git-spice commit create`でコミットする。`--insert`でスタックの途中に挿入するときは`--no-restack`も付け、上の段のrestackはコミット後に作業ツリーがきれいになってから行う
+- ブランチを作ったら、gitのブランチ設定`branch.<name>.plan`にそのブランチで作業するplanのslug（planのファイル名から`.md`を除いたもの）を、planに属さないなら`none`を設定する。`execution-plan`のStepのブランチなら`branch.<name>.planStep`にStepの番号（数字のみ）も設定する。改名・削除時はgitが設定を引き継ぐ・消すため、手で直さない
 
 ## コミット内容ルール
 
