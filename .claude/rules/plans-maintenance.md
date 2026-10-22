@@ -21,3 +21,8 @@ planファイルは`Context/Purpose`、`Progress`、`検証結果`、`Decision L
 - `Context/Purpose`・`Progress`: 前提知識のない別セッションのClaude Codeが、これらを読むだけで作業を再開できる状態を保つ
 - `Progress`のチェックボックスは1つのStepに1つとし、`- [ ] StepN: `の形で書く。Stepの変化はチェックボックスを増やさず、その下に箇条書きで時系列に書き足す。Stepでない注記はチェックボックスにしない
 - `Validation and Acceptance`: そのplanの完了条件(受け入れ基準)を記録する。完了処理時にすべて満たしたことを確認する
+
+## ブランチとの対応
+
+- 別のplanの作業は、できるだけそのplanのブランチで行う
+- 別のplanの作業をした、または自分の作業が別のplanに影響してそのplanを更新したら、今のブランチの`branch.<name>.plan`にそのplanの値を足す（値の形は`git-spice-workflow` skillに従う）
