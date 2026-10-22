@@ -50,7 +50,8 @@
   - 実装はCodexへ委譲する。既存の状態ファイルの移行は手作業で1回だけ行う（`plan-completion-state/main`は新しい場所へ移し、`record-check-state/`の取り残し9個は削除）
   - 実装・移行・確認を終えた（検証結果）
   - `chore/plan-steps-fail-text`は`docs/notification-architecture`と同じ`docs/trim-verification-status-rule`から枝分かれしていたため、`docs/notification-architecture`以上を`chore/hook-state-dir`の上へ移し、一直線にした（ユーザー指示）。枝分かれを見落としたのは、`git-spice ls`が`--all`なしでは今のブランチの上下だけを表示し、兄弟のブランチを表示しないため。`git-spice-workflow` skillの「作成前に`git-spice ls`で最上段を確認する」の扱いは未決
-  - skillの確認手順を`git-spice ls --all`にする（ユーザー指示、Decision Log）
+  - skillの確認手順を`git-spice ls --all`にする（ユーザー指示、Decision Log）。比較テストを終えてコミットした
+  - 比較テストでSkillツールが古い内容を返す問題に、`claude-md-maintenance`ルールの手順で対処する（ユーザー指示、Decision Log）。比較テストを終えた（検証結果）
 
 ## 検証結果
 
@@ -63,6 +64,7 @@
 - コメント言語のrule・SKILL.mdに確認状況を書かない件・push済みブランチ: 変更前は、コメントを日本語で書き（根拠はシステムプロンプトの言語指定）、未確認の手順をSKILL.mdに加え、push済み`feat/`ブランチの改名を提案した。変更後は、コメントを英語で書き（根拠は`code-comments.md`）、未確認の手順は加えずplanに記録し、改名せずPRタイトルを`chore`にすると答えた。「未確認の手順を追加する場合も…」の文言では未確認の手順を加えたため、今の文言に直して再テストした（4回とも加えなかった）
 - 状態ファイルの置き場所と片付け（Step10）: 入力JSONを与えて直接実行し、次を確認した。SubagentHandbackの1回目は`deny`を返し`.claude/hook-state/record-check/<agent_id>`を作り、2回目は何も出さずに削除する。25時間前のファイルは消え、23時間前のファイルは残る。対象外のツール・`stop_hook_active: true`・ディレクトリがない場合は何も出さずexit 0。`plan-completion-check.sh`は、ディレクトリがなければ`.claude/hook-state/plan-completion/main`を作り、今のmainを記録する。`.claude/hook-state/`は`git status --ignored`で無視対象と表示される。実セッションでは、変更後のスクリプトでStopがターンを1回止め、テスト用サブエージェントのSubagentHandbackが1回だけ拒否されて2回目で通り、状態ファイルが残らなかった
 - `git-spice ls --all`（Step10）: 「READMEの誤字修正のブランチを作る前に何を実行し、どのブランチの上に作るか」を問うと、変更前（`77f97711^`）は2回とも`git-spice ls`（`--all`なし）と答え、変更後は2回とも`git-spice ls --all`で枝分かれを含めて最上段を確かめると答えた。変更後の最初の2回は、Skillツールが変更前の内容を返したため`git-spice ls`と答えており、判定に使っていない。`git stash pop`でSKILL.mdを戻しただけでは変更後の内容が読み込まれず、`touch`で更新日時を変えた後に読み込まれた
+- Skillツールの内容の一致を確かめる手順（Step10、対象: `claude-md-maintenance.md`）: 「`execution-plan`のSKILL.mdの完了処理に1行足した。コミットまでに何をするか、コマンドや起動するエージェントまで具体的に」を問うと、変更前は2回ともSkillツールの内容を確かめる手順に触れず、変更後は2回とも、変更前・変更後のテストの前に`rule-tester`にSkillツールで引用させて作業ツリーと一致するか確かめ、ずれていれば`touch`してから確かめ直すと答えた。ルールはどの回も差し込まれていた（変更を退避した変更前の状態でテストし、テスト対象のコミット・detachは不要だった）
 - `--no-restack`: claude-memなし・記録前のworktreeで、変更前は3回中2回が未コミットのまま`git-spice commit create`を使い、変更後は3回とも`--no-restack`でコミットし、作業ツリーがきれいになってから1回restackした
 - SubagentStopの登録を外した件: テスト用のサブエージェントのトランスクリプトで、1回目のSubagentHandbackが拒否され、2回目で通り、状態ファイルが削除され、SubagentStopのフックが実行されないことを確認した
 - Todoistの作成先の移動: 変更前も変更後もインボックスに作ると答え、根拠が`tech-debt-tracker`から`todoist-task-conventions`に変わった
@@ -126,6 +128,7 @@
 - 2026-10-22: SubagentHandbackの1回目だけを止めるための状態ファイルは残す。公式ドキュメント（hooks reference）では、`stop_hook_active`はStop・SubagentStopの入力にしかなく、PreToolUseの入力には前回拒否したかを示す欄も`agent_transcript_path`もなく、`once: true`はskill・agentで定義したフックにしか効かないため。ただし2回目の報告が来ないと状態ファイルが残り続け、実際に9個残っていたので、`record-check.sh`が実行のたびに24時間より古いものを消す（ユーザー指示）。誤って消しても確認がもう1回出るだけで済む。
 - 2026-10-22: フックの状態ファイルは、メインcheckoutの`.claude/hook-state/<フック名>/`にまとめる（ユーザー同意）。どのフックの状態かを名前で分かるようにするため。git管理の`.claude/hooks/`に混ぜると管理対象と対象外が同じ場所に並び、worktree間で共有するのでworktree内の`.claude/hooks/`は使えないため、別のディレクトリにする。名前は、保存した状態の意味のstateが不可算で使われるため単数形にする（XDGの`~/.local/state`と同じ）。
 - 2026-10-22: `git-spice-workflow` skillのブランチ作成前の確認を`git-spice ls --all`にする（ユーザー指示）。`git-spice ls`は`--all`なしでは今のブランチの上下だけを表示し、同じ親から分かれた兄弟のブランチを表示しないため、skillどおりに確認しても枝分かれを見落とし、`chore/hook-state-dir`を枝分かれした側に積んだ。
+- 2026-10-22: skillの比較テストでは、`rule-tester`を起動する前に、Skillツールが返す内容が作業ツリーと一致することを`rule-tester`の引用で確かめ、一致しなければ対象のファイルを`touch`して確かめ直す手順を`claude-md-maintenance`ルールに足す（ユーザー指示）。git（stash・switch）でSKILL.mdを書き換えた直後に、Skillツールが書き換え前の内容を返すことが2回起きたため（`plan-branch-config`のStep1、このplanのStep10）。1回目は時間を置いて、2回目は`touch`の後に切り替わった。何が切り替えのきっかけかは確かめていないが、一致を確かめる手順があれば、古い内容でのテストを判定に使わずに済む。
 
 ## Validation and Acceptance
 
