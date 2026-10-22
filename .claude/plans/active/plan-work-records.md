@@ -49,6 +49,7 @@
   - 変更対象: `record-check.sh`（`.claude/hook-state/record-check/`、実行のたびに24時間より古いファイルを削除）、`plan-completion-check.sh`（`.claude/hook-state/plan-completion/`）、`.gitignore`（2行を`/.claude/hook-state/`の1行に）
   - 実装はCodexへ委譲する。既存の状態ファイルの移行は手作業で1回だけ行う（`plan-completion-state/main`は新しい場所へ移し、`record-check-state/`の取り残し9個は削除）
   - 実装・移行・確認を終えた（検証結果）
+  - `chore/plan-steps-fail-text`は`docs/notification-architecture`と同じ`docs/trim-verification-status-rule`から枝分かれしていたため、`docs/notification-architecture`以上を`chore/hook-state-dir`の上へ移し、一直線にした（ユーザー指示）。枝分かれを見落としたのは、`git-spice ls`が`--all`なしでは今のブランチの上下だけを表示し、兄弟のブランチを表示しないため。`git-spice-workflow` skillの「作成前に`git-spice ls`で最上段を確認する」の扱いは未決
 
 ## 検証結果
 
