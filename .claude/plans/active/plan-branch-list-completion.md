@@ -28,17 +28,6 @@
   - 最後のStepのブランチでは、自分のProgressにチェックを付けてからマージする。付け忘れても、後でチェックを付けるコミットのブランチが`## Branches`に入り、それがマージされたときに判定し直される
   - Progressがチェックボックスの書式でないplanは、完了を判定できない
 
-## Branches
-
-- docs/plan-branches-section（Step1）
-- docs/git-spice-insert-no-restack
-- docs/plan-branches-backfill（Step2）
-- chore/plan-branch-precommit（Step3）
-- docs/plan-step-progress-rules（Step4）
-- docs/plan-progress-format（Step5）
-- chore/plan-progress-checks（Step6）
-- chore/plan-completion-from-branches（Step7）
-
 ## Progress
 
 - [x] Step1: `plans-maintenance`ルールに`## Branches`の用途と保ち方（作成時に足す、改名で書き換え、PRにせず捨てたら外す）を足し、`execution-plan` skillのブランチを切る手順に、`## Branches`へ足すことを入れる。比較テストを行う。ブランチは比較テストの後に`chore/plan-completion-ignore-branch-deletes`の上へ挿入し、このplanファイルも一緒にコミットする。コミット後、作業ツリーがきれいになってから上の段を`git-spice upstack restack`する。`a717615e`としてコミットした

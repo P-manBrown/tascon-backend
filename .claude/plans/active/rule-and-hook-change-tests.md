@@ -12,12 +12,6 @@ hookについては、`hooks-authoring`ルールに設計上の注意しかな�
 - `hooks-authoring`ルールに、hookを変更したときの確認（入力JSONをstdinへ与えた直接実行、発火すべきでない入力で何も出ないこと、`settings.json`へ登録した実セッションで発火すること）を足す
 - 2つの変更は別のブランチに分ける
 
-## Branches
-
-- docs/rule-test-scope（Step1）
-- docs/hook-change-tests（Step2）
-- chore/rule-test-isolation（Step3）
-
 ## Progress
 
 - [x] Step1: `claude-md-maintenance`ルールの`paths`に`AGENTS.md`を足し、比較テストの手順の見出しと本文の対象を`CLAUDE.md`・`AGENTS.md`・rules・skillと明示する。比較テストを行う

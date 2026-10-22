@@ -32,13 +32,6 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
 - Branchesの行の`type/name`形式は検証しない
 - `.claude/plan-completion-state/branches`（ブランチの削除を手がかりにしていた古い版の名残。今の版は読み書きしていない）は消す
 
-## Branches
-
-- docs/plan-branch-config-rules（Step1）
-- chore/plan-branch-config-git-hooks（Step2）
-- chore/plan-branch-multi-plan（Step3）
-- chore/plan-completion-from-config（Step4）
-
 ## Progress
 
 - [x] Step1: `plans-maintenance`ルールと`execution-plan` skillを書き換える（`## Branches`の廃止、ブランチを作ったときのgit設定）。比較テストを行う
@@ -58,6 +51,8 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
   - 完了検出フックの作り直し、設定のないブランチを検出する新しいフック`.claude/hooks/plan-branch-config-check.sh`（PostToolUse・Bash）、`settings.json`への登録、`gh`をスタブにした一時リポジトリでの直接実行の確認をCodexへ委譲した（未コミット）。完了検出は、対象を今回マージされたブランチのplanに絞らず、mainの版のactive planをすべて判定し、Progressに未チェックがあるplanは`gh`を呼ばずに飛ばす形にした
   - 直接実行・実セッションでの発火・worktreeの間の共有を確かめた（検証結果）。`.claude/plan-completion-state/branches`を消した（gitの管理外）
 - [ ] Step5: Claude関連の段にあるactive planから`## Branches`を消す。機能側のブランチにしかないplanは、そのplanを最後に変更した機能ブランチで消す
+  - `chore/plan-completion-from-config`の上に`docs/drop-plan-branches-sections`を`--insert --no-restack`で作った。`plan`には`plan-branch-config:5`と、書き換える4つのplan（`plan-branch-list-completion`・`plan-work-records`・`rule-and-hook-change-tests`・`todoist-task-runner`）の値を入れた。5つのplanから`## Branches`を消す編集をCodexへ委譲し、削除だけの差分（追加行0、`## Branches`0件）であることを確かめた（未コミット）
+  - 機能側のブランチにしかない11のplan（`notification-*`・`push-*`・`solid-queue-introduction`・`task-due-notification`・`lefthook-debride-scope-change`）は、最後に変更したブランチが11本に分かれている。それぞれで消すか、各planの完了処理の時に消すかをユーザーに相談している
 
 ## 検証結果
 
