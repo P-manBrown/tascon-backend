@@ -37,6 +37,7 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
 - docs/plan-branch-config-rules（Step1）
 - chore/plan-branch-config-git-hooks（Step2）
 - chore/plan-branch-multi-plan（Step3）
+- chore/plan-completion-from-config（Step4）
 
 ## Progress
 
@@ -49,9 +50,13 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
 - [x] Step3: `branch.<name>.plan`を複数の値（`<slug>`・`<slug>:<N>`）の形にし、`planStep`をやめる。`git-spice-workflow` skillの文言（比較テストを行う）と、pre-pushの`check-plan-steps.sh`を直し、Step1・2のブランチの設定を新しい形に直す。`plans-maintenance`に、別のplanの作業はできるだけそのplanのブランチで行い、行ったとき・影響したときはそのplanの値も足すことを書く
   - 3ファイル（`git-spice-workflow`・`plans-maintenance`・`check-plan-steps.sh`）の編集と、pre-pushの直接実行の確認をCodexへ委譲した（未コミット、ブランチは比較テストの後に作る）
   - 直接実行と比較テストを終え（検証結果）、`chore/plan-branch-config-git-hooks`の上に`chore/plan-branch-multi-plan`を`--insert --no-restack`で作った。Step1・2のブランチの設定は`planStep`を消し、`plan`を`plan-branch-config:1`・`plan-branch-config:2`に直した
-- [ ] Step4: 既存のローカルブランチに設定を入れる（active planの`## Branches`から。どのplanにも載っていないブランチは`none`）。完了検出フックを設定から判定する形に作り直し、設定のないブランチの検出を足す。`.claude/plan-completion-state/branches`を消す。`hooks-authoring`ルールの確認（直接実行・実セッションでの発火）を行う。worktreeの間でブランチ設定が共有されるかもここで確かめる
+- [x] Step4: 既存のローカルブランチに設定を入れる（active planの`## Branches`から。どのplanにも載っていないブランチは`none`）。完了検出フックを設定から判定する形に作り直し、設定のないブランチの検出を足す。`.claude/plan-completion-state/branches`を消す。`hooks-authoring`ルールの確認（直接実行・実セッションでの発火）を行う。worktreeの間でブランチ設定が共有されるかもここで確かめる
   - 着手前に既存の`## Branches`を洗い出すと、1本のブランチが複数のplanに載っていた（`feat/notification-model`は`notification-creation`のStep1と`notification-index`のStep0、`feat/cable-ticket`は`notification-realtime-delivery`のStep2と`lefthook-debride-scope-change`、`docs/plan-branches-backfill`・`docs/plan-progress-format`は3つのplan）。`plan`・`planStep`を1つずつ持つ今の設計では表せないため、ブランチを作る前に止めて、ユーザーに方式を相談している（複数の値を持たせる案と、1ブランチ1planに限る案）
   - 複数の値を持たせる形に決まった（Decision Log）。その変更をStep3として挟み、この作業はStep4にした。移行では、載っているplanをすべて値に入れる
+  - `chore/plan-branch-multi-plan`の上に`chore/plan-completion-from-config`を`--insert --no-restack`で作った。Claude関連の段（HEAD）と機能側の最上段（`docs/cbm-daemon-recurrence`）のactive planの`## Branches`から対応表を作り、ローカルにあるブランチへ`git config --add`で入れた（`（StepN）`付きは`<slug>:<N>`）。どちらにも載っていない13本は`none`にした。設定のないローカルブランチ（main以外）は0本、`planStep`の残りは0件になった。`## Branches`に載っていてローカルにない6本（`todoist-task-runner`のマージ済みとみられるブランチ）は入れていない
+  - 例: `feat/notification-model`は`notification-creation:1`と`notification-index:0`、`feat/cable-ticket`は`lefthook-debride-scope-change`と`notification-realtime-delivery:2`、`docs/plan-progress-format`は`plan-branch-list-completion:5`・`plan-work-records`・`todoist-task-runner`
+  - 完了検出フックの作り直し、設定のないブランチを検出する新しいフック`.claude/hooks/plan-branch-config-check.sh`（PostToolUse・Bash）、`settings.json`への登録、`gh`をスタブにした一時リポジトリでの直接実行の確認をCodexへ委譲した（未コミット）。完了検出は、対象を今回マージされたブランチのplanに絞らず、mainの版のactive planをすべて判定し、Progressに未チェックがあるplanは`gh`を呼ばずに飛ばす形にした
+  - 直接実行・実セッションでの発火・worktreeの間の共有を確かめた（検証結果）。`.claude/plan-completion-state/branches`を消した（gitの管理外）
 - [ ] Step5: Claude関連の段にあるactive planから`## Branches`を消す。機能側のブランチにしかないplanは、そのplanを最後に変更した機能ブランチで消す
 
 ## 検証結果
@@ -63,6 +68,9 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
 - Step3のpre-pushの直接実行（2026-10-22、scratchpadの一時リポジトリ、Codexの確認とClaudeの再実行）: `plan`の値が`demo:2`でStep2が`- [ ]`のとき、`missing:1`でplanのファイルがないときはエラーを出してexit 1、`demo:2`でチェック済みのとき、`demo`だけ・`none`だけ・値なしのとき、削除のpush、tagのrefではexit 0で何も出さなかった。`demo:2`（チェック済み）と`other:1`（未チェック）の2つの値では、`other`のエラーだけを出してexit 1になった。`bash -n`を通った
 - Step3の比較テスト（2026-10-22、対象: `git-spice-workflow`・`plans-maintenance`）: Step1と同じ場面で、実行するコマンドまで答えさせた。期待する行動は「Stepを`<slug>:<N>`の形で`plan`に入れる」。変更前は`plan`に`rule-and-hook-change-tests`、`planStep`に`4`を設定すると答え、変更後は`git config branch.docs/rule-test-step4.plan rule-and-hook-change-tests:4`と答え、`--add`は関わるplanが複数のときだけ使うと答えた。行動が変わったため変更を残す。変更前のテストの前に、Skillツールの内容が変更前に戻ったことを`rule-tester`の引用で確かめた。変更後の前の同じ確認は、auto modeの判定でサブエージェントの起動が拒否されたため行っていない。変更後の答えが新しい形だったので、変更後の内容で動いていた
   - `plans-maintenance`に足した「ブランチとの対応」は、Step1と同じ理由（`rule-tester`は`.claude/plans/`を読めず、このルールが差し込まれない）で確かめられなかった。別のplanに関わったときに値を足す手順は、ほかに書く場所がなく、ないと足すきっかけがないため残す
+- Step4のフックの直接実行（2026-10-22、scratchpadの一時リポジトリ、`gh`はスタブ、Codexの確認）: 完了検出フックは、planの全ブランチがマージ済み（ローカルに残る・mainの更新より先に削除の両方）、planのブランチが0本、別のplanの値だけを持つ未マージのブランチがあるとき、数字でないStepの値・slugの部分一致の値（対象外）のとき、作業ツリーだけProgressが未チェックのとき（mainの版で判定）に完了を知らせ（exit 2）、未マージのブランチがある（`<slug>`・`<slug>:<N>`のどちら側でも）、Progressに未チェックがある（planごとの`gh pr list`を呼ばない）、同じ名前で作り直した作業中のブランチがある、mainが進んでいないときは何も出さなかった。`gh api`・`gh pr list`の失敗では判定できなかったことを知らせ、復旧後の再実行で同じ範囲を判定し直した。設定のないブランチの検出は、値のないブランチを挙げてexit 2、すべて設定済み（`none`を含む）とgitリポジトリ外のcwdでは何も出さなかった。両スクリプトの`bash -n`と`jq . .claude/settings.json`が通った。記録は`/tmp/claude-1000/-home-ruby-tascon-backend/caa74a36-e710-4009-9c65-5d319cdca67e/scratchpad/plan-hooks-qc1r96_1/results.md`
+- Step4のフックの実セッション（2026-10-22、`settings.json`へ登録した状態）: 設定のないブランチの検出は、実リポジトリで直接実行して何も出さず、`git branch chore/hook-probe-unset`のBashの後に、そのブランチを挙げて発火した。消した後のBashでは何も出なかった。完了検出は、状態ファイルのmainを`main^`に戻してBashを実行すると、mainの版の未チェックのないplan（`lefthook-debride-scope-change`・`todoist-task-runner`）に未マージのブランチがあるため何も出さず、状態ファイルはmainに更新された。`build/debride-full-scope`・`feat/cable-ticket`から`lefthook-debride-scope-change`の値を一時的に外して同じ操作をすると、`lefthook-debride-scope-change.md`の完了を知らせた。値はその後に戻した
+- worktreeの間のブランチ設定（2026-10-22、scratchpadの一時リポジトリ）: `git worktree add`で作ったworktreeから`git config --add branch.feat/w.plan p:1`とすると、元のcheckoutから同じ値が読め、`--show-origin`は`file:.git/config`（共通の設定）だった
 - 複数の値の追従（2026-10-22、scratchpadの一時リポジトリ）: `git config --add`で`branch.feat/a.plan`に`p1:1`と`p2`を入れると、`git branch -m`・`gs branch rename`の後も`--get-all`で両方が残り、`git branch -D`で両方消えた
 - ブランチ設定の置き場所（2026-10-22）: `git config branch.<name>.plan`等は、このリポジトリの`.git/config`の`[branch "<name>"]`節に書かれた（`git config --show-origin`で`file:.git/config`）。`planStep`はファイルには書いたとおりの大文字小文字で残り、`--get-regexp`の出力では`planstep`になる。`extensions.worktreeConfig`は未設定
 - Step2のpre-pushの直接実行（2026-10-22、scratchpadの一時リポジトリ、Codexの確認とClaudeの再実行）: pre-pushの標準入力の形の行を与えると、`planStep`のStepがProgressで`- [ ]`のときと、pushされるコミットにplanのファイルがないときはエラーを出してexit 1、`- [x]`のとき、`planStep`がない・`plan`が`none`・設定がない・`plan`が空のとき、削除のpush、tagのrefではexit 0で何も出さなかった。Progress節の外にある`- [x] Step2:`は数えなかった。`check-docs.sh`・`check-plan-steps.sh`とも`bash -n`を通った
