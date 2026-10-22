@@ -52,6 +52,7 @@
   - `chore/plan-steps-fail-text`は`docs/notification-architecture`と同じ`docs/trim-verification-status-rule`から枝分かれしていたため、`docs/notification-architecture`以上を`chore/hook-state-dir`の上へ移し、一直線にした（ユーザー指示）。枝分かれを見落としたのは、`git-spice ls`が`--all`なしでは今のブランチの上下だけを表示し、兄弟のブランチを表示しないため。`git-spice-workflow` skillの「作成前に`git-spice ls`で最上段を確認する」の扱いは未決
   - skillの確認手順を`git-spice ls --all`にする（ユーザー指示、Decision Log）。比較テストを終えてコミットした
   - 比較テストでSkillツールが古い内容を返す問題に、`claude-md-maintenance`ルールの手順で対処する（ユーザー指示、Decision Log）。比較テストを終えた（検証結果）
+  - 未確認: 公式ドキュメントでは、SubagentHandbackはauto modeで用意されるツールとされる。auto mode以外ではサブエージェントがテキストで報告を返すため、SubagentStopの登録を外した今の構成では、サブエージェント側の確認が出ないとみられる。auto mode以外での挙動は確かめておらず、tech-debtとして記録するかはユーザーと決める
 
 ## 検証結果
 
