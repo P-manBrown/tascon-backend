@@ -125,6 +125,9 @@ while IFS= read -r file; do
   [[ "${file#.claude/plans/active/}" == */* ]] && continue
   seen_steps=" "
   while IFS= read -r line; do
+    if [[ "$line" =~ ^-\ Step[0-9]+: ]]; then
+      fail "$file has a Progress Step line without a checkbox, write it as \"- [ ] StepN: \": $line"
+    fi
     [[ "$line" =~ -\ \[[\ xX]\] ]] || continue
     if ! [[ "$line" =~ ^-\ \[[\ x]\]\ (Step[0-9]+):\  ]]; then
       fail "$file has a Progress checkbox that is not a top-level \"- [ ] StepN: \" line: $line"

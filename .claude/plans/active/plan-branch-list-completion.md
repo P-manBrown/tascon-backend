@@ -48,6 +48,7 @@
   - `rule-tester`に`.claude/memory/`配下を読まない指示を足し、起動し直してから比較テストをやり直した（結果は検証結果）
 - [x] Step5: 今あるplanの`## Branches`にStepを書き添え、Progressを新しい書式（1つのStepに1つのチェックボックス、`- [ ]`/`- [x] StepN:`）にそろえる。機能側のplanは、それぞれを最後に変更した機能ブランチで直す
 - [x] Step6: pre-commitに、planを変更するコミットでProgressのチェックボックスの行の形と同じStepNの重複を確かめる処理を足す。pre-pushに、今のブランチの`## Branches`の行にStepがあれば、ProgressのそのStepが`- [x]`かを確かめる処理を足す
+  - 2026-10-22: チェックボックスなしの`- StepN:`の行が素通りしていたため、pre-commitで止める確認を足した。一時リポジトリで、`- Step2: b`は止まり、入れ子の`  - Step2の補足`とトップレベルの`- 注記`は止まらないことを確かめた
 - [ ] Step7: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
 
 ## 検証結果
@@ -85,6 +86,7 @@
 - 2026-10-21: 書き方が守られているかを機械的に確かめる（ユーザー指摘）。pre-commitで、planを変更するコミットのときProgressのチェックボックスの行の形と同じStepNの重複を確かめる。pre-pushで、今のブランチの`## Branches`の行にStepがあれば、ProgressのそのStepが`- [x]`かを確かめる。pushはStepを終えてレビューへ出すときなので、作業途中のコミットは止めないため。planを変更しないStepのブランチも、Stepを終えたらチェックを付けるコミットでplanを変更するので、pre-commitの一覧の確認を通る。
 - 2026-10-21: `rule-tester`に、`.claude/memory/`配下を読まない指示を足す（ユーザー指示）。`omitClaudeMd`でmemoryの自動の差し込みは外れるが、`.claude/memory/`は作業ディレクトリ内にありReadで読めてしまい、gitignoreのため`git stash -u`でも退避されない。Step4の変更前テストで実際に`feedback_plan_section_usage.md`を根拠に読んでいた。
 - 2026-10-21: pre-pushの確認は、今のブランチではなく、pushされる各ブランチ（pre-pushの標準入力）を対象にし、planはそのブランチのコミット時点の内容で読む。git-spiceは別のブランチを開いたままpushすることがあり、作業ツリーのplanはpushされるブランチの内容と違いうるため。
+- 2026-10-22: pre-commitで、Progressのトップレベルにチェックボックスなしで`- StepN:`と書いた行も止める（ユーザー指摘）。チェックボックスを含む行だけを確かめていたため、Stepの行をチェックボックスなしで書くと素通りしていた。入れ子の箇条書きと、トップレベルのStepでない注記は止めない。
 
 ## Validation and Acceptance
 
