@@ -55,6 +55,7 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
   - 機能側のブランチにしかない11のplan（`notification-*`・`push-*`・`solid-queue-introduction`・`task-due-notification`・`lefthook-debride-scope-change`）は、最後に変更したブランチが11本に分かれている。それぞれで消すか、各planの完了処理の時に消すかをユーザーに相談している
   - Claude関連の段の5つのplanの削除を`b851394c`としてコミットした。機能側は今消すことになった（Decision Log）。前回の`## Branches`の書き足し（`plan-branch-list-completion`）と同じく、各planを最後に変更した機能ブランチに、1planずつコミットを積む。節の削除はCodexが作ったscratchpadのスクリプトで行う
   - 11本の機能ブランチ（`build/solid-queue`から`feat/task-due-notification`まで、下の段から順に）で、それぞれのplanの`## Branches`を消してコミットした（削除だけの差分であることと、変更したファイルがそのplanだけであることを、コミットの前に確かめた）。`git-spice upstack restack`はコンフリクトなく終わり、`needs restack`は0件、最上段（`docs/cbm-daemon-recurrence`）のactive planに`## Branches`は残っていない
+- [ ] Step6: Step1・3の`plans-maintenance`の変更（`Branches`節の削除、「ブランチとの対応」節の追加）を、`rule-and-hook-change-tests`のStep4で作るダミーplanの仕組みで比較テストする。変更前は、それぞれのStepのコミットの1つ前へdetachして作る
 
 ## 検証結果
 
@@ -88,6 +89,7 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
   - 既知の制約: 別のplanに関わったブランチでそのplanの値を足し忘れると、そのplanは、このブランチが未マージでも完了と判定されうる。足したかは意味の判断が要り、機械的には確かめられない。planのファイルに何も書かなかった場合は、そのplanはその作業を知らないので、どの仕組みでも拾えない
 
 - 2026-10-22: 機能側のブランチにしかないplanの`## Branches`も、今消す（ユーザー指示）。前回の書き足しと同じく、各planを最後に変更した機能ブランチに1planずつコミットを積む
+- 2026-10-22: `rule-tester`で確かめられなかった`plans-maintenance`の変更（Step1の`Branches`節の削除、Step3の「ブランチとの対応」節）は、テストしないまま残さず、何らかの方法でテストする（ユーザー指摘）。同じ状況になったときも、テストできないまま残さず、テストする方法を作る。方法は、`rule-tester`のガードに`.claude/plans/rule-test-fixture.md`の1ファイルだけ読める例外を足し、テストの時だけそこに中身のないダミーplanを置いて`plans-maintenance`を差し込ませる形にする（ユーザー同意）。ガードの例外と、比較テストの手順への追記は`rule-and-hook-change-tests`のStep4で行い、このplanのStep6でテストする
 
 ## Validation and Acceptance
 

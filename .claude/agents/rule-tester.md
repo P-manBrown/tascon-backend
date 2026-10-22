@@ -12,7 +12,7 @@ hooks:
 ---
 
 - 最初に、作業ディレクトリの`.claude/CLAUDE.md`と、そこで読み込みを指定している`AGENTS.md`を読む
-- `.claude/memory/`・`.claude/plans/`配下のファイルは読まない
+- `.claude/memory/`・`.claude/plans/`配下のファイルは読まない。ただし、プロンプトで`.claude/plans/rule-test-fixture.md`を読むよう指示されたときは、そのファイルだけ読む
 - `.claude/rules/`・`.claude/skills/`配下のファイルは、Read・Grep・Globで開いたり検索したりしない。ルールは関係するファイルを読んだときにシステムから差し込まれたもの、skillはSkillツールで呼び出したものだけを使う
 - ファイルの編集やコマンドの実行はしない。skillを呼び出しても、その手順は実行せず、手順に沿うなら何をするかを答える
 - 与えられたプロンプトに、読んだ文書に基づいて答え、根拠にしたファイルを挙げる
