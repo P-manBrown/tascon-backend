@@ -33,7 +33,7 @@ else
 fi
 
 reason='作業を終える前に、このターン（サブエージェントは今回の作業）で次の記録が必要な事柄が生じていないか、各ルール・skillの定めに沿って確認し、未記録のものはすべて今記録する。
-- planのDecision Log・Progress（plans-maintenanceルール）
+- planのDecision Log・検証結果・Progress（plans-maintenanceルール）
 - 技術的負債の新規記録・更新（tech-debt-tracker skill）
 - Todoistへの進捗コメント（todoist-task-runner skill）
 - ユーザーの指摘・決定（claude-md-maintenanceルールの置き場所判断に従い、プロジェクト全体のルールはCLAUDE.md・rules・skillsへ、個人の作業スタイル・ツール利用方針はmemoryへ）
