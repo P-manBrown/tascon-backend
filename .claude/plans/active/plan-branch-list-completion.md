@@ -34,14 +34,19 @@
 - docs/git-spice-insert-no-restack
 - docs/plan-branches-backfill
 - chore/plan-branch-precommit
+- docs/plan-step-progress-rules（Step4）
 
 ## Progress
 
 - [x] Step1: `plans-maintenance`ルールに`## Branches`の用途と保ち方（作成時に足す、改名で書き換え、PRにせず捨てたら外す）を足し、`execution-plan` skillのブランチを切る手順に、`## Branches`へ足すことを入れる。比較テストを行う。ブランチは比較テストの後に`chore/plan-completion-ignore-branch-deletes`の上へ挿入し、このplanファイルも一緒にコミットする。コミット後、作業ツリーがきれいになってから上の段を`git-spice upstack restack`する。`a717615e`としてコミットした
 - [x] Step2: 今あるactive planすべてに`## Branches`を書き足した。Claude関連の段の`plan-work-records`・`todoist-task-runner`（Progressの節も新設）・このplanは`docs/plan-branches-backfill`で、機能側の11個のplanは、それぞれを最後に変更した機能ブランチ（`build/solid-queue`〜`feat/task-due-notification`）にコミットを足した
 - [x] Step3: pre-commit（`.lefthook/pre-commit/check-docs.sh`）に、planを変更するコミットのとき今のブランチがそのplanの`## Branches`にあることの確認を足す。ブランチ名が取れないとき（detached HEAD）は確かめない
-  - 未決: 機能側の`notification-creation`はProgressに「残作業: PR作成・マージ」が未チェックで残り、マージ前にチェックできないため、新しい判定では完了にならない。`push-subscription-registration`はStep2が未チェックだがブランチ`feat/vapid-public-key`は作られている。Step3の後に両planのProgressを実態に合わせて直す（ユーザー同意）
-- [ ] Step4: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
+  - 機能側の`notification-creation`の「残作業: PR作成・マージ」は、マージ前にチェックできないため、チェックボックスを外した注記にした（`feat/notification-on-share-destroy`）。`push-subscription-registration`の未チェックのStep2は、チェック済みのStep2と重複した消し忘れの行だったので消した（`feat/vapid-public-key`）。どちらのコミットも新しいpre-commitを通った
+- [x] Step4: `plans-maintenance`ルールに、`## Branches`のStepのブランチには`（StepN）`を書き添えること、Progressのチェックボックスは1つのStepに1つで、変化はその下に箇条書きで時系列に書き足し、Stepでない注記はチェックボックスにしないことを足す。`execution-plan` skillに、Stepを終えたら同じブランチでそのStepにチェックを付けてコミットすることを足す。比較テストを行う
+  - `rule-tester`に`.claude/memory/`配下を読まない指示を足し、起動し直してから比較テストをやり直した（結果は検証結果）
+- [ ] Step5: 今あるplanの`## Branches`にStepを書き添え、Progressを新しい書式（1つのStepに1つのチェックボックス、`- [ ]`/`- [x] StepN:`）にそろえる。機能側のplanは、それぞれを最後に変更した機能ブランチで直す
+- [ ] Step6: pre-commitに、planを変更するコミットでProgressのチェックボックスの行の形と同じStepNの重複を確かめる処理を足す。pre-pushに、今のブランチの`## Branches`の行にStepがあれば、ProgressのそのStepが`- [x]`かを確かめる処理を足す
+- [ ] Step7: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
 
 ## 検証結果
 
@@ -53,6 +58,10 @@
 - ステージが外れる仕組み（2026-10-21、一時リポジトリで`GIT_TRACE`を取得）: `git-spice branch create --insert`は、上の段のrestackで`git rebase --onto <新しい親> --autostash <旧base> <上の段のブランチ>`を実行する。gitの`--autostash`は`git stash create`で作業ツリーとステージを退避し、rebase後に`git stash apply`（`--index`なし）で戻す。`--index`なしのapplyはステージを戻さないため、変更ファイルはステージが外れ、新規ファイルだけがステージされた状態で戻る
 - Step2の確認（2026-10-21）: スタックの最上段（`feat/task-due-notification`）で、`.claude/plans/active/`の14個のplanすべてに`## Branches`があり、1本以上のブランチが書かれていることを確かめた。機能側の11個のコミットのあと、`needs restack`は出なかった。Progressはすべてチェックボックスの書式だった
 - Step3のpre-commitの確認（2026-10-21、一時リポジトリ）: `bash -n`が通った。一覧にある→exit 0、一覧にない→exit 1と「does not list the current branch」、`## Branches`がない→exit 1、active planをステージしていない→exit 0、detached HEAD→確かめずexit 0、バッククォートと空白付きの記載→exit 0、ステージ済みの内容が正しく作業ツリーが誤り→exit 0、その逆→exit 1、`active/`配下のサブディレクトリのplan→対象外でexit 0、の9場面とも期待どおりだった
+- 文書チェックの実行箇所（2026-10-21、設定ファイルで確認）: `.lefthook/pre-commit/check-docs.sh`は、lefthookのpre-commitと、Claude Codeの`PostToolUse`（`Edit|Write`）の`.claude/hooks/check-docs-hook.sh`の両方から実行される
+- `rule-tester`がmemoryを読まないか（2026-10-21、起動し直し後）: 「できるだけ多くの文書を探して読め」と指示しても、トランスクリプトのツール呼び出し24回に`.claude/memory/`配下を読んだものはなかった。ファイルを探す検索の結果にmemoryのファイル名の一覧だけは出たが、中身は入らなかった
+- Step4の比較テスト（planと`rule-tester.md`以外の変更を退避）: 「Step2を途中で方針を一部変えつつブランチ`feat/example-step2`で終えた。`## Branches`と`## Progress`に何をどう書くか」を問うと、変更前は`- feat/example-step2`（Stepなし）を足し、Step2の行の文面を書き換えて経緯も同じ行に書いた。変更後は`- feat/example-step2（Step2）`とし、Step2のチェックボックスにチェックを付け、方針の変更はその下に箇条書きで書き足し、同じブランチでコミットすると答えた（根拠は`plans-maintenance`と`execution-plan`）。memoryが混ざった最初の変更前テストは無効にした
+- Stepの書き添えとStep3のpre-commitの確認（2026-10-21）: `## Branches`に`- docs/plan-step-progress-rules（Step4）`と書いてコミットすると、Step3の確認が行全体を完全一致で比べていたため「does not list the current branch」で止まった。末尾の`（…）`を取り除いてから比べる形に直し、一時リポジトリで`- test-branch（Step2）`・`` - `test-branch`（Step2） ``・`- test-branch`は通り、`- other-branch（Step2）`と節がない場合は止まることを確かめた。Step3のときの9場面も、直した後に同じ結果だった
 
 ## Decision Log
 
@@ -67,12 +76,18 @@
 - 2026-10-21: 今あるactive planは、すべて`## Branches`を書き足す新しいやり方に更新する（ユーザー指示）。
 - 2026-10-21: `git-spice branch create`でスタックの途中に挿入するときは`--no-restack`も付け、上の段のrestackはコミット後に作業ツリーがきれいになってから行う旨を`git-spice-workflow` skillに足す（ユーザー指示）。挿入時に上の段がrestackされると、ステージした変更ファイルのステージが外れ、コミットから漏れるため（Step1のコミットで実際に起きた）。
 - 2026-10-21: 既存planの`## Branches`は、Claude関連の段にあるplan（`plan-work-records`・`todoist-task-runner`・このplan）は`docs/plan-branches-backfill`で、機能側のブランチにしかないplanは、そのplanを最後に変更した機能ブランチに足すコミットで書き足す（ユーザー同意）。機能側のplanはClaude関連の段に存在せず、最後に変更したブランチに足せば、上の段のrestackで衝突しないため。`lefthook-debride-scope-change`は機能側（`build/debride-full-scope`・`feat/cable-ticket`）で更新されているので、機能側で扱う。一覧には、そのplanのStepとして作業したブランチと、planのファイルを変更したブランチを入れる。
+- 2026-10-21: Stepとブランチの対応は`## Branches`の行に`（StepN）`を書き添えて表し、Stepの行にはブランチ名を書かない（ユーザー同意）。1つのStepに1つのブランチとは限らず（Stepでないブランチもある）、ブランチ名を書く場所を2か所にすると、両方に書いたかの確認が別に要るため。
+- 2026-10-21: Progressのチェックボックスは1つのStepに1つとし、Stepの変化はチェックボックスを増やさず、その下に箇条書きで時系列に書き足す。Stepでない注記はチェックボックスにしない（ユーザー提案）。Stepでない「PR作成・マージ」や、重複したStepの行が未チェックで残り、planが完了にならなかったため。
+- 2026-10-21: 書き方が守られているかを機械的に確かめる（ユーザー指摘）。pre-commitで、planを変更するコミットのときProgressのチェックボックスの行の形と同じStepNの重複を確かめる。pre-pushで、今のブランチの`## Branches`の行にStepがあれば、ProgressのそのStepが`- [x]`かを確かめる。pushはStepを終えてレビューへ出すときなので、作業途中のコミットは止めないため。planを変更しないStepのブランチも、Stepを終えたらチェックを付けるコミットでplanを変更するので、pre-commitの一覧の確認を通る。
+- 2026-10-21: `rule-tester`に、`.claude/memory/`配下を読まない指示を足す（ユーザー指示）。`omitClaudeMd`でmemoryの自動の差し込みは外れるが、`.claude/memory/`は作業ディレクトリ内にありReadで読めてしまい、gitignoreのため`git stash -u`でも退避されない。Step4の変更前テストで実際に`feedback_plan_section_usage.md`を根拠に読んでいた。
 
 ## Validation and Acceptance
 
 - `plans-maintenance`ルールと`execution-plan` skillの変更は、`claude-md-maintenance`ルールの新規ルール追加時の手順を満たす
 - 今あるactive planすべてに`## Branches`があり、Progressがチェックボックスの書式になっている
 - pre-commitが、planを変更するコミットで今のブランチが`## Branches`にないときに止め、あるときとplanを変更しないときは通す
+- pre-commitが、Progressのチェックボックスの行の形が違うとき、同じStepNが重複するときに止める
+- pre-pushが、今のブランチの`## Branches`の行にStepがあり、ProgressのそのStepが未チェックのときに止める
 - 完了検出フックが、`gh`をスタブにした一時リポジトリで次のとおり動く
   - planの全ブランチがマージ済みで、Progressに未チェックがない: 完了処理を知らせる（exit 2）
   - 一部のブランチだけマージ済み: 知らせない
