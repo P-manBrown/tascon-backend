@@ -18,12 +18,14 @@
 - docs/worktree-isolation-for-subagents
 - docs/todoist-task-workflow-simplification
 - docs/todoist-instructions-on-work-subtask
-- docs/todoist-task-runner-validation
+- docs/todoist-task-runner-validation（Step2）
+- docs/plan-branches-backfill
+- docs/plan-progress-format
 
 ## Progress
 
-- [x] 実装すべきもの（skill・execution-planの更新・ラベル・子タスク構成）の実装と実機検証
-- [x] 実際のTodoistタスクでの検証（ブランチ`docs/todoist-task-runner-validation`）
+- [x] Step1: 実装すべきもの（skill・execution-planの更新・ラベル・子タスク構成）の実装と実機検証
+- [x] Step2: 実際のTodoistタスクでの検証（ブランチ`docs/todoist-task-runner-validation`）
 
 ## 決定事項サマリ
 
