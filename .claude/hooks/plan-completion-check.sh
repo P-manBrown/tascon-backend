@@ -55,36 +55,30 @@ while IFS= read -r rel; do
   esac
 
   content=$(git show "$main_ref:$rel")
-  branches=()
   section=""
   unchecked=false
   while IFS= read -r line; do
     case "$line" in
       '## '*) section=$line; continue ;;
     esac
-    if [ "$section" = '## Branches' ] && [[ "$line" == '- '* ]]; then
-      b=${line#'- '}
-      b=${b//\`/}
-      b=${b%"${b##*[![:space:]]}"}
-      if [[ "$b" == *（*） ]]; then
-        b=${b%（*）}
-      fi
-      b=${b#"${b%%[![:space:]]*}"}
-      b=${b%"${b##*[![:space:]]}"}
-      [ -n "$b" ] && branches+=("$b")
-    elif [ "$section" = '## Progress' ] && [[ "$line" == *'- [ ]'* ]]; then
+    if [ "$section" = '## Progress' ] && [[ "$line" == *'- [ ]'* ]]; then
       unchecked=true
     fi
   done <<<"$content"
 
-  target=false
-  for b in "${branches[@]}"; do
-    if [ -n "${just_merged[$b]+yes}" ]; then
-      target=true
-      break
-    fi
-  done
-  "$target" || continue
+  "$unchecked" && continue
+
+  slug=${name%.md}
+  branches=()
+  while IFS= read -r b; do
+    [ "$b" != "$main_ref" ] || continue
+    while IFS= read -r plan; do
+      if [ "$plan" = "$slug" ] || { [[ "$plan" == "$slug":* ]] && [[ "${plan#"$slug":}" =~ ^[0-9]+$ ]]; }; then
+        branches+=("$b")
+        break
+      fi
+    done < <(git config --get-all "branch.$b.plan")
+  done < <(git for-each-ref --format='%(refname:strip=2)' refs/heads/)
 
   complete=true
   for b in "${branches[@]}"; do
@@ -101,13 +95,13 @@ while IFS= read -r rel; do
     fi
   done
 
-  if "$complete" && ! "$unchecked"; then
+  if "$complete"; then
     messages+="- $rel"$'\n'
   fi
 done < <(git ls-tree -r --name-only "$main_ref" .claude/plans/active/)
 
 [ -n "$messages" ] || exit 0
-printf '%s\n' 'mainへのマージを検出した。次のplanは、Branchesの全ブランチがmainへマージ済みで、Progressに未チェックがない:' >&2
+printf '%s\n' 'mainへのマージを検出した。次のplanは、planのブランチ（branch.<name>.plan）がすべてmainへマージ済みで、Progressに未チェックがない:' >&2
 printf '%s' "$messages" >&2
 printf '%s\n' 'execution-plan skillの完了処理（Validation and Acceptanceの確認から）を行うこと。' >&2
 exit 2
