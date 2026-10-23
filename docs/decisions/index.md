@@ -9,3 +9,4 @@
 - [コミットメッセージの機械チェックはPRタイトルのみ](commit-message-check-scope.md)
 - [security-reviewをdiffの種類によらず毎回実行する](security-review-every-run.md)
 - [ルール・skill・hookを変更したときのテストの方法](rule-and-hook-change-tests.md)
+- [planとブランチの対応をgitのブランチ設定に持つ](plan-branch-mapping-in-git-config.md)
