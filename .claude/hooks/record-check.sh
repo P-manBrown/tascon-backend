@@ -24,7 +24,17 @@ if [ "$hook_event_name" = "PreToolUse" ]; then
     rm "$state_dir/$agent_id"
     exit 0
   fi
-elif [ "$hook_event_name" = "Stop" ]; then
+elif [ "$hook_event_name" = "Stop" ] || [ "$hook_event_name" = "SubagentStop" ]; then
+  if [ "$hook_event_name" = "SubagentStop" ]; then
+    permission_mode=$(echo "$input" | jq -r '.permission_mode // empty')
+    if [ "$permission_mode" = "auto" ]; then
+      exit 0
+    fi
+    agent_type=$(echo "$input" | jq -r '.agent_type // empty')
+    if [ -z "$agent_type" ]; then
+      exit 0
+    fi
+  fi
   stop_hook_active=$(echo "$input" | jq -r '.stop_hook_active // false')
   if [ "$stop_hook_active" = "true" ]; then
     exit 0
@@ -46,8 +56,13 @@ if [ "$hook_event_name" = "PreToolUse" ]; then
 記録が済んだら（該当がなければそのまま）、もう一度SubagentHandbackで報告する。"
   jq -n --arg reason "$reason" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
 else
-  reason="$reason
+  if [ "$hook_event_name" = "SubagentStop" ]; then
+    reason="$reason
+記録が済んだら（該当がなければそのまま）、呼び出し元への報告として、直前の報告を全文もう一度出力して終了する。"
+  else
+    reason="$reason
 該当がなければ「該当なし」とだけ出力して終了する。"
+  fi
   jq -n --arg reason "$reason" '{decision: "block", reason: $reason}'
 fi
 exit 0

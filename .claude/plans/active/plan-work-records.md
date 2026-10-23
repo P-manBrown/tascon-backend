@@ -52,7 +52,11 @@
   - `chore/plan-steps-fail-text`は`docs/notification-architecture`と同じ`docs/trim-verification-status-rule`から枝分かれしていたため、`docs/notification-architecture`以上を`chore/hook-state-dir`の上へ移し、一直線にした（ユーザー指示）。枝分かれを見落としたのは、`git-spice ls`が`--all`なしでは今のブランチの上下だけを表示し、兄弟のブランチを表示しないため。`git-spice-workflow` skillの「作成前に`git-spice ls`で最上段を確認する」の扱いは未決
   - skillの確認手順を`git-spice ls --all`にする（ユーザー指示、Decision Log）。比較テストを終えてコミットした
   - 比較テストでSkillツールが古い内容を返す問題に、`claude-md-maintenance`ルールの手順で対処する（ユーザー指示、Decision Log）。比較テストを終えた（検証結果）
-  - auto mode以外ではサブエージェント側の確認が出ないことを確かめた（検証結果）。対処の仕方はユーザーと決める
+  - auto mode以外ではサブエージェント側の確認が出ないことを確かめた（検証結果）。対処はStep11で行う
+- [x] Step11: `record-check.sh`をSubagentStopにも登録し、auto mode以外のサブエージェントでも記録の確認を出す（ブランチ`chore/record-check-subagentstop`、`chore/hook-state-dir`の上に挿入）
+  - SubagentStopでは、入力の`permission_mode`が`auto`なら何もしない（auto modeはPreToolUse(SubagentHandback)で確認する）。それ以外は`stop_hook_active`がfalseのとき1回止め、trueなら何もしない。状態ファイルは使わない
+  - 実装はCodexへ委譲する。入力JSONによる直接実行と、auto mode・マニュアルモードそれぞれの実セッションで、確認が1回だけ出ることを確かめる
+  - 実装し、直接実行とauto mode・マニュアルモードの実セッションで確かめた（検証結果）。マニュアルモードで見つかった内部のエージェントへの過剰な確認と報告の置き換わりも直した（Decision Log）。確認用の一時的な1行は外した
 
 ## 検証結果
 
@@ -68,6 +72,10 @@
 - Skillツールの内容の一致を確かめる手順（Step10、対象: `claude-md-maintenance.md`）: 「`execution-plan`のSKILL.mdの完了処理に1行足した。コミットまでに何をするか、コマンドや起動するエージェントまで具体的に」を問うと、変更前は2回ともSkillツールの内容を確かめる手順に触れず、変更後は2回とも、変更前・変更後のテストの前に`rule-tester`にSkillツールで引用させて作業ツリーと一致するか確かめ、ずれていれば`touch`してから確かめ直すと答えた。ルールはどの回も差し込まれていた（変更を退避した変更前の状態でテストし、テスト対象のコミット・detachは不要だった）
 - SubagentHandbackの確認の再確認（Step10の後、ユーザー依頼）: テスト用サブエージェントの1回目の報告が拒否され（拒否理由の1行目を引用して返した）、2回目で通り、その状態ファイルは残らなかった。一方、比較テストの変更後テスト（`rule-tester`2体）の報告中の時刻（21:00:59）に作られた状態ファイル`a4d769c4a853802b0`が残っていた。このidはどちらの会話記録にも出てこず、どの報告で作られ、なぜ消されなかったかは特定できていない。24時間後の片付けで消える
 - auto mode以外でのサブエージェントの確認（Step10の後、ユーザー依頼）: マニュアルモードに切り替えてテスト用サブエージェントを動かすと、SubagentHandbackを呼ばず（本人は報告用のツールが見当たらないと答えた）、テキストで報告を返して終わった。記録の確認は出ず、状態ファイルも作られなかった。公式ドキュメントのとおり、SubagentHandbackはauto modeでだけ使われ、SubagentStopの登録を外した今の構成では、auto mode以外のサブエージェントは記録の確認を受けない
+- SubagentStopの追加（Step11）: 入力JSONを与えた直接実行で、SubagentStopは`permission_mode`が`default`・欄なしで`stop_hook_active`がfalseなら`decision: block`、trueまたは`auto`なら何も出さず、Stop・PreToolUseの動きは変わらなかった。auto modeの実セッションでフックの入力を書き出すと、テスト用サブエージェントでPreToolUse(SubagentHandback)が2回（1回目で拒否）、続いてSubagentStopが`permission_mode: "auto"`で動き、何も出さなかった。確認は1回だけだった
+- SubagentStopの追加（Step11、マニュアルモード）: テスト用サブエージェントはテキストで報告し、SubagentStop（`permission_mode: "default"`）の1回目で止められ、2回目（`stop_hook_active: true`）で通った。一方、起動していないエージェント（`a0ed69…`・`a21610…`・`a20a118…`）にもSubagentStopが動き、1回止めていた。入力は`agent_type`が空文字、`agent_transcript_path`のファイルは存在せず、`a20a118…`の`last_assistant_message`は「記録を確認して進めて」だった。メインのターンの終わりやサブエージェントの終了の直後に動くClaude Codeの内部のエージェントとみられる（何のエージェントかは確かめていない）
+  - 同じくマニュアルモードで、起動したテスト用サブエージェントの`agent_type`は`general-purpose`、内部のエージェントは毎回空文字で、`last_assistant_message`は「それで進めてくれ」「結果が出たら修正まで進めて」等、次のユーザー入力の候補のような文だった。また、止められたサブエージェントの最後の発言が「該当なし」になり、呼び出し元に届く結果が報告ではなく「該当なし」だけになった（テスト用サブエージェントとCodexの委譲で発生）
+  - `agent_type`が空なら通し、SubagentStopの文面の最後を報告の再出力にした後（マニュアルモード）: 内部のエージェントにはSubagentStopが1回だけ動き、2回目（`stop_hook_active: true`）が来なかった（止めていない）。Codexの委譲（`agent_type: codex:codex-rescue`）は1回止められ、記録の確認のあと報告の全文を再出力し、呼び出し元に報告が届いた。入力の書き出し用の一時的な1行を外した後、直接実行で、SubagentStopは`general-purpose`・`stop_hook_active: false`のときだけ報告の再出力の文面で止め、`agent_type`が空・`auto`・`stop_hook_active: true`では何も出さず、Stopは従来の文面のままだった
 - `--no-restack`: claude-memなし・記録前のworktreeで、変更前は3回中2回が未コミットのまま`git-spice commit create`を使い、変更後は3回とも`--no-restack`でコミットし、作業ツリーがきれいになってから1回restackした
 - SubagentStopの登録を外した件: テスト用のサブエージェントのトランスクリプトで、1回目のSubagentHandbackが拒否され、2回目で通り、状態ファイルが削除され、SubagentStopのフックが実行されないことを確認した
 - Todoistの作成先の移動: 変更前も変更後もインボックスに作ると答え、根拠が`tech-debt-tracker`から`todoist-task-conventions`に変わった
@@ -132,11 +140,15 @@
 - 2026-10-22: フックの状態ファイルは、メインcheckoutの`.claude/hook-state/<フック名>/`にまとめる（ユーザー同意）。どのフックの状態かを名前で分かるようにするため。git管理の`.claude/hooks/`に混ぜると管理対象と対象外が同じ場所に並び、worktree間で共有するのでworktree内の`.claude/hooks/`は使えないため、別のディレクトリにする。名前は、保存した状態の意味のstateが不可算で使われるため単数形にする（XDGの`~/.local/state`と同じ）。
 - 2026-10-22: `git-spice-workflow` skillのブランチ作成前の確認を`git-spice ls --all`にする（ユーザー指示）。`git-spice ls`は`--all`なしでは今のブランチの上下だけを表示し、同じ親から分かれた兄弟のブランチを表示しないため、skillどおりに確認しても枝分かれを見落とし、`chore/hook-state-dir`を枝分かれした側に積んだ。
 - 2026-10-22: skillの比較テストでは、`rule-tester`を起動する前に、Skillツールが返す内容が作業ツリーと一致することを`rule-tester`の引用で確かめ、一致しなければ対象のファイルを`touch`して確かめ直す手順を`claude-md-maintenance`ルールに足す（ユーザー指示）。git（stash・switch）でSKILL.mdを書き換えた直後に、Skillツールが書き換え前の内容を返すことが2回起きたため（`plan-branch-config`のStep1、このplanのStep10）。1回目は時間を置いて、2回目は`touch`の後に切り替わった。何が切り替えのきっかけかは確かめていないが、一致を確かめる手順があれば、古い内容でのテストを判定に使わずに済む。
+- 2026-10-23: auto mode以外のサブエージェントの確認は、SubagentStopで行う（ユーザー同意）。auto mode以外ではSubagentHandbackがなく、サブエージェントはテキストで報告を返して終わるため、今の構成では確認が出ない。SubagentStopで止めても作業を続けなかったのは、SubagentHandbackで報告を渡した後の場合で、SubagentHandbackがなかった頃は`plan-worktree-check.sh`がSubagentStopで止めて続けさせていた。SubagentStopへの一本化はしない。auto modeではSubagentHandbackで報告を渡した後にSubagentStopが動き、止めても続けないため、PreToolUseの方式と状態ファイルは残す。二重にならないよう、SubagentStopは公式ドキュメントにある入力の`permission_mode`が`auto`なら何もしない。
+- 2026-10-23: SubagentStopは、入力の`agent_type`が空なら何もしない（ユーザー同意）。マニュアルモードでは、起動していない内部のエージェント（`agent_type`が空）が終わるたびにSubagentStopが動いて1回止め、毎ターン余計な処理とトークンがかかっていたため。
+- 2026-10-23: SubagentStopで止めたときの文面の最後は、Stopの「該当なし」とだけ出力する指示ではなく、記録が済んだら直前の報告を全文もう一度出力して終了する指示にする（ユーザーの「進めてくれ」の範囲で決めた）。サブエージェントは最後の発言が呼び出し元への報告になるため、マニュアルモードでは報告が「該当なし」に置き換わり、Codexの作業報告が呼び出し元に届かなかったため。
 
 ## Validation and Acceptance
 
 - メインセッションのターンの終わりに、Stopフックが確認対象を提示してターンを1回止める。同じターンの2回目のStopでは何も出力しない
 - サブエージェントが報告を渡す前に、SubagentHandbackへのPreToolUseフックが同じ確認対象を提示して1回拒否し、2回目は状態ファイルを削除して通す
+- auto mode以外のサブエージェントは、SubagentStopで同じ確認対象を提示されて1回止められ、2回目は通る。auto modeのサブエージェントには、SubagentStopでは何も出さない
 - 旧実装（作業記録ログ・記録用フック・照会スクリプト）がリポジトリに残っていない
 - 完了検出フックが、検出時にexit 2でstderrへ出す
 - `.claude/hook-state/`が`git status`に現れない
