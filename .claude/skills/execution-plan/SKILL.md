@@ -28,8 +28,7 @@ description: 実装計画をExecPlan方式で作成・更新・完了処理す�
   - 転記候補は、claude-memの照会結果と、planファイル全体（`Decision Log`以外の注記・再開時の前提等を含む）から洗い出す。候補ごとに転記先、または転記しない理由を決める
   - 複数タスクを跨ぐ横断的な設計判断 → `docs/decisions/`へ個別ファイル化する。そのplan固有の経緯はplanファイルの`Decision Log`に追記する。
   - 今すぐ対応しないが将来問題化しうる設計上の妥協・既知の制約 → `tech-debt-tracker` skillの手順で記録する
-  - 恒久的な振る舞いルール・手順の変更 → `claude-md-maintenance`ルールの置き場所判断に従い、該当する`.claude/skills/*/SKILL.md`または`.claude/rules/*.md`へ反映する
-  - プロジェクト全体・将来のセッションに影響する個人の作業スタイル・経緯等 → memoryとして記録する
+  - 恒久的な振る舞いルール・手順の変更、ユーザーの作業スタイル → `claude-md-maintenance`ルールの置き場所判断に従い、CLAUDE.md・`.claude/rules/*.md`・`.claude/skills/*/SKILL.md`・memoryのうち該当する場所へ反映する
 4. コードの変更が`ARCHITECTURE.md`に影響を与える場合、`ARCHITECTURE.md`を更新する
 5. 完了したplanがtech-debtに関連するものであれば`tech-debt-tracker` skillに従い、tech-debtも更新する
 6. 完了したplanは`.claude/plans/active/`から`.claude/plans/completed/`へ移動する

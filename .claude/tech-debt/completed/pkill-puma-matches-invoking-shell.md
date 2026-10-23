@@ -1,0 +1,13 @@
+# `pkill -f puma`が、同じコマンド行を含む呼び出し元のシェルまで止める
+- **Status:** Resolved
+- **Priority:** Low
+- **Category:** Documentation
+- **Area:** `.claude/skills/bruno-endpoint-verification/SKILL.md`
+- **Detected:** 2026-10-20
+- **Todoist Task ID:** `6hpPHMW23F4VCJrq`
+- **Description:** `bruno-endpoint-verification` skillはPumaの停止に`pkill -f puma`を使う。`-f`はコマンド行全体と照合するため、`puma`という文字列を含むコマンド（例: Pumaを止めたあと同じBash呼び出しで`pgrep`等を続けるコマンド）を実行したシェル自身も対象になる。2026-10-20、`pkill -f puma`を含む一連のコマンドを実行したところ、そのシェルが終了コード144で止まり、後続のコマンドが実行されなかった。`pgrep -f puma`で残りのPumaを確かめる場合も、呼び出し元のシェルが一致して誤って「動いている」と判定される。
+- **Impact:** Pumaの停止や「Pumaが残っていない」ことの確認（`todoist-task-runner`のworktreeの片付けの条件）が、正しく行えない・後続のコマンドが黙って実行されないことがある。
+- **Proposed Resolution:** Pumaのプロセス名（`puma 7.2.0 (unix://...)`）に合う、呼び出し元のシェルに一致しないパターン（例: `pkill -f '^puma '`）に変え、skillの停止・確認の手順を揃える。
+- **Related:** `.claude/plans/active/plan-work-records.md`
+- **Resolution:** skillの停止・確認のコマンドを、先頭で固定した`pkill -f '^puma '`・`pgrep -af '^puma '`に変えた。`puma`を含むコマンド行のシェルから実行しても、Puma本体だけに一致してシェルは止まらず、Solid Queueの子プロセスもPumaと一緒に止まることを確認した。
+- **Resolved:** 2026-10-20
