@@ -57,6 +57,7 @@
   - SubagentStopでは、入力の`permission_mode`が`auto`なら何もしない（auto modeはPreToolUse(SubagentHandback)で確認する）。それ以外は`stop_hook_active`がfalseのとき1回止め、trueなら何もしない。状態ファイルは使わない
   - 実装はCodexへ委譲する。入力JSONによる直接実行と、auto mode・マニュアルモードそれぞれの実セッションで、確認が1回だけ出ることを確かめる
   - 実装し、直接実行とauto mode・マニュアルモードの実セッションで確かめた（検証結果）。マニュアルモードで見つかった内部のエージェントへの過剰な確認と報告の置き換わりも直した（Decision Log）。確認用の一時的な1行は外した
+- [x] Step12: `git-spice-workflow` skillのプルリクエスト作成ルールに、Testing節はplanの`検証結果`・`Progress`とclaude-memの記録を確かめて書くことを足す（ブランチ`docs/pr-testing-from-records`、`chore/record-check-subagentstop`の上に挿入）。比較テストを終えた（検証結果）
 
 ## 検証結果
 
@@ -76,6 +77,8 @@
 - SubagentStopの追加（Step11、マニュアルモード）: テスト用サブエージェントはテキストで報告し、SubagentStop（`permission_mode: "default"`）の1回目で止められ、2回目（`stop_hook_active: true`）で通った。一方、起動していないエージェント（`a0ed69…`・`a21610…`・`a20a118…`）にもSubagentStopが動き、1回止めていた。入力は`agent_type`が空文字、`agent_transcript_path`のファイルは存在せず、`a20a118…`の`last_assistant_message`は「記録を確認して進めて」だった。メインのターンの終わりやサブエージェントの終了の直後に動くClaude Codeの内部のエージェントとみられる（何のエージェントかは確かめていない）
   - 同じくマニュアルモードで、起動したテスト用サブエージェントの`agent_type`は`general-purpose`、内部のエージェントは毎回空文字で、`last_assistant_message`は「それで進めてくれ」「結果が出たら修正まで進めて」等、次のユーザー入力の候補のような文だった。また、止められたサブエージェントの最後の発言が「該当なし」になり、呼び出し元に届く結果が報告ではなく「該当なし」だけになった（テスト用サブエージェントとCodexの委譲で発生）
   - `agent_type`が空なら通し、SubagentStopの文面の最後を報告の再出力にした後（マニュアルモード）: 内部のエージェントにはSubagentStopが1回だけ動き、2回目（`stop_hook_active: true`）が来なかった（止めていない）。Codexの委譲（`agent_type: codex:codex-rescue`）は1回止められ、記録の確認のあと報告の全文を再出力し、呼び出し元に報告が届いた。入力の書き出し用の一時的な1行を外した後、直接実行で、SubagentStopは`general-purpose`・`stop_hook_active: false`のときだけ報告の再出力の文面で止め、`agent_type`が空・`auto`・`stop_hook_active: true`では何も出さず、Stopは従来の文面のままだった
+- PRのTesting節を記録から書く手順（Step12、対象: `git-spice-workflow`）: 「`.claude/hooks/`のスクリプトを1つ変え、コミットメッセージにテストの記述がない未pushのブランチのPRで、Testing節に何を書き、書く前に何をどこで確かめるか」を問い、期待する行動を「planに加えてclaude-memの記録も確かめる」とした。変更前は、`branch.<name>.plan`からplanの`検証結果`を確かめ、記録がなければhookの確認を今行うと答え、claude-memには触れなかった。変更後は、planの`検証結果`・`Progress`に加えてclaude-memをブランチ名・スクリプト名で検索すると答えた。行動が変わったため変更を残す。変更後のテストの前の引用で、Skillツールは追記前の内容を返したため、`touch`してから引用させ直し、追記した行が返ることを確かめた
+  - 当初は「テストの記録が見つからないときは、実行していないと断定せず、記録がない旨を書く」も足していた。変更前も、確かめていないテストは書かないと答えており、変更前になく変更後にある行動ではないため削った。削った文面で変更後のテストを取り直すと、claude-memをブランチ名・スクリプト名・planのslugで検索すると答え、行動は残った。変更前の状態は削る前と同じ（追記なし、同じプロンプト）のため、変更前のテストは取り直していない
 - `--no-restack`: claude-memなし・記録前のworktreeで、変更前は3回中2回が未コミットのまま`git-spice commit create`を使い、変更後は3回とも`--no-restack`でコミットし、作業ツリーがきれいになってから1回restackした
 - SubagentStopの登録を外した件: テスト用のサブエージェントのトランスクリプトで、1回目のSubagentHandbackが拒否され、2回目で通り、状態ファイルが削除され、SubagentStopのフックが実行されないことを確認した
 - Todoistの作成先の移動: 変更前も変更後もインボックスに作ると答え、根拠が`tech-debt-tracker`から`todoist-task-conventions`に変わった
@@ -143,6 +146,7 @@
 - 2026-10-23: auto mode以外のサブエージェントの確認は、SubagentStopで行う（ユーザー同意）。auto mode以外ではSubagentHandbackがなく、サブエージェントはテキストで報告を返して終わるため、今の構成では確認が出ない。SubagentStopで止めても作業を続けなかったのは、SubagentHandbackで報告を渡した後の場合で、SubagentHandbackがなかった頃は`plan-worktree-check.sh`がSubagentStopで止めて続けさせていた。SubagentStopへの一本化はしない。auto modeではSubagentHandbackで報告を渡した後にSubagentStopが動き、止めても続けないため、PreToolUseの方式と状態ファイルは残す。二重にならないよう、SubagentStopは公式ドキュメントにある入力の`permission_mode`が`auto`なら何もしない。
 - 2026-10-23: SubagentStopは、入力の`agent_type`が空なら何もしない（ユーザー同意）。マニュアルモードでは、起動していない内部のエージェント（`agent_type`が空）が終わるたびにSubagentStopが動いて1回止め、毎ターン余計な処理とトークンがかかっていたため。
 - 2026-10-23: SubagentStopで止めたときの文面の最後は、Stopの「該当なし」とだけ出力する指示ではなく、記録が済んだら直前の報告を全文もう一度出力して終了する指示にする（ユーザーの「進めてくれ」の範囲で決めた）。サブエージェントは最後の発言が呼び出し元への報告になるため、マニュアルモードでは報告が「該当なし」に置き換わり、Codexの作業報告が呼び出し元に届かなかったため。
+- 2026-10-23: PRのTesting節は、コミットメッセージに加え、planの`検証結果`・`Progress`とclaude-memの記録を確かめて書く。`git-spice-workflow` skillのプルリクエスト作成ルールに足す（ユーザー指摘）。スタックの48本のPR文案をコミットメッセージだけから書き、planや作業記録にテストの結果があるブランチまで「テストなし」と書いていたため。このplanの作業記録の扱いに関わるので、このplanのStepにする。PR作成の範囲に入れるため、ブランチはスタックの最上段ではなく`chore/record-check-subagentstop`の上に挿入する（ユーザーの「コミットの後、プルリクエストを作って」の範囲で決めた）。
 
 ## Validation and Acceptance
 

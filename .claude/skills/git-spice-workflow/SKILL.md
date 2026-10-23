@@ -47,6 +47,7 @@ git-spice使用。スタック型ブランチ管理。
 - `.github/pull_request_template.md`テンプレート使用
 - すべて英語で作成。日本語は使用しない
 - 親ブランチからの差分・当該ブランチのコミットメッセージ参考
+- Testingセクションは、コミットメッセージに加え、当該ブランチが関わるplanの`検証結果`・`Progress`とclaude-memの記録を確かめ、当該ブランチで実施したテストを書く
 - 該当Issue無→`Related Issues: N/A`
 - 特記事項無→`Notes: No additional information or considerations at this time.`
 - タイトルもコミットメッセージ規約準拠
