@@ -31,10 +31,11 @@
 ## Branches
 
 - docs/plan-branches-section
+- docs/git-spice-insert-no-restack
 
 ## Progress
 
-- [x] Step1: `plans-maintenance`ルールに`## Branches`の用途と保ち方（作成時に足す、改名で書き換え、PRにせず捨てたら外す）を足し、`execution-plan` skillのブランチを切る手順に、`## Branches`へ足すことを入れる。比較テストを行う。ブランチは比較テストの後に`chore/plan-completion-ignore-branch-deletes`の上へ挿入し、このplanファイルも一緒にコミットする。コミット後、作業ツリーがきれいになってから上の段を`git-spice upstack restack`する（2026-10-21時点で`docs/notification-architecture`が`needs restack`）
+- [x] Step1: `plans-maintenance`ルールに`## Branches`の用途と保ち方（作成時に足す、改名で書き換え、PRにせず捨てたら外す）を足し、`execution-plan` skillのブランチを切る手順に、`## Branches`へ足すことを入れる。比較テストを行う。ブランチは比較テストの後に`chore/plan-completion-ignore-branch-deletes`の上へ挿入し、このplanファイルも一緒にコミットする。コミット後、作業ツリーがきれいになってから上の段を`git-spice upstack restack`する。`a717615e`としてコミットした
 - [ ] Step2: 今あるactive plan（`plan-work-records.md`・`todoist-task-runner.md`・`lefthook-debride-scope-change.md`）に`## Branches`を書き足し、Progressをチェックボックスの書式にそろえる
 - [ ] Step3: pre-commit（`.lefthook/pre-commit/check-docs.sh`）に、planを変更するコミットのとき今のブランチがそのplanの`## Branches`にあることの確認を足す。ブランチ名が取れないとき（detached HEAD）は確かめない
 - [ ] Step4: 完了検出フックを「合意した方針」のとおり作り直す。`gh`をスタブに差し替えた一時リポジトリで、Validation and Acceptanceの各場面を確かめる
@@ -44,6 +45,9 @@
 - マージ済みPRの確認のコスト（2026-10-21、このリポジトリ）: `gh pr list --state merged --head <branch>`は1本で約0.6秒、`gh pr list --state merged --limit 200 --json headRefName`は200件で約1.0秒だった
 - mainのコミットから元のPRを引けるか（2026-10-21）: `gh api repos/{owner}/{repo}/commits/<d365244cのSHA>/pulls`で`#692 feat/task-group-share-self-leave base=main`が返った。1コミットあたり約0.5秒
 - Step1の比較テスト（2026-10-21）: planを退避し、「3ステップのplanのStep2用に新しいブランチ`feat/example-step2`を作った。planファイルのどの節に何を書き足すか」を問うと、変更前はProgressのStep2の項目にブランチ名をバッククォート付きで書くと答え（根拠は既存planの書き方と、今の完了検出フックが本文中の`type/name`を拾うこと）、変更後は`Branches`節に`- feat/example-step2`の1行を足すと答えた（根拠は`plans-maintenance`と`execution-plan`）
+- `branch create --insert`でステージが外れる原因（2026-10-21、一時リポジトリ）: 上の段が`needs restack`の状態で、変更ファイル1つと新規ファイル1つをステージし、`git-spice branch create c --insert --no-commit`を実行すると、上の段がrestackされ、変更ファイルはステージが外れ（` M`）、新規ファイルはステージされたまま（`A `）だった。上の段が`needs restack`でないときは、restackが起きず、両方ともステージされたままだった。`--no-restack`も付けると、`needs restack`の状態でも両方ステージされたままで、`commit create`で両方がコミットに入り、その後の`upstack restack`も通った
+- `--insert`時に`--no-restack`を付ける手順（`git-spice-workflow`）の比較テスト: planを退避し、「上の段が`needs restack`の状態で、ステージした変更を、途中に挿入する新しいブランチの1つのコミットにするコマンド」を問うと、変更前は`branch create --insert --no-commit`（`--no-restack`なし）と答え、変更後は`branch create --insert --no-restack --no-commit`、`commit create --no-restack`、作業ツリーがきれいになってから`upstack restack`と答えた（根拠はSKILL.md）
+- ステージが外れる仕組み（2026-10-21、一時リポジトリで`GIT_TRACE`を取得）: `git-spice branch create --insert`は、上の段のrestackで`git rebase --onto <新しい親> --autostash <旧base> <上の段のブランチ>`を実行する。gitの`--autostash`は`git stash create`で作業ツリーとステージを退避し、rebase後に`git stash apply`（`--index`なし）で戻す。`--index`なしのapplyはステージを戻さないため、変更ファイルはステージが外れ、新規ファイルだけがステージされた状態で戻る
 
 ## Decision Log
 
@@ -56,6 +60,7 @@
 - 2026-10-21: planとactive planの一覧は、作業ツリーではなくmainの版から読む（ユーザー同意）。完了は「mainに全部入った」ことで、開いているブランチの版はmainと違いうるため。
 - 2026-10-21: `## Branches`の正しさは、pre-commitで、planを変更するコミットのとき今のブランチが一覧にあるかで確かめる。PRにせず捨てたブランチは一覧から外す（ユーザー同意）。一覧にないブランチは判定の外になり、捨てたブランチが残るといつまでも完了にならないため。
 - 2026-10-21: 今あるactive planは、すべて`## Branches`を書き足す新しいやり方に更新する（ユーザー指示）。
+- 2026-10-21: `git-spice branch create`でスタックの途中に挿入するときは`--no-restack`も付け、上の段のrestackはコミット後に作業ツリーがきれいになってから行う旨を`git-spice-workflow` skillに足す（ユーザー指示）。挿入時に上の段がrestackされると、ステージした変更ファイルのステージが外れ、コミットから漏れるため（Step1のコミットで実際に起きた）。
 
 ## Validation and Acceptance
 
