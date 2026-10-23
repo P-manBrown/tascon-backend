@@ -1,0 +1,11 @@
+# ZedのDev ContainerでpostCreateCommandが自動実行されず、リビルドのたびに手動実行が必要になる
+- **Status:** Open
+- **Priority:** Medium
+- **Category:** Infrastructure
+- **Area:** `.devcontainer/devcontainer.json`（`postCreateCommand`）、`.devcontainer/postCreateCommand.sh`
+- **Detected:** 2026-08-20
+- **Todoist Task ID:** `6hpQvfXPg7VGQx5q`
+- **Description:** ZedでDev Containerを作成・リビルドすると、`devcontainer.json`の`postCreateCommand`（`bash ./.devcontainer/postCreateCommand.sh`）が実行されない。そのため、シェル設定、Gitの`safe.directory`・`core.editor`、`gh stack`拡張と同skillの導入、`lefthook install`、`ruby-lsp`の導入がされないままになる。現在は、リビルドのたびにユーザーが`bash ./.devcontainer/postCreateCommand.sh`を手動で実行して補っている（2026-10-20にユーザーが確認）。
+- **Impact:** 手動実行を忘れると、`gh stack`が使えない、lefthookのpre-commit・pre-pushフックが動かずドキュメント形式チェックやmain保護が効かない等、気付きにくい不具合になる。リビルドのたびに手作業も必要になる。
+- **Proposed Resolution:** Zedでも確実に実行される経路へ、セットアップを移すか補う。候補は、Zedが実行するライフサイクルコマンドがあるかを確かめてそちらへ移す、Dockerイメージやfeatureの段階で済ませられる処理を移す、未セットアップを検知して知らせるチェックを入れる（例: `lefthook`のフック未インストールを検知する）等。どれを採るかは、Zedが実際に実行するコマンドを確かめてから選ぶ。
+- **Related:** —
