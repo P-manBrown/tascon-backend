@@ -1,6 +1,6 @@
 # フィードバック・決定のプロジェクト昇格タイミング
 
-- **Status:** Accepted
+- **Status:** Superseded by [作業中の記録漏れの確認とplan完了時の反映](record-check-and-completion-reflection.md)
 - **Verification Status:** Verified
 - **Date:** 2026-09-05
 - **Related Files:** `.devcontainer/compose.devcontainer.yml`, `.claude/skills/execution-plan/SKILL.md`

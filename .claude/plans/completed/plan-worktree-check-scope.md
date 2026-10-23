@@ -83,6 +83,7 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a4a0c7af5c561dfb8
 - 2026-10-14 判定対象を各planの冒頭（最初の`## `見出しより前の行）に限る。ルールで「冒頭に記録する」と定めており、本文中の例示行で通過しないようにするため。代案の「`.claude/plans`を触った場合のみ検査する」は、planを編集しない作業でも記録が必要なため却下した
 - 2026-10-14 `plans-maintenance`ルールに「worktreeごとに`Worktree: <path>`を1行ずつ書く」旨を明記する。追記方法が決まっていないと1行にカンマ区切りで並べられ、フックの完全一致に当たらなくなるため。新規subagentでの比較で、変更前はカンマ区切りで追記されることを確認した。`todoist-task-runner/SKILL.md`の「`Worktree:`に追記する」も、同じ書き方を誘うため「`Worktree:`行を記録する」に改める
 - 2026-10-18 `plan-worktree-check.sh`の登録先は導入時（`27b23abb`）から`SubagentStop`であり、planやADR等で「Stopフック」と書いていたのは誤りだったため訂正した。ルールが`Worktree:`の記録を求めるのはサブエージェントのworktreeで作業する場合だけで、`SubagentStop`はそれと一致する。`Stop`に変えるとメインセッションが`EnterWorktree`でworktreeに入った場合にも動き、ルールの対象外でブロックが起きるため、登録先は変えない
+- 2026-10-19 このplanを中止とし、completedへ移す（ユーザー判断）。plan-work-records（`chore/retire-plan-worktree-lines`）で、`Worktree:`行の記録と`plan-worktree-check.sh`自体を廃止したため。`Worktree:`行の目的だったclaude-memの照会は、claude-memがworktree内の作業も親リポジトリのprojectとして記録するため、成り立たなかった。このplanのブランチ（`chore/plan-worktree-check-scope`）はスタック中にあり、上段の廃止ブランチとあわせてマージされる
 
 ## Validation and Acceptance
 

@@ -1,6 +1,7 @@
 # planのWorktree行のパス形式
 
-- **Status:** Accepted
+- **Status:** Deprecated
+  - 理由: planの`Worktree:`行自体を廃止したため（claude-memはworktree内の作業も親リポジトリのprojectとして記録し、worktreeのパスで記録を絞り込めないことが判明した）
 - **Verification Status:** Verified
 - **Date:** 2026-10-15
 - **Related Files:** `.claude/rules/plans-maintenance.md`, `.claude/hooks/plan-worktree-check.sh`, `.claude/skills/execution-plan/SKILL.md`
