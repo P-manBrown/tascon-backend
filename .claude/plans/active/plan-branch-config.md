@@ -32,13 +32,6 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
 - Branchesの行の`type/name`形式は検証しない
 - `.claude/plan-completion-state/branches`（ブランチの削除を手がかりにしていた古い版の名残。今の版は読み書きしていない）は消す
 
-## Branches
-
-- docs/plan-branch-config-rules（Step1）
-- chore/plan-branch-config-git-hooks（Step2）
-- chore/plan-branch-multi-plan（Step3）
-- chore/plan-completion-from-config（Step4）
-
 ## Progress
 
 - [x] Step1: `plans-maintenance`ルールと`execution-plan` skillを書き換える（`## Branches`の廃止、ブランチを作ったときのgit設定）。比較テストを行う
@@ -57,7 +50,11 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
   - 例: `feat/notification-model`は`notification-creation:1`と`notification-index:0`、`feat/cable-ticket`は`lefthook-debride-scope-change`と`notification-realtime-delivery:2`、`docs/plan-progress-format`は`plan-branch-list-completion:5`・`plan-work-records`・`todoist-task-runner`
   - 完了検出フックの作り直し、設定のないブランチを検出する新しいフック`.claude/hooks/plan-branch-config-check.sh`（PostToolUse・Bash）、`settings.json`への登録、`gh`をスタブにした一時リポジトリでの直接実行の確認をCodexへ委譲した（未コミット）。完了検出は、対象を今回マージされたブランチのplanに絞らず、mainの版のactive planをすべて判定し、Progressに未チェックがあるplanは`gh`を呼ばずに飛ばす形にした
   - 直接実行・実セッションでの発火・worktreeの間の共有を確かめた（検証結果）。`.claude/plan-completion-state/branches`を消した（gitの管理外）
-- [ ] Step5: Claude関連の段にあるactive planから`## Branches`を消す。機能側のブランチにしかないplanは、そのplanを最後に変更した機能ブランチで消す
+- [x] Step5: Claude関連の段にあるactive planから`## Branches`を消す。機能側のブランチにしかないplanは、そのplanを最後に変更した機能ブランチで消す
+  - `chore/plan-completion-from-config`の上に`docs/drop-plan-branches-sections`を`--insert --no-restack`で作った。`plan`には`plan-branch-config:5`と、書き換える4つのplan（`plan-branch-list-completion`・`plan-work-records`・`rule-and-hook-change-tests`・`todoist-task-runner`）の値を入れた。5つのplanから`## Branches`を消す編集をCodexへ委譲し、削除だけの差分（追加行0、`## Branches`0件）であることを確かめた（未コミット）
+  - 機能側のブランチにしかない11のplan（`notification-*`・`push-*`・`solid-queue-introduction`・`task-due-notification`・`lefthook-debride-scope-change`）は、最後に変更したブランチが11本に分かれている。それぞれで消すか、各planの完了処理の時に消すかをユーザーに相談している
+  - Claude関連の段の5つのplanの削除を`b851394c`としてコミットした。機能側は今消すことになった（Decision Log）。前回の`## Branches`の書き足し（`plan-branch-list-completion`）と同じく、各planを最後に変更した機能ブランチに、1planずつコミットを積む。節の削除はCodexが作ったscratchpadのスクリプトで行う
+  - 11本の機能ブランチ（`build/solid-queue`から`feat/task-due-notification`まで、下の段から順に）で、それぞれのplanの`## Branches`を消してコミットした（削除だけの差分であることと、変更したファイルがそのplanだけであることを、コミットの前に確かめた）。`git-spice upstack restack`はコンフリクトなく終わり、`needs restack`は0件、最上段（`docs/cbm-daemon-recurrence`）のactive planに`## Branches`は残っていない
 
 ## 検証結果
 
@@ -89,6 +86,8 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
   - 別のplanの作業は、できるだけそのplanのブランチで行う。行ったとき、または影響してそのplanを更新したときは、そのplanの値も足す
 - 2026-10-22: 完了検出に、planのファイルを変更した未マージのブランチ（gitの差分）を数える経路は足さない（ユーザー指摘）。ローカルの全ブランチについて差分と、squashマージ済みで残るブランチの`gh`の問い合わせが要り、フックの判定とテストが煩雑になるため。防げるのは「別のplanの値を足し忘れ、そのplanのファイルを変更したブランチが未マージのまま、そのplanが完了処理される」場合だけで、まれで、後でマージしたときに`completed/`へ移したファイルとぶつかって気づける
   - 既知の制約: 別のplanに関わったブランチでそのplanの値を足し忘れると、そのplanは、このブランチが未マージでも完了と判定されうる。足したかは意味の判断が要り、機械的には確かめられない。planのファイルに何も書かなかった場合は、そのplanはその作業を知らないので、どの仕組みでも拾えない
+
+- 2026-10-22: 機能側のブランチにしかないplanの`## Branches`も、今消す（ユーザー指示）。前回の書き足しと同じく、各planを最後に変更した機能ブランチに1planずつコミットを積む
 
 ## Validation and Acceptance
 
