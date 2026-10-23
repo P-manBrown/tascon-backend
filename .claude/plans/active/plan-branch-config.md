@@ -1,0 +1,80 @@
+# planとブランチの対応のgit設定への移行
+
+## Context/Purpose
+
+planの作業ブランチは、planの`## Branches`に書き、pre-commitで「planを変更するコミットのとき、今のブランチが一覧にあるか」を確かめている（`plan-branch-list-completion`）。完了検出フック（`.claude/hooks/plan-completion-check.sh`）は、mainの版のplanの`## Branches`を読んで完了を判定する。この方式では、一覧が抜け漏れなく正しく書かれているかを確かめられない。
+
+- pre-commitの確認は、ステージしたplanだけを対象にする。planを変更しないコミットしかないブランチは、一覧になくても通る。ブランチとplanの対応がplanの中にしかないため、planを変更しないコミットからは、どのplanのブランチかを判定できない
+- 改名したとき、古い名前が一覧に残っても検出しない
+- PRにせず捨てたブランチが一覧に残っても検出しない
+- Stepのブランチに`（StepN）`を書き忘れても検出しない
+
+そこで、planとブランチの対応をgitのブランチ設定（`.git/config`の`branch.<name>.*`）に持たせ、`## Branches`を廃止する。gitはブランチの改名・削除に設定ごと追従するため、改名・削除の書き換え漏れが起きない。書き忘れは、設定のないブランチをClaude Codeのフックで検出する。
+
+## 合意した方針
+
+- planとブランチの対応は、gitのブランチ設定に持つ
+  - `branch.<name>.plan`: planのslug（ファイル名から`.md`を除いたもの。`completed/`へ移っても変わらない）。planに属さないブランチは`none`
+  - `branch.<name>.planStep`: Stepのブランチなら、そのStepの番号N
+  - ブランチを作ったら設定する。改名・削除はgitが設定ごと追従するので、手で直さない
+- planの`## Branches`と、pre-commitの`## Branches`の確認は廃止する
+- 完了検出フックは次のとおり判定する
+  - きっかけは今と同じく、ローカルのmainが前回の記録から早送りで進んだとき
+  - mainの版のactive planごとに、次の両方を満たせば完了とする
+    - `branch.<name>.plan`がそのplanのslugであるローカルブランチのうち、未マージのものが0本。マージ済みかは今の判定のまま（今回mainへ入ったコミットから`gh`で特定したブランチ、またはmainへマージ済みのPRがあり、その最後のコミットがローカルの先端と同じブランチ）
+    - Progressに未チェックの項目（`- [ ]`）が残っていない
+  - 対応表の写し（状態ファイル）は持たない
+  - 完了なら、今と同じく`execution-plan`の完了処理を行うよう、stderrとexit 2で知らせる。`gh`が使えないときは、判定できなかったことを知らせる
+- 設定のないブランチは、Claude Code側のフック（Bashの実行後）で検出する。main以外で`branch.<name>.plan`のないローカルブランチを挙げ、設定するよう知らせる。Stepのブランチなら`planStep`も設定するよう、あわせて知らせる
+- pre-pushのStepの確認は、gitのフックのまま残す。Stepは`branch.<name>.planStep`から引き、pushされるコミットのそのplanのProgressで、そのStepが`- [x]`かを確かめる。`planStep`のないブランチは確かめない
+- Branchesの行の`type/name`形式は検証しない
+- `.claude/plan-completion-state/branches`（ブランチの削除を手がかりにしていた古い版の名残。今の版は読み書きしていない）は消す
+
+## Branches
+
+- docs/plan-branch-config-rules（Step1）
+
+## Progress
+
+- [x] Step1: `plans-maintenance`ルールと`execution-plan` skillを書き換える（`## Branches`の廃止、ブランチを作ったときのgit設定）。比較テストを行う
+  - ブランチを作ったときの設定は、ブランチ作成時に読み込まれる`git-spice-workflow` skillの「ブランチ作成ルール」に書き、`execution-plan`の手順5はそれを参照する形にした。planに属さないブランチ（`none`）は`execution-plan`も`plans-maintenance`も読み込まれない場面で作られるため。3ファイルの編集をCodexへ委譲した
+  - 比較テストを終え（検証結果）、`chore/record-check-no-match-reply`の上に`docs/plan-branch-config-rules`を`--insert --no-restack`で作った。Claude関連の段に積んだ。`## Branches`はStep4までは今の方式（pre-commitの確認）のため残し、このブランチを書き足した。新しい方式の設定（`plan`・`planStep`）も入れた
+  - gitの設定のキーは、最後の部分の大文字と小文字を区別せず、`planStep`は`.git/config`に`planstep`と書かれる。`git config branch.<name>.planStep`では読める。Step2・3でキーを`--get-regexp`等で照合するときは、小文字で照合する
+- [ ] Step2: pre-commitの`## Branches`の確認を外し、pre-pushがStepを`branch.<name>.planStep`から引くように変える。今のpre-commitは`## Branches`に今のブランチがないと止めるため、Step4で`## Branches`を消すより前に行う
+- [ ] Step3: 既存のローカルブランチに設定を入れる（active planの`## Branches`から。どのplanにも載っていないブランチは`none`）。完了検出フックを設定から判定する形に作り直し、設定のないブランチの検出を足す。`.claude/plan-completion-state/branches`を消す。`hooks-authoring`ルールの確認（直接実行・実セッションでの発火）を行う。worktreeの間でブランチ設定が共有されるかもここで確かめる
+- [ ] Step4: Claude関連の段にあるactive planから`## Branches`を消す。機能側のブランチにしかないplanは、そのplanを最後に変更した機能ブランチで消す
+
+## 検証結果
+
+- ブランチ設定の追従（2026-10-22、scratchpadの一時リポジトリ）: `git config branch.feat/a.plan p.md`の後、`git branch -m feat/a feat/b`で`branch.feat/b.plan p.md`に移り、`gs branch rename feat/c`で`branch.feat/c.plan p.md`に移った。`git branch -D feat/c`で設定も消えた
+- Step1の比較テスト（2026-10-22、対象: `git-spice-workflow`・`execution-plan`・`plans-maintenance`）: 「`rule-and-hook-change-tests`のplanにStep4を足し、Step4用の`docs/rule-test-step4`を`--no-commit`で作った。最初のコミットまでに、ブランチを作ったことに関してやることは」を問い、期待する行動を「`branch.<name>.plan`と`planStep`を設定する」とした。変更前はplanの`Branches`に書き足すと答え、変更後は`branch.docs/rule-test-step4.plan`に`rule-and-hook-change-tests`、`planStep`に`4`を設定すると答えた。行動が変わったため変更を残す。どちらもskillはSkillツールで読み込んでいた
+  - 1回目の変更前テストは、stashで変更を退避した直後に起動すると、Skillツールが変更後の`git-spice-workflow`を返し、変更後と同じ答えになった。ディスク上は変更前だった。少し置いてから`rule-tester`にSkillツールでブランチ作成ルールを引用させ、変更前に戻ったことを確かめてからやり直した。変更後のテストの前も、同じ方法で変更後の内容になったことを確かめた。エージェント定義と同じく、skillもファイルの変更から少し遅れて読み込み直されるとみられる（仕組みは確かめていない）
+  - `plans-maintenance`の変更（`Branches`節の削除）は、`rule-tester`では確かめられなかった。新しいplanの節の構成を問うと、変更前のテストで`plans-maintenance`が差し込まれず、節の構成は分からないと答えた。このルールは`.claude/plans/`配下を読んだときに差し込まれるが、`rule-tester`はガードで`.claude/plans/`を読めないため。削除しないと、廃止した`Branches`を書く指示が残り、変更後の手順と食い違うため、変更を残す
+
+## Decision Log
+
+- 2026-10-22: planとブランチの対応を、planの`## Branches`ではなくgitのブランチ設定（`branch.<name>.plan`・`branch.<name>.planStep`）に持たせ、`## Branches`を廃止する（ユーザー提案）。gitはブランチの改名・削除に設定ごと追従し、書き換え・外し忘れが起きないため。gitの知らないキーはgitが読まないだけで、既存のキー（`remote`・`merge`・`description`等）と名前がかぶらなければ影響しない。対応はローカルにしか残らないが、このリポジトリは個人開発で、別の環境へはフォルダごと（`.git`ごと）コピーして移すため、共有の必要はない。cloneで移したときは、設定のないブランチの検出で紐付け直す
+  - これにより、`plan-branch-list-completion`のDecision Logのうち、`## Branches`による完了検出、pre-commitの`## Branches`の確認、`（StepN）`の書き添えに関する決定（2026-10-21）を置き換える
+- 2026-10-22: 完了検出は、そのplanの未マージのローカルブランチが0本で、Progressに未チェックがないことで判定する（ユーザー提案）。マージ後に削除されたブランチは設定も消えるが、終わったブランチなので覚えておく必要がなく、未マージで消えたブランチはPRにせず捨てたものなので数えなくてよい。必要な情報が今ある設定から取れるため、対応表の写しを持たない。単純に「そのplanのブランチが0本」とせず未マージに絞るのは、マージ済みブランチがローカルに残っている間も完了と判定でき、ブランチの削除に依存しないため。Progressの条件を残すのは、Stepのブランチがマージされてから次のStepのブランチを作るまでの間も0本になるため
+  - マージされたブランチは、mainの更新と同じコマンドで削除されて設定が消えていることがある（`git-spice repo sync`等）。そのため対象のplanを今回マージされたブランチから選ばず、mainの版のactive planをすべて判定する。完了したplanは、`completed/`へ移すまで、mainが進むたびに知らされる
+- 2026-10-22: 設定のないブランチの検出と、Stepの書き添えの確認は、Claude Codeのフックで行う（ユーザー指示）。ブランチを登録したかはコミットの中身ではなく、gitの差分に乗らないものをgitのフックで確かめるのは筋が違うため。Stepの書き添えが正しいかは意味の判断が要り機械的には確かめられないため、設定のないブランチを知らせるときに、Stepなら`planStep`も設定するよう思い出させる
+- 2026-10-22: pre-pushのStepの確認は、gitのフックのまま残す（ユーザー同意）。Claude Codeのフックでpushを見分けるには、Bashのコマンドから`git push`・`git-spice`の各submitと省略形を挙げる必要があり、挙げきれず取りこぼすため（完了検出フックのきっかけを絞らない決定と同じ理由）。確かめる対象はpushされるコミットのProgressで、コミットの中身にあたる。gitの設定はどのStepかを引くのに使うだけ
+- 2026-10-22: Branchesの行の`type/name`形式は検証しない（ユーザー同意）。行そのものがなくなり、ブランチ名はgitが持つため
+- 2026-10-22: `plan-branch-list-completion`にStepを足さず、新しいplanにする。`## Branches`の方式を置き換える作業で、置き換えたことをこのplanのDecision Logに残す方が追いやすいため
+
+## Validation and Acceptance
+
+- `plans-maintenance`ルールと`execution-plan` skillの変更は、`claude-md-maintenance`ルールの手順（比較テスト）を満たす
+- pre-commitが`## Branches`を確かめない
+- pre-pushが、pushされるブランチの`planStep`のStepがProgressで未チェックのときに止め、チェック済みのときと`planStep`がないときは通す
+- 完了検出フックが、`gh`をスタブにした一時リポジトリで次のとおり動く
+  - planの全ブランチがマージ済み（ローカルに残っていても）で、Progressに未チェックがない: 完了処理を知らせる（exit 2）
+  - マージ済みのブランチがmainの更新より先に削除された: 完了を正しく判定する
+  - 未マージのブランチが1本でもある: 知らせない
+  - 全ブランチがマージ済みでも、Progressに未チェックがある: 知らせない
+  - 同じ名前で作り直した作業中のブランチがある: 知らせない
+  - `gh`が使えない: 判定できなかったことを知らせる
+- 設定のないブランチの検出が、main以外で`branch.<name>.plan`のないローカルブランチがあれば挙げ、すべて設定済みなら何も出さない
+- 実セッションで、完了検出フックと設定のないブランチの検出が想定した場面に発火する
+- `bash -n`でフックスクリプトの構文エラーがない
+- active planに`## Branches`が残っていない
