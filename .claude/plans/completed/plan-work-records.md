@@ -147,6 +147,7 @@
 - 2026-10-23: SubagentStopは、入力の`agent_type`が空なら何もしない（ユーザー同意）。マニュアルモードでは、起動していない内部のエージェント（`agent_type`が空）が終わるたびにSubagentStopが動いて1回止め、毎ターン余計な処理とトークンがかかっていたため。
 - 2026-10-23: SubagentStopで止めたときの文面の最後は、Stopの「該当なし」とだけ出力する指示ではなく、記録が済んだら直前の報告を全文もう一度出力して終了する指示にする（ユーザーの「進めてくれ」の範囲で決めた）。サブエージェントは最後の発言が呼び出し元への報告になるため、マニュアルモードでは報告が「該当なし」に置き換わり、Codexの作業報告が呼び出し元に届かなかったため。
 - 2026-10-23: PRのTesting節は、コミットメッセージに加え、planの`検証結果`・`Progress`とclaude-memの記録を確かめて書く。`git-spice-workflow` skillのプルリクエスト作成ルールに足す（ユーザー指摘）。スタックの48本のPR文案をコミットメッセージだけから書き、planや作業記録にテストの結果があるブランチまで「テストなし」と書いていたため。このplanの作業記録の扱いに関わるので、このplanのStepにする。PR作成の範囲に入れるため、ブランチはスタックの最上段ではなく`chore/record-check-subagentstop`の上に挿入する（ユーザーの「コミットの後、プルリクエストを作って」の範囲で決めた）。
+- 2026-10-23: 完了処理で、Step10・11の決定（状態ファイルの置き場所と片付け、auto mode以外のサブエージェントのSubagentStopでの確認）を`docs/decisions/record-check-and-completion-reflection.md`のDecisionとConsidered Optionsへ足した。比較テストの条件に関する決定（2026-10-20〜21）は、`rule-and-hook-change-tests`の決定とあわせて`docs/decisions/`へ転記する。ほかの決定は、対応するskill・ruleへ反映済みか、このplanに固有の経緯のため転記しない
 
 ## Validation and Acceptance
 
