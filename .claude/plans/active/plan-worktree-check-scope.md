@@ -12,7 +12,7 @@ Worktree: /home/ruby/tascon-backend/.claude/worktrees/agent-a4a0c7af5c561dfb8
 
 ### 作業環境の注意（実行して確認済み）
 
-- このworktreeのBashツールでは、素の`git`がrtkにより`rtk git`へ書き換えられ、worktree分離ガードに拒否される。ブランチ作成・コミットは`git-spice`、それ以外（add/status/diff/log/branch一覧等）は`/usr/bin/git`をフルパスで使う。`ctx_execute`経由のgitは使わない
+- worktree内のBashツールでも素の`git`を使える（rtk feature 1.0.2以降。2026-10-14にdevcontainerをリビルドして確認）。ただし`git -C .`のように`-C`に相対パスを渡すと、worktree分離ガードに拒否される
 - コマンド文字列に`git`を含むパイプ・サブシェル等の複合コマンドは「複雑すぎて検証できない」としてガードに拒否される。複合的な検証はスクリプトファイルに書いて`bash <file>`で実行する
 - フックや`bash <file>`で実行するスクリプト内の`git`はrtkに書き換えられない（スクリプト内で`type git`が`/usr/bin/git`を返すことを確認）
 
