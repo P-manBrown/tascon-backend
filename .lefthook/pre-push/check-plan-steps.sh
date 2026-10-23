@@ -7,24 +7,22 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   [[ "$local_ref" == refs/heads/* ]] || continue
   [[ "$local_sha" =~ ^0+$ ]] && continue
   branch="${local_ref#refs/heads/}"
-  while IFS= read -r file; do
-    [[ "$file" == .claude/plans/active/*.md ]] || continue
-    [[ "${file#.claude/plans/active/}" == */* ]] && continue
-    content=$(git show "$local_sha:$file")
-    while IFS= read -r entry; do
-      entry=$(sed 's/^- //; s/`//g; s/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$entry")
-      [[ "$entry" =~ ^(.*)（(Step[0-9]+)）$ ]] || continue
-      entry_branch="${BASH_REMATCH[1]}"
-      step="${BASH_REMATCH[2]}"
-      entry_branch=$(sed 's/[[:space:]]*$//' <<< "$entry_branch")
-      [ "$entry_branch" = "$branch" ] || continue
-      progress=$(sed -n '/^## Progress$/,/^## /{ /^## Progress$/d; /^## /d; p; }' <<< "$content")
-      if ! grep -q "^- \[x\] $step: " <<< "$progress"; then
-        echo "ERROR: $file lists $branch as $step, but $step is not checked in its Progress"
-        status=1
-      fi
-    done < <(sed -n '/^## Branches$/,/^## /{ /^## Branches$/d; /^## /d; /^- /p; }' <<< "$content")
-  done < <(git ls-tree --name-only "$local_sha" .claude/plans/active/)
+  step=$(git config --get "branch.$branch.planStep" || true)
+  plan=$(git config --get "branch.$branch.plan" || true)
+  [ -z "$step" ] && continue
+  [ -z "$plan" ] && continue
+  [ "$plan" = "none" ] && continue
+  file=".claude/plans/active/$plan.md"
+  if ! content=$(git show "$local_sha:$file" 2>/dev/null); then
+    echo "ERROR: $branch is set to plan $plan Step$step, but $file does not exist in the pushed commit"
+    status=1
+    continue
+  fi
+  progress=$(sed -n '/^## Progress$/,/^## /{ /^## Progress$/d; /^## /d; p; }' <<< "$content")
+  if ! grep -q "^- \[x\] Step$step: " <<< "$progress"; then
+    echo "ERROR: $file: $branch is set to Step$step, but Step$step is not checked in its Progress"
+    status=1
+  fi
 done
 
 exit "$status"

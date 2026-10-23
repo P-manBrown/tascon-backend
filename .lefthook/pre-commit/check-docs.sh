@@ -108,18 +108,6 @@ while IFS= read -r -d '' file; do
   is_kebab_case_md "$base" || fail "$file does not match naming convention <kebab-case-slug>.md"
 done < <(find .claude/plans -maxdepth 2 -mindepth 2 -name '*.md' -print0 2>/dev/null)
 
-# --- plans: current branch listed in Branches ---
-branch=$(git branch --show-current)
-if [ -n "$branch" ]; then
-  while IFS= read -r file; do
-    [[ "${file#.claude/plans/active/}" == */* ]] && continue
-    branches=$(git show ":$file" | sed -n '/^## Branches$/,/^## /{ /^## Branches$/d; /^## /d; /^- /{ s/^- //; s/[[:space:]]*（[^）]*）[[:space:]]*$//; s/^[[:space:]`]*//; s/[[:space:]`]*$//; p; }; }')
-    if ! grep -Fxq -- "$branch" <<< "$branches"; then
-      fail "$file does not list the current branch $branch in its ## Branches section"
-    fi
-  done < <(git diff --cached --name-only --diff-filter=ACMR -- '.claude/plans/active/*.md')
-fi
-
 # --- plans: Progress checkbox format ---
 while IFS= read -r file; do
   [[ "${file#.claude/plans/active/}" == */* ]] && continue
