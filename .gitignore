@@ -33,3 +33,4 @@
 
 # Claude Code
 /.claude/settings.local.json
+/.claude/plan-completion-state/

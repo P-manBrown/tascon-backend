@@ -24,6 +24,15 @@
             "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/rubocop-on-edit.sh\""
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/plan-completion-check.sh\""
+          }
+        ]
       }
     ]
   },
