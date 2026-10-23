@@ -1,0 +1,11 @@
+# context-modeプラグインのhooks.jsonがnodeの絶対パスをハードコードし、コンテナ再ビルドのたびに全hookが失敗する
+- **Status:** Open
+- **Priority:** Medium
+- **Category:** Infrastructure
+- **Area:** `/usr/local/share/claude-code-config/claude/plugins/cache/context-mode/context-mode/<version>/hooks/hooks.json`、`.devcontainer/devcontainer.json`、`.devcontainer/postCreateCommand.sh`
+- **Detected:** 2026-08-28
+- **Todoist Task ID:** `6hP55G5x8pxphFPq`
+- **Description:** context-modeプラグインの`hooks/hooks.json`は、全hook（PreToolUse・PostToolUse・PreCompact・SessionStart・UserPromptSubmit・Stop）のcommandで`/usr/local/share/nvm/versions/node/vX.Y.Z/bin/node`という絶対パスを直接呼び出している。Dev Containerは`ghcr.io/devcontainers/features/node:1`をバージョン指定なしで使うため、再ビルドのたびにNodeのパッチバージョンが上がり、旧バージョンのディレクトリが消える。これまでv24.20.0→v24.21.0、v24.21.0→v24.22.0で発生し、いずれも`hooks.json`内のバージョンを手作業でsed置換して復旧した。
+- **Impact:** 再ビルド後、`Stop hook error: Failed with non-blocking status code: /bin/sh: 1: /usr/local/share/nvm/versions/node/vX.Y.Z/bin/node: not found`が出る。エラーは非ブロッキングなので気付きにくいが、その間はcontext-modeの全hook（セッション記録・ツールルーティング・コンテキスト保護の注入等）が動いていない。毎回の手作業での復旧も必要になる。
+- **Proposed Resolution:** 次のいずれかで、Nodeのバージョンに依存しない状態にする。(1) `postCreateCommand.sh`で、`hooks.json`内のnodeパスを現在の`command -v node`に書き換える処理を追加する。(2) context-mode側の`/ctx-upgrade`（hooksの正規化処理）を再ビルド後に自動実行する。(3) Dev Containerのnode featureでバージョンを固定する（ただし更新は手動になる）。プラグイン更新でcacheディレクトリのバージョンが変わる点も考慮して選ぶ。
+- **Related:** —
