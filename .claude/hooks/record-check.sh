@@ -20,26 +20,16 @@ if [ "$hook_event_name" = "PreToolUse" ]; then
     exit 0
   fi
   if [ -f "$state_dir/$agent_id" ]; then
+    rm "$state_dir/$agent_id"
     exit 0
   fi
-elif [ "$hook_event_name" = "SubagentStop" ] || [ "$hook_event_name" = "Stop" ]; then
+elif [ "$hook_event_name" = "Stop" ]; then
   stop_hook_active=$(echo "$input" | jq -r '.stop_hook_active // false')
   if [ "$stop_hook_active" = "true" ]; then
     exit 0
   fi
 else
   exit 0
-fi
-
-agent_type=$(echo "$input" | jq -r '.agent_type // empty')
-if [ "$hook_event_name" = "SubagentStop" ]; then
-  if [ -z "$agent_type" ]; then
-    exit 0
-  fi
-  if [ -f "$state_dir/$agent_id" ]; then
-    rm "$state_dir/$agent_id"
-    exit 0
-  fi
 fi
 
 reason='作業を終える前に、このターン（サブエージェントは今回の作業）で次の記録が必要な事柄が生じていないか、各ルール・skillの定めに沿って確認し、未記録のものはすべて今記録する。
