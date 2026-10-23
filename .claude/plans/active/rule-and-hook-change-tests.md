@@ -31,6 +31,12 @@ hookについては、`hooks-authoring`ルールに設計上の注意しかな�
       - detach中に、lefthookやClaude Codeのフック（`plan-completion-check.sh`等）が想定外の動きをしないかも、このときに確かめて検証結果に書く
     - Step2の取り直しと、手順の変更の比較テストを終えた（検証結果）。ブランチは、ガードのフックを含むため`chore/rule-test-isolation`にした
     - 結果を検証結果に書いてから、`docs/hook-change-tests`の上に`chore/rule-test-isolation`を`--insert --no-restack`で作り、`rule-tester.md`・`claude-md-maintenance.md`・このplanをコミットする
+- [x] Step4: `rule-tester`のガードに、`.claude/plans/rule-test-fixture.md`の1ファイルだけReadを通す例外を足す。`claude-md-maintenance`の比較テストの手順に、`rule-tester`でルールの差し込みやskillの呼び出しの場面を作れないときは、ダミーのファイル等で場面を作ってテストし、テストしないまま変更を残さないことを足す。ガードの確認（直接実行・実セッション）と、手順の追記の比較テストを行う。先に、`rule-tester`がダミーplanをReadしたときに`plans-maintenance`が差し込まれることを確かめる
+  - ガードの例外の編集と直接実行の確認をCodexへ委譲した（未コミット、ブランチは`docs/drop-plan-branches-sections`の上に作る予定）
+  - 直接実行を確かめた（検証結果）。scratchpadではなく`.claude/plans/rule-test-fixture.md`に中身のないダミーplan（`# テスト用plan`と空の`## Context/Purpose`）を置き（未追跡）、`rule-tester`にReadさせると、定義の本文の「`.claude/plans/`配下のファイルは読まない」に従ってReadを呼ばず、差し込みを確かめられなかった。定義の本文に、プロンプトで指示されたときだけ`rule-test-fixture.md`を読む例外を足す必要がある。Codexへの委譲はauto modeの判定で拒否されたため、ユーザーに判断を仰いでいる
+  - ユーザーが定義の書き換えを許可し、Codexへ委譲した。ダミーplanはテストの時だけ作り、終わったら消す（常設しない、ユーザー確認）
+  - 定義の書き換えの後、ダミーplanのReadで`plans-maintenance`が差し込まれることを確かめた（検証結果）。`claude-md-maintenance`の手順1の下に、場面を作れないときはダミーのファイル等で作る旨の追記をCodexへ委譲した（未コミット）
+  - 追記の比較テストを終えた（検証結果）。ダミーplanは消した。`docs/drop-plan-branches-sections`の上に`chore/rule-test-fixture`を作り、ガード・`rule-tester`の定義・`claude-md-maintenance`・このplan、`plan-branch-config`のDecision Log・Step6の追記をコミットする
 
 ## 検証結果
 
@@ -54,6 +60,11 @@ hookについては、`hooks-authoring`ルールに設計上の注意しかな�
 - Step2の取り直しの変更前（2026-10-22、やり直し）: `6ae6215a^`へdetachし、作業ツリーに今の`rule-tester`の定義とガードを置き、指示文を答えさせて今の定義で動くことを確かめてから、Step2と同じプロンプトで問うた。rulesを含む範囲のGlobはガードに3回拒否され、skillはSkillツールで呼び出し、`hooks-authoring`・`code-comments`は差し込みで受け取っていた。回答はブランチ作成・ステージ・コミットの手順だけで、スクリプトを直接実行して確かめることも、実セッションでの発火の確認も挙げなかった。detachの前後で、lefthookやClaude Codeのフックから余計な出力はなかった
 - Step2の取り直しの変更後（2026-10-22）: `docs/hook-change-tests`へ戻し、ガードと定義以外の未コミット変更を退避して同じプロンプトで問うと、差し込まれた`hooks-authoring`の「作成・変更時の確認」を根拠に、発火すべき入力（書き換えた条件の両側を含む）の直接実行、`stop_hook_active: true`等の発火すべきでない入力で何も出ないこと、`settings.json`に登録した実セッションでの発火を、コミット前に必須の確認として挙げた。変更前にはどれもなかったため、Step2の変更は行動を変えている
 - 手順3・4の追記（定義とガードを置き、指示文で確かめる）の比較テスト（2026-10-22、対象: `claude-md-maintenance.md`）: 手順2〜5のテストと同じプロンプトで、期待する行動を「detachの後、起動前に定義とガードを置いて今の定義を確かめる」とした。変更前は、退避で定義とガードが作業ツリーから消え、古い定義で動くおそれを懸念として挙げただけで、手順にはしなかった。変更後は`git restore --source=<元のブランチ> --worktree`で2つを置き、指示文を答えさせて確かめてから起動し、戻る前に2つを戻すと答えた。行動が変わったため変更を残す。変更後の`rule-tester`は、定義とガードが未コミットのときは`--source`で取り出せず、手順2の退避でも消えると指摘した。これは`rule-tester`自体を変えている間だけ起きることで、このplanのマージ後は定義とガードがコミット済みになるため、手順は変えない
+- ガードの例外の直接実行（2026-10-22、Codexの確認とClaudeの再実行）: `.claude/plans/rule-test-fixture.md`のRead（絶対パス・相対パス・`active/../`経由）は何も出さず、`.claude/plans/active/plan-branch-config.md`・`rule-test-fixture.mdX`のRead、`rule-test-fixture.md`や`.claude/plans`を起点にしたGrep・Glob、`rule-test-fixture.md/../active/plan-branch-config.md`のRead、`.claude/rules/controllers.md`のReadは拒否のJSONを出した。`app/models/user.rb`のReadは何も出さなかった。`bash -n`を通った
+- ダミーplanでの差し込み（2026-10-22、定義の書き換えの後）: `rule-tester`に定義の`.claude/plans/`の箇条を引用させると新しい文言（`rule-test-fixture.md`の例外つき）で、`.claude/plans/rule-test-fixture.md`をReadさせると、直後に`plans-maintenance.md`（と`gitkeep.md`・`.claude/CLAUDE.md`）が差し込まれた。`.claude/plans/active/plan-branch-config.md`は定義に従って読まなかった
+- Step4の手順の追記の比較テスト（2026-10-22、対象: `claude-md-maintenance.md`）: 「`.claude/rules/plans-maintenance.md`（`paths`は`.claude/plans/**/*.md`だけ）に、planのProgressの書き方について1行足した。コミットまでに何をするか」を問い、期待する行動を「`.claude/plans/rule-test-fixture.md`にダミーのplanを置き、それを読ませるプロンプトでテストする」とした。変更前は、`rule-tester`は`.claude/plans/`を読めずルールが差し込まれないため差が出ないとし、テストの組み方をユーザーと決める必要があると答えた。変更後は、手順1の付記を根拠に、退避の後にダミーplanを置き、プロンプトでそれを読ませ、テストの後に消すと答えた。行動が変わったため変更を残す
+  - 変更前・変更後とも、`rule-tester`の定義とガードは書き換える前の版（コミット済み）で取った。新しい定義には「`rule-test-fixture.md`は読んでよい」とあり、1回目の変更前テストで新しい定義を残すと、変更前なのに定義からダミーplanの方法を読み取って答えたため。本番で手順を読むのはメインのエージェントで、`rule-tester`の定義は持っていない。定義の切り替えのたびに、指示文を引用させて今の版で動いていることを確かめた。stashで戻した直後は読み込み直されず、`touch`で更新時刻を変えると読み込み直された
+  - 定義を確かめるための`rule-tester`の起動が2回、auto modeの判定で拒否された。2回目はユーザーの許可を得て起動した
 
 ## Decision Log
 
@@ -73,6 +84,7 @@ hookについては、`hooks-authoring`ルールに設計上の注意しかな�
 - 2026-10-22: 比較テストの変更前の状態は、未コミットの変更をすべて退避し、メインのcheckoutをテスト対象の変更の最初のコミットの1つ前（すべて未コミットならHEAD）へdetachして作る（ユーザー同意）。サブエージェントのgitStatusは起動時の状態が入るため、変更前のコミットへ移れば、コミット済みの変更や記録が漏れない。worktreeは使わない（`paths`で差し込まれるルールはメインのcheckoutのファイルのため、2026-10-20の決定のまま）
 - 2026-10-22: `rule-tester`のガードのフックは、スクリプトを実行できないとき（detach先にスクリプトがない等）はexit 2でRead・Grep・Globを止める。止めないと、ガードが外れたまま比較テストが進み、気づけないため
 - 2026-10-22: detachで変更前の状態を作るときは、`rule-tester`を起動する前に、元のブランチの`rule-tester`の定義とガードのスクリプトを作業ツリーへ置き、指示文を答えさせて今の定義で動いていることを確かめる。定義はファイルの変更から遅れて読み込み直され、detach先の古い定義（ガードなし）で動くことがあるため
+- 2026-10-22: `rule-tester`でルールの差し込みやskillの呼び出しの場面を作れないときも、テストしないまま変更を残さず、ダミーのファイル等で場面を作ってテストする（ユーザー指摘）。`plan-branch-config`で、`paths`が`.claude/plans/**/*.md`だけの`plans-maintenance`は、ガードが`.claude/plans/`のReadを止めるため差し込まれず、比較テストができないまま変更を残していた。そのため、ガードに`.claude/plans/rule-test-fixture.md`の1ファイルだけReadを通す例外を足し、テストの時だけそこに中身のないダミーplanを置く（ユーザー同意）。ダミーには過去の決定が入らないので、ガードで防いでいる結果の汚れは起きない。gitでは管理せず、テストの後に消す
 
 ## Validation and Acceptance
 
@@ -80,3 +92,5 @@ hookについては、`hooks-authoring`ルールに設計上の注意しかな�
 - `hooks-authoring`ルールに、hookを変更したときの確認が書かれている
 - 両方の変更で`claude-md-maintenance`ルールの比較テストを行い、結果を検証結果に記録している
 - 比較テストの手順と`rule-tester`の定義が、Decision Logの比較テストに混ぜるものの区分を満たす
+- `rule-tester`のガードが、`.claude/plans/rule-test-fixture.md`のReadだけを通し、それ以外の`.claude/plans/`のRead・検索は今までどおり止める。`rule-tester`がそのファイルをReadすると`plans-maintenance`が差し込まれる
+- 比較テストの手順に、場面を作れないときはダミーのファイル等で作ってテストすることが書かれ、比較テストで行動の変化を確かめている

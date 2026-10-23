@@ -32,6 +32,7 @@ paths:
 - `.claude/skills/`配下のファイル
 
 1. 変更後に期待する行動を1点決め、それを引き出す具体的プロンプトを1つ書き出す。プロンプトは、本番でそのルール・skillが読み込まれる場面（関係するファイルの編集、該当する作業の依頼等）にし、ルール・skillの名前や手順の有無を直接問わない
+   - 手順1の場面を`rule-tester`で作れないとき（`paths`が`rule-tester`の読めない場所だけを指すルール等）は、ダミーのファイル等で場面を作る。`.claude/plans/`配下を`paths`に持つルールは、`.claude/plans/rule-test-fixture.md`に中身のないダミーのplanを置き、プロンプトでそれを読むよう指示する。ダミーはテストの後に消す。場面を作れないまま変更を残さない
 2. テスト対象のファイル以外の未コミット変更を`git stash push -u -- . ':(exclude)<テスト対象のファイル>'`で退避し、続けてテスト対象の未コミット変更を`git stash push -u -- <テスト対象のファイル>`で退避する。`git stash push`が`No local changes to save`で何も退避しなかったときは、対応する`git stash pop`をしない。手順5まで戻さず、退避中は他の作業をしない
 3. テスト対象の変更、またはその変更の意図を書いた記録（plan等）をコミット済みなら、それらを最初に含むコミットの1つ前へ`git switch --detach <コミット>^`で移る。移ったら、最初に`rule-tester`を起動する前に、`git restore --source=<元のブランチ> --worktree -- .claude/agents/rule-tester.md .claude/hooks/rule-tester-guard.sh`で今の`rule-tester`の定義とガードを作業ツリーへ置き、`rule-tester`に定義の指示文を答えさせて、今の定義で動いていることを確かめる。Agentツールで`rule-tester`を`isolation`なしで起動して、そのプロンプトのみを与える（変更前の挙動）。`isolation: "worktree"`は使わない
 4. 手順3で移ったなら、置いた2つのファイルを`git restore --worktree -- <ファイル>`で戻す（移った先にないファイルは削除する）。そのうえで`git switch -`で元のブランチへ戻る。手順2でテスト対象の変更を退避したなら`git stash pop`で戻す。同じプロンプトで`rule-tester`を起動する（変更後の挙動）

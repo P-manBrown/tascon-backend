@@ -25,6 +25,10 @@ fi
 path=$(realpath -m -- "$path") || exit 0
 root=$(realpath -m -- "$root") || exit 0
 
+if [[ "$tool_name" = Read && "$path" = "$root/.claude/plans/rule-test-fixture.md" ]]; then
+  exit 0
+fi
+
 for directory in rules skills plans memory; do
   forbidden="$root/.claude/$directory"
   if [[ "$path" = "$forbidden" || "$path" = "$forbidden/"* ]] ||
