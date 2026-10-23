@@ -23,18 +23,28 @@ if [ ! -d "$plans_dir" ]; then
   exit 0
 fi
 
-missing=()
+has_plans=false
 for f in "$plans_dir"/*.md; do
   [ -e "$f" ] || continue
-  if ! grep -qF "Worktree: ${cwd}" "$f"; then
-    missing+=("$f")
+  has_plans=true
+  if WORKTREE_CWD="$cwd" awk '
+    /^## / { exit }
+    {
+      sub(/[[:space:]]+$/, "")
+      if ($0 == "Worktree: " ENVIRON["WORKTREE_CWD"]) {
+        found = 1
+        exit
+      }
+    }
+    END { exit !found }
+  ' "$f"; then
+    exit 0
   fi
 done
 
-if [ "${#missing[@]}" -gt 0 ]; then
-  echo "以下のplanファイルに現在のworktree絶対パスと一致する'Worktree: ${cwd}'行がありません。plans-maintenanceルールに従い記載してください:" >&2
-  printf '%s\n' "${missing[@]}" >&2
-  exit 2
+if [ "$has_plans" = "false" ]; then
+  exit 0
 fi
 
-exit 0
+echo "${plans_dir}のどのplanにも、最初の'## '見出しより前に'Worktree: ${cwd}'行がありません。このworktreeでplanの作業をしている場合は、plans-maintenanceルールに従い作業中のplanの冒頭に'Worktree: ${cwd}'を1行で追記してください。planの作業をしていない場合（レビュー・調査等）は対応不要です。無関係なplanには追記しないでください。" >&2
+exit 2

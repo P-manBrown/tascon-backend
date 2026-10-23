@@ -21,7 +21,8 @@ Todoistをタスクキューとして、execution-plan単位の実装〜ロー�
 2. `Agent`ツールで`isolation: "worktree"`を指定し新規サブエージェントへ委任する。手順1で取得した指示内容（description・既存コメント）を基に適切なpromptを作成して渡す
    - promptには積む先のブランチを明記する。未マージスタックの最上段を指定し、`main`は指定しない（`git-spice-workflow`のブランチ作成ルール参照）
 3. サブエージェントは以下を参考に作業を自律的に行う（ユーザーの何らかのアクションが必要になった場合、「処理を停止する場合」の内容に従うこと）
-   - planが作成されていない場合、`execution-plan` skillでplanを作成する。`plans-maintenance`ルールに従いplanファイルの`Worktree:`に追記する
+   - planが作成されていない場合、`execution-plan` skillでplanを作成する
+   - 作成・再開のいずれでも、`plans-maintenance`ルールに従い作業するplanファイルへ`Worktree:`行を記録する
    - planが変更された場合や決定事項があった場合、planを編集する
    - **新規にexecution-planを作成した場合、実装着手前に`execution-plan`の計画作成手順(ユーザーへ提示・承認)に従い、「処理を停止する場合」の手順でユーザーの同意を得る。**判断に迷ったかどうかによらない強制トリガーであり、「自明に見える」という自己判断で省略しない。既存planの更新・再開時は対象外
    - `execution-plan`に従い連続実行する。Git操作は`git-spice-workflow` skillに従う

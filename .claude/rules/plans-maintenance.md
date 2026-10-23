@@ -13,7 +13,7 @@ planファイルは`Context/Purpose`、`Progress`、`Decision Log`、`Validation
 
 - ファイル名は内容が分かる英語kebab-case（`<slug>.md`）にする
 - 内容は日本語で記述する
-- サブエージェントのworktree内で作成・更新する場合、そのworktreeの絶対パス（`Worktree:`）を冒頭に記録する。以後そのworktreeが変わった場合（再委任等）は追記する
+- サブエージェントのworktreeでそのplanの作業を行う場合、そのworktreeの絶対パスを`Worktree: <path>`の形で冒頭（最初の`## `見出しより前）に記録する。planファイル自体を編集しない場合も記録する。作業するworktreeが変わった場合（再委任等）は、既存の行を残したまま`Worktree: <path>`を新しい行として追加する（1行に複数のパスを並べない）
 
 ## 各セクションの用途
 
