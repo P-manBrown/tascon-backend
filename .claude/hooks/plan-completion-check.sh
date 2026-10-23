@@ -35,6 +35,8 @@ printf '%s\n' "$current_main" >"$main_file"
 merged_plans=""
 if [ "$previous_main" != "$current_main" ] && git -C "$cwd" merge-base --is-ancestor "$previous_main" "$current_main" 2>/dev/null; then
   merged_plans=$(git -C "$cwd" diff --name-only "$previous_main" "$current_main" -- .claude/plans/active | grep '\.md$')
+else
+  deleted=""
 fi
 
 if [ -z "$deleted" ] && [ -z "$merged_plans" ]; then
@@ -77,7 +79,7 @@ done
 
 [ -n "$messages" ] || exit 0
 
-context="mainへのマージまたはローカルブランチの削除を検出した。影響を受けたactive plan:"$'\n'"${messages}完了処理の候補があれば、ユーザーへの完了報告の前にexecution-plan skillの完了処理を行うか、ユーザーに確認すること。"
+context="mainへのマージを検出した。影響を受けたactive plan:"$'\n'"${messages}完了処理の候補があれば、ユーザーへの完了報告の前にexecution-plan skillの完了処理を行うか、ユーザーに確認すること。"
 
 printf '%s\n' "$context" >&2
 exit 2
