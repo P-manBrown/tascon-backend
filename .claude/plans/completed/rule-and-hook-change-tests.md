@@ -85,6 +85,7 @@ hookについては、`hooks-authoring`ルールに設計上の注意しかな�
 - 2026-10-22: `rule-tester`のガードのフックは、スクリプトを実行できないとき（detach先にスクリプトがない等）はexit 2でRead・Grep・Globを止める。止めないと、ガードが外れたまま比較テストが進み、気づけないため
 - 2026-10-22: detachで変更前の状態を作るときは、`rule-tester`を起動する前に、元のブランチの`rule-tester`の定義とガードのスクリプトを作業ツリーへ置き、指示文を答えさせて今の定義で動いていることを確かめる。定義はファイルの変更から遅れて読み込み直され、detach先の古い定義（ガードなし）で動くことがあるため
 - 2026-10-22: `rule-tester`でルールの差し込みやskillの呼び出しの場面を作れないときも、テストしないまま変更を残さず、ダミーのファイル等で場面を作ってテストする（ユーザー指摘）。`plan-branch-config`で、`paths`が`.claude/plans/**/*.md`だけの`plans-maintenance`は、ガードが`.claude/plans/`のReadを止めるため差し込まれず、比較テストができないまま変更を残していた。そのため、ガードに`.claude/plans/rule-test-fixture.md`の1ファイルだけReadを通す例外を足し、テストの時だけそこに中身のないダミーplanを置く（ユーザー同意）。ダミーには過去の決定が入らないので、ガードで防いでいる結果の汚れは起きない。gitでは管理せず、テストの後に消す
+- 2026-10-23: 完了処理で、比較テストの条件とhookのテストの方法を`docs/decisions/rule-and-hook-change-tests.md`にまとめた。`plan-work-records`の比較テストに関する決定（`rule-tester`・stash・gitStatus、2026-10-20〜22）もあわせて入れた。Step1の見出しの扱い、ブランチの分け方等はこのplanに固有の経緯のため転記しない
 
 ## Validation and Acceptance
 
