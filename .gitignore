@@ -32,6 +32,5 @@
 .env*.local
 
 # Claude Code
-/.claude/record-check-state/
+/.claude/hook-state/
 /.claude/settings.local.json
-/.claude/plan-completion-state/
