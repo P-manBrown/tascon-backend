@@ -64,6 +64,8 @@ planの`Validation and Acceptance`は、今は`execution-plan` skillの完了処
   - `plan-completion-check.sh`: 通知文が「execution-plan skillの完了処理を行うこと。」で、「Validation and Acceptanceの確認から」は残っていない（grep）。`bash -n`が通る。満たす
   - 比較テストと直接実行の記録: 上のT1〜T5と直接実行の記録がある。直接実行は判定時に再実行し、同じ結果だった。満たす
   - 実セッションでの発火: 「マージ後に判定」のため判定しない
+- 完了処理の手順1の判定（2026-10-24、main上）: 「マージ後に判定」の1項目を満たす
+  - 実セッションでの発火: #751を`gh pr merge`でマージし`git-spice repo sync --restack=aboves`を実行した直後、PostToolUseの`plan-completion-check.sh`が「mainへのマージを検出した。」に続けてこのplanだけを挙げ、「execution-plan skillの完了処理を行うこと。」と知らせた。満たす
 - 未確認: 実セッションでの新しい通知文での発火は、mainへのマージ後でないと起きないため、コミット前には確かめていない（Validation and Acceptanceに「マージ後に判定」として置いた）
 
 ## Decision Log
