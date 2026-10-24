@@ -95,6 +95,7 @@ planの作業ブランチは、planの`## Branches`に書き、pre-commitで「p
 
 - 2026-10-22: 機能側のブランチにしかないplanの`## Branches`も、今消す（ユーザー指示）。前回の書き足しと同じく、各planを最後に変更した機能ブランチに1planずつコミットを積む
 - 2026-10-22: `rule-tester`で確かめられなかった`plans-maintenance`の変更（Step1の`Branches`節の削除、Step3の「ブランチとの対応」節）は、テストしないまま残さず、何らかの方法でテストする（ユーザー指摘）。同じ状況になったときも、テストできないまま残さず、テストする方法を作る。方法は、`rule-tester`のガードに`.claude/plans/rule-test-fixture.md`の1ファイルだけ読める例外を足し、テストの時だけそこに中身のないダミーplanを置いて`plans-maintenance`を差し込ませる形にする（ユーザー同意）。ガードの例外と、比較テストの手順への追記は`rule-and-hook-change-tests`のStep4で行い、このplanのStep6でテストする
+- 2026-10-23: 完了処理で、planとブランチの対応・Stepの確認・完了検出の方式を`docs/decisions/plan-branch-mapping-in-git-config.md`にまとめた。値の足し忘れによる誤った完了判定（既知の制約）は、対処しないと決めたため（2026-10-22）tech-debtにせず、decisionのConsequencesに書いた。マージをバックグラウンドで行うと完了の通知が後のツール呼び出しまで出ないことも、49本のPRのマージで分かったため書き足した
 
 ## Validation and Acceptance
 
