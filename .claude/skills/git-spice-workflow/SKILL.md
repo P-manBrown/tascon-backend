@@ -45,10 +45,11 @@ git-spice使用。スタック型ブランチ管理。
 
 ## プルリクエスト作成ルール
 
+- PRを作る前に、`execution-plan` skillの「最後のPR作成前の判定」の対象かを確かめ、対象なら判定を済ませる
 - `.github/pull_request_template.md`テンプレート使用
 - すべて英語で作成。日本語は使用しない
 - 親ブランチからの差分・当該ブランチのコミットメッセージ参考
-- Testingセクションは、コミットメッセージに加え、当該ブランチが関わるplanの`検証結果`・`Progress`とclaude-memの記録を確かめ、当該ブランチで実施したテストを書く
+- Testingセクションは、コミットメッセージに加え、当該ブランチが関わるplanの`検証結果`・`Progress`とclaude-memの記録を確かめ、当該ブランチで実施したテストを書く。planの`Validation and Acceptance`の判定の結果は書かない
 - 該当Issue無→`Related Issues: N/A`
 - 特記事項無→`Notes: No additional information or considerations at this time.`
 - タイトルもコミットメッセージ規約準拠
@@ -64,6 +65,10 @@ git-spice使用。スタック型ブランチ管理。
 
 - mainへのマージはsquash mergeのみ。マージ後、headブランチは自動削除され、1つ上のPRのマージ先はGitHubがmainへ付け替える
 - 作業ツリーがクリーンで、スタックの全ブランチのローカルとリモートが一致していること。未コミットの変更がある場合は、push前に`git stash push -u`で退避し、push後に戻す
+- マージを始める前に、マージする範囲の全ブランチについて、`branch.<name>.plan`の値ごとに、planが`.claude/plans/active/`にあれば次を確かめる。1つでも満たさなければマージを始めない
+  - マージする範囲に、同じplanの値を持ち、先端でplanの`Progress`に未チェックがないブランチがある
+  - そのブランチの先端の`検証結果`に、`execution-plan` skillの「最後のPR作成前の判定」で全項目を満たした記録がある
+  - 判定の後に、同じplanのブランチへ変更が加わっていない。加わっていれば、マージ前に判定し直す
 
 ### 1本ごとの手順
 

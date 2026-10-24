@@ -103,5 +103,5 @@ done < <(git ls-tree -r --name-only "$main_ref" .claude/plans/active/)
 [ -n "$messages" ] || exit 0
 printf '%s\n' 'mainへのマージを検出した。次のplanは、planのブランチ（branch.<name>.plan）がすべてmainへマージ済みで、Progressに未チェックがない:' >&2
 printf '%s' "$messages" >&2
-printf '%s\n' 'execution-plan skillの完了処理（Validation and Acceptanceの確認から）を行うこと。' >&2
+printf '%s\n' 'execution-plan skillの完了処理を行うこと。' >&2
 exit 2
