@@ -17,7 +17,7 @@ description: 実装計画をExecPlan方式で作成・更新・完了処理す�
 
 ## 完了処理
 
-完了処理は、そのplanに関わる全ブランチ(git-spiceスタック全体)がmainへマージ完了した時点で行う。
+完了処理は、そのplanに関わる全ブランチ(git-spiceスタック全体)がmainへマージ完了した時点で行う。完了処理の変更は、`git-spice-workflow` skillに従って完了処理用に挿入したブランチでコミットする。
 
 1. `Validation and Acceptance`の各項目を1件ずつ判定する
   - main上で再実行できる機械的な確認は再実行する。再実行しない項目は、根拠にした記録の箇所を控える
