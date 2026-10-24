@@ -11,3 +11,4 @@
 - [ルール・skill・hookを変更したときのテストの方法](rule-and-hook-change-tests.md)
 - [planとブランチの対応をgitのブランチ設定に持つ](plan-branch-mapping-in-git-config.md)
 - [planの完了処理のブランチをPR作成済みのブランチの直上に挿入する](plan-completion-branch-placement.md)
+- [planの受け入れ判定を最後のPR作成前に行い、マージ前に確かめる](plan-validation-before-pr.md)
