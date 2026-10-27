@@ -70,7 +70,7 @@ RSpec.describe "Registrations" do
       end
 
       it "sends a confirmation email" do
-        expect(ActionMailer::Base.deliveries.count).to eq(1)
+        expect(ActionMailer::Base.deliveries.count { |mail| mail.to == [params[:email]] }).to eq(1)
       end
 
       it "sets the redirect URL in the confirmation email" do
