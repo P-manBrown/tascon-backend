@@ -7,6 +7,7 @@ RSpec.describe "Passwords" do
     let(:params) do
       new_password = "updated #{user.password}"
       {
+        current_password: user.password,
         password: new_password,
         password_confirmation: new_password
       }
@@ -45,6 +46,7 @@ RSpec.describe "Passwords" do
     context "when password and password_confirmation do not match" do
       let(:params) do
         {
+          current_password: user.password,
           password: "updated #{user.password}",
           password_confirmation: "wrong_confirmation"
         }
