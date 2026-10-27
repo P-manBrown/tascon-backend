@@ -45,8 +45,8 @@ RSpec.describe "Sessions" do
       delete "/api/v1/auth/sign_out", headers:
     end
 
-    it "returns an ok response" do
-      expect(response).to have_http_status(:ok)
+    it "returns a no_content response" do
+      expect(response).to have_http_status(:no_content)
     end
 
     it "invalidates the user tokens" do

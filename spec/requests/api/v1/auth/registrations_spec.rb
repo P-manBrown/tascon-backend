@@ -11,8 +11,8 @@ RSpec.describe "Registrations" do
         post "/api/v1/auth", headers: origin_header, params:
       end
 
-      it "returns an ok response" do
-        expect(response).to have_http_status(:ok)
+      it "returns a created response" do
+        expect(response).to have_http_status(:created)
       end
 
       it "sends a confirmation email" do
@@ -164,8 +164,8 @@ RSpec.describe "Registrations" do
         delete "/api/v1/auth", headers:
       end
 
-      it "returns an ok response" do
-        expect(response).to have_http_status(:ok)
+      it "returns a no_content response" do
+        expect(response).to have_http_status(:no_content)
       end
 
       it "deletes the user" do

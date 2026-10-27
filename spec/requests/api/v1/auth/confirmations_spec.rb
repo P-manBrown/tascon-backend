@@ -13,8 +13,8 @@ RSpec.describe "Confirmations" do
         post "/api/v1/auth/confirmation", headers: origin_header, params:
       end
 
-      it "returns an ok response" do
-        expect(response).to have_http_status(:ok)
+      it "returns a no_content response" do
+        expect(response).to have_http_status(:no_content)
       end
 
       it "re-sends a confirmatin email" do

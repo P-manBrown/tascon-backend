@@ -80,8 +80,8 @@ RSpec.describe "Passwords" do
         post "/api/v1/auth/password", headers: origin_header, params:
       end
 
-      it "returns an ok response" do
-        expect(response).to have_http_status(:ok)
+      it "returns a no_content response" do
+        expect(response).to have_http_status(:no_content)
       end
 
       it "stores a value in reset_password_token" do
