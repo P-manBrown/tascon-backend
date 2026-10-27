@@ -109,7 +109,7 @@ RSpec.describe "Registrations" do
       end
 
       before do
-        patch "/api/v1/auth", headers: origin_header, params:
+        patch "/api/v1/auth", headers:, params:
       end
 
       it "returns an unprocessable_entity response" do
