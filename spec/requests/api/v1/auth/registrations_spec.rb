@@ -8,7 +8,7 @@ RSpec.describe "Registrations" do
       end
 
       before do
-        post "/api/v1/auth", params:
+        post "/api/v1/auth", headers: origin_header, params:
       end
 
       it "returns an ok response" do
@@ -26,7 +26,7 @@ RSpec.describe "Registrations" do
       end
 
       before do
-        post "/api/v1/auth", params:
+        post "/api/v1/auth", headers: origin_header, params:
       end
 
       it "returns an unprocessable_entity response" do
@@ -41,7 +41,7 @@ RSpec.describe "Registrations" do
 
   describe "PATCH /api/v1/auth" do
     let(:user) { create(:user, :with_confirmed_at) }
-    let(:headers) { user.create_new_auth_token }
+    let(:headers) { user.create_new_auth_token.merge(origin_header) }
     let(:params) do
       {
         name: "updated #{user.name}",
@@ -82,7 +82,7 @@ RSpec.describe "Registrations" do
 
     context "when the user is not authenticated" do
       before do
-        patch "/api/v1/auth", params:
+        patch "/api/v1/auth", headers: origin_header, params:
       end
 
       it "returns a not_found response" do
@@ -109,7 +109,7 @@ RSpec.describe "Registrations" do
       end
 
       before do
-        patch "/api/v1/auth", params:
+        patch "/api/v1/auth", headers: origin_header, params:
       end
 
       it "returns an unprocessable_entity response" do
@@ -157,7 +157,7 @@ RSpec.describe "Registrations" do
 
   describe "DELETE /api/v1/auth" do
     let(:user) { create(:user, :with_confirmed_at) }
-    let(:headers) { user.create_new_auth_token }
+    let(:headers) { user.create_new_auth_token.merge(origin_header) }
 
     context "when the user is authenticated" do
       before do
@@ -175,7 +175,7 @@ RSpec.describe "Registrations" do
 
     context "when the user is not authenticated" do
       before do
-        delete "/api/v1/auth"
+        delete "/api/v1/auth", headers: origin_header
       end
 
       it "returns a not_found response" do

@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Passwords" do
   describe "PATCH /auth/password" do
     let(:user) { create(:user) }
-    let(:headers) { user.create_new_auth_token }
+    let(:headers) { user.create_new_auth_token.merge(origin_header) }
     let(:params) do
       new_password = "updated #{user.password}"
       {
@@ -29,7 +29,7 @@ RSpec.describe "Passwords" do
 
     context "when the user is not authenticated" do
       before do
-        patch "/api/v1/auth/password", params:
+        patch "/api/v1/auth/password", headers: origin_header, params:
       end
 
       it "returns an unauthorized response" do
@@ -77,7 +77,7 @@ RSpec.describe "Passwords" do
       end
 
       before do
-        post "/api/v1/auth/password", params:
+        post "/api/v1/auth/password", headers: origin_header, params:
       end
 
       it "returns an ok response" do
@@ -103,7 +103,7 @@ RSpec.describe "Passwords" do
       end
 
       before do
-        post "/api/v1/auth/password", params:
+        post "/api/v1/auth/password", headers: origin_header, params:
       end
 
       it "returns an unprocessable_entity response" do

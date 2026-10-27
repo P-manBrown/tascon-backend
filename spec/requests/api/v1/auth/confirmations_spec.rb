@@ -10,7 +10,7 @@ RSpec.describe "Confirmations" do
       end
 
       before do
-        post "/api/v1/auth/confirmation", params:
+        post "/api/v1/auth/confirmation", headers: origin_header, params:
       end
 
       it "returns an ok response" do
@@ -28,7 +28,7 @@ RSpec.describe "Confirmations" do
       end
 
       before do
-        post "/api/v1/auth/confirmation", params:
+        post "/api/v1/auth/confirmation", headers: origin_header, params:
       end
 
       it "returns an unprocessable_entity response" do
