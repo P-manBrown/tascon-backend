@@ -1,0 +1,11 @@
+# ユーザーAPIを検証するリクエストspecがない
+- **Status:** Open
+- **Priority:** Medium
+- **Category:** Test
+- **Area:** `app/controllers/api/v1/users_controller.rb`、`spec/requests/api/v1/users_spec.rb`（削除済み）
+- **Detected:** 2026-10-27
+- **Todoist Task ID:** `6hr7xJXr64RmjChq`
+- **Description:** `spec/requests/api/v1/users_spec.rb`は、`rails generate controller`が生成した雛形のままだった。`GET /api/v1/users/index`・`/show`・`/search`へ認証なしでリクエストして2xxを期待していたが、これらは`id`が`index`等の`users#show`へのリクエストとして扱われ、認証を求められて常に401で失敗していた（ユーザー検索機能は#420で削除済み）。直すにはspecを新しく書く必要があるため、`bin/bundle exec rspec`を通す作業（ブランチ`test/fix-broken-specs`）でファイルごと削除した。そのため、ユーザー詳細（`GET /api/v1/users/:id`）と候補ユーザー一覧（`GET /api/v1/users/suggestions`）を検証するテストは1つもない。
+- **Impact:** ユーザー詳細に含める連絡先・ブロック・候補ユーザーの情報や、候補ユーザー一覧のページングを壊しても、テストで気付けない。
+- **Proposed Resolution:** 認証ヘッダを付けたリクエストspecを`spec/requests/api/v1/users_spec.rb`として書き、ユーザー詳細・候補ユーザー一覧の正常系と、未認証・存在しないユーザーへのリクエストの拒否を検証する。
+- **Related:** Gas Cityのbead `tb-67x`（`bin/bundle exec rspec`を通す作業）
