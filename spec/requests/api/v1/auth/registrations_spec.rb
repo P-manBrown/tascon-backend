@@ -4,7 +4,7 @@ RSpec.describe "Registrations" do
   describe "POST /api/v1/auth" do
     context "when the redirect URL is whitelisted" do
       let(:params) do
-        attributes_for(:user, confirm_success_url: ENV.fetch("FRONTEND_ORIGIN"))
+        attributes_for(:user, confirm_success_url: "#{ENV.fetch('FRONTEND_ORIGIN')}/")
       end
 
       before do
@@ -46,7 +46,7 @@ RSpec.describe "Registrations" do
       {
         name: "updated #{user.name}",
         email: "updated.#{user.email}",
-        confirm_success_url: ENV.fetch("FRONTEND_ORIGIN")
+        confirm_success_url: "#{ENV.fetch('FRONTEND_ORIGIN')}/"
       }
     end
 

@@ -6,7 +6,7 @@ RSpec.describe "Confirmations" do
 
     context "when the redirect URL is whitelisted" do
       let(:params) do
-        { email: user.email, redirect_url: ENV.fetch("FRONTEND_ORIGIN") }
+        { email: user.email, redirect_url: "#{ENV.fetch('FRONTEND_ORIGIN')}/" }
       end
 
       before do

@@ -72,7 +72,7 @@ RSpec.describe "Passwords" do
       let(:params) do
         {
           email: user.email,
-          redirect_url: ENV.fetch("FRONTEND_ORIGIN")
+          redirect_url: "#{ENV.fetch('FRONTEND_ORIGIN')}/"
         }
       end
 
@@ -121,7 +121,7 @@ RSpec.describe "Passwords" do
     let(:reset_password_url) do
       path = "/api/v1/auth/password/edit"
       token = user.send_reset_password_instructions
-      url = ENV.fetch("FRONTEND_ORIGIN")
+      url = "#{ENV.fetch('FRONTEND_ORIGIN')}/"
       "#{path}?reset_password_token=#{token}&redirect_url=#{url}"
     end
 
