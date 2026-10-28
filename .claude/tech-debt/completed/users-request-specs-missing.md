@@ -1,5 +1,5 @@
 # ユーザーAPIを検証するリクエストspecがない
-- **Status:** Open
+- **Status:** Resolved
 - **Priority:** Medium
 - **Category:** Test
 - **Area:** `app/controllers/api/v1/users_controller.rb`、`spec/requests/api/v1/users_spec.rb`（削除済み）
@@ -9,3 +9,5 @@
 - **Impact:** ユーザー詳細に含める連絡先・ブロック・候補ユーザーの情報や、候補ユーザー一覧のページングを壊しても、テストで気付けない。
 - **Proposed Resolution:** 認証ヘッダを付けたリクエストspecを`spec/requests/api/v1/users_spec.rb`として書き、ユーザー詳細・候補ユーザー一覧の正常系と、未認証・存在しないユーザーへのリクエストの拒否を検証する。
 - **Related:** Gas Cityのbead `tb-67x`（`bin/bundle exec rspec`を通す作業）
+- **Resolution:** `spec/requests/api/v1/users_spec.rb`を追加し、ユーザー詳細（連絡先・ブロック・候補ユーザーの情報）と候補ユーザー一覧（候補の絞り込み・ページング）の正常系と、未認証・存在しないユーザーへのリクエストの拒否を検証するようにした。
+- **Resolved:** 2026-10-28
