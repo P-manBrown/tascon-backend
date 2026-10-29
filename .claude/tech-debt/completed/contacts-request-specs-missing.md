@@ -1,5 +1,5 @@
 # 連絡先APIを検証するリクエストspecがない
-- **Status:** Open
+- **Status:** Resolved
 - **Priority:** Medium
 - **Category:** Test
 - **Area:** `app/controllers/api/v1/contacts_controller.rb`、`spec/requests/api/v1/contacts_spec.rb`（削除済み）
@@ -9,3 +9,5 @@
 - **Impact:** 連絡先登録の分岐（候補ユーザー以外をIDだけで登録しようとするとメールアドレスを求める、IDとメールアドレスの食い違い・非公開ユーザー・自分をブロックしているユーザーは登録を拒否する、自分自身・自分がブロックしているユーザー・登録済みのユーザーはバリデーションで拒否する）や、本人以外の連絡先の一覧・登録・更新・削除の拒否を壊しても、テストで気付けない。
 - **Proposed Resolution:** 認証ヘッダと`origin_header`を付けたリクエストspecを`spec/requests/api/v1/contacts_spec.rb`として書き、各アクションの正常系と、上記の分岐・権限・バリデーションによる拒否を検証する。
 - **Related:** Gas Cityのbead `tb-67x`（`bin/bundle exec rspec`を通す作業）
+- **Resolution:** `spec/requests/api/v1/contacts_spec.rb`を追加し、連絡先の一覧・登録・更新・削除の正常系と、登録時の分岐（メールアドレスの要求、IDとメールアドレスの食い違い・非公開ユーザー・自分をブロックしているユーザーの拒否）、バリデーションによる拒否（自分自身・自分がブロックしているユーザー・登録済みのユーザー）、本人以外の連絡先へのリクエストと未認証のリクエストの拒否を検証するようにした。
+- **Resolved:** 2026-10-29
