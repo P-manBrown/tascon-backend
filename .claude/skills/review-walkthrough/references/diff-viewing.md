@@ -8,7 +8,7 @@
 - 親ブランチの確かめ方（公式機能）: `git-spice log short`で現在のスタックを表示し、対象ブランチの1段下を親とする。追跡中の全ブランチは`git-spice log short --all`で表示する
 - 親ブランチとのdiff（公式機能）: `git-spice branch diff`で現在のブランチ、`git-spice branch diff --branch <ブランチ>`で指定したブランチと親の差分を表示する。`git diff <親>...<ブランチ>`と同じ範囲になる
 - 変更ファイルの一覧（公式機能）: `git diff --stat <親>...<ブランチ>`
-- git-spiceで追跡していないブランチ（スクリプト）: PRがあれば`gh pr view <PR番号> --json baseRefName`でPRのbaseを確かめ、`git diff <base>...<ブランチ>`で見る。PRも無ければ`git diff main...<ブランチ>`で`main`とのmerge-baseからの差分を見る
+- git-spiceで追跡していないブランチ（スクリプト）: PRがあれば`gh pr view <PR番号> --json baseRefName`でPRのbaseを確かめ、`git diff <base>...<ブランチ>`で見る。PRも無ければ`git diff main...<ブランチ>`で`main`とのmerge-baseからの差分を見る。`<base>`はローカルのrefを指すため、ローカルの`<base>`が古い可能性がある、またはリモートにしか無いときは、`git fetch origin <base>`してから`origin/<base>`を使う
 
 ## Claude Code CLIの`/diff`
 
