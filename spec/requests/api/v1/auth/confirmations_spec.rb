@@ -6,15 +6,15 @@ RSpec.describe "Confirmations" do
 
     context "when the redirect URL is whitelisted" do
       let(:params) do
-        { email: user.email, redirect_url: ENV.fetch("FRONTEND_ORIGIN") }
+        { email: user.email, redirect_url: "#{ENV.fetch('FRONTEND_ORIGIN')}/" }
       end
 
       before do
-        post "/api/v1/auth/confirmation", params:
+        post "/api/v1/auth/confirmation", headers: origin_header, params:
       end
 
-      it "returns an ok response" do
-        expect(response).to have_http_status(:ok)
+      it "returns a no_content response" do
+        expect(response).to have_http_status(:no_content)
       end
 
       it "re-sends a confirmatin email" do
@@ -28,7 +28,7 @@ RSpec.describe "Confirmations" do
       end
 
       before do
-        post "/api/v1/auth/confirmation", params:
+        post "/api/v1/auth/confirmation", headers: origin_header, params:
       end
 
       it "returns an unprocessable_entity response" do

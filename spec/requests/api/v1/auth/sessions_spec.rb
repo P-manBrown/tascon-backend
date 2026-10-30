@@ -8,7 +8,7 @@ RSpec.describe "Sessions" do
       let(:user) { create(:user, :with_confirmed_at) }
 
       before do
-        post "/api/v1/auth/sign_in", params:
+        post "/api/v1/auth/sign_in", headers: origin_header, params:
       end
 
       it "returns an ok response" do
@@ -24,7 +24,7 @@ RSpec.describe "Sessions" do
       let(:user) { create(:user) }
 
       before do
-        post "/api/v1/auth/sign_in", params:
+        post "/api/v1/auth/sign_in", headers: origin_header, params:
       end
 
       it "returns an unauthorized response" do
@@ -39,14 +39,14 @@ RSpec.describe "Sessions" do
 
   describe "DELETE /api/v1/auth/sign_out" do
     let(:user) { create(:user, :with_confirmed_at) }
-    let(:headers) { user.create_new_auth_token }
+    let(:headers) { user.create_new_auth_token.merge(origin_header) }
 
     before do
       delete "/api/v1/auth/sign_out", headers:
     end
 
-    it "returns an ok response" do
-      expect(response).to have_http_status(:ok)
+    it "returns a no_content response" do
+      expect(response).to have_http_status(:no_content)
     end
 
     it "invalidates the user tokens" do

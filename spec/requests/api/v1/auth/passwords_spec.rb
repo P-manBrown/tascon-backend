@@ -3,10 +3,11 @@ require "rails_helper"
 RSpec.describe "Passwords" do
   describe "PATCH /auth/password" do
     let(:user) { create(:user) }
-    let(:headers) { user.create_new_auth_token }
+    let(:headers) { user.create_new_auth_token.merge(origin_header) }
     let(:params) do
       new_password = "updated #{user.password}"
       {
+        current_password: user.password,
         password: new_password,
         password_confirmation: new_password
       }
@@ -29,7 +30,7 @@ RSpec.describe "Passwords" do
 
     context "when the user is not authenticated" do
       before do
-        patch "/api/v1/auth/password", params:
+        patch "/api/v1/auth/password", headers: origin_header, params:
       end
 
       it "returns an unauthorized response" do
@@ -45,6 +46,7 @@ RSpec.describe "Passwords" do
     context "when password and password_confirmation do not match" do
       let(:params) do
         {
+          current_password: user.password,
           password: "updated #{user.password}",
           password_confirmation: "wrong_confirmation"
         }
@@ -72,16 +74,16 @@ RSpec.describe "Passwords" do
       let(:params) do
         {
           email: user.email,
-          redirect_url: ENV.fetch("FRONTEND_ORIGIN")
+          redirect_url: "#{ENV.fetch('FRONTEND_ORIGIN')}/"
         }
       end
 
       before do
-        post "/api/v1/auth/password", params:
+        post "/api/v1/auth/password", headers: origin_header, params:
       end
 
-      it "returns an ok response" do
-        expect(response).to have_http_status(:ok)
+      it "returns a no_content response" do
+        expect(response).to have_http_status(:no_content)
       end
 
       it "stores a value in reset_password_token" do
@@ -103,7 +105,7 @@ RSpec.describe "Passwords" do
       end
 
       before do
-        post "/api/v1/auth/password", params:
+        post "/api/v1/auth/password", headers: origin_header, params:
       end
 
       it "returns an unprocessable_entity response" do
@@ -121,7 +123,7 @@ RSpec.describe "Passwords" do
     let(:reset_password_url) do
       path = "/api/v1/auth/password/edit"
       token = user.send_reset_password_instructions
-      url = ENV.fetch("FRONTEND_ORIGIN")
+      url = "#{ENV.fetch('FRONTEND_ORIGIN')}/"
       "#{path}?reset_password_token=#{token}&redirect_url=#{url}"
     end
 
