@@ -29,9 +29,24 @@ sudo git config --system --add safe.directory "${repo_root:-${PWD}}"
 git config --local core.editor 'zed --wait'
 
 echo 'Setting up GitHub CLI...'
+# ~/.config/gh is a named volume; Docker creates its mount point owned by root.
+sudo chown -R "$(whoami)" "${HOME}/.config/gh"
 gh config set editor 'zed --wait'
-gh extension install github/gh-stack --force
-gh skill install github/gh-stack gh-stack --agent claude-code --scope project --force
+# Let git use the gh login for GitHub (what gh auth setup-git writes, without
+# requiring a login first), so a new clone works without extra setup.
+for host in github.com gist.github.com; do
+	git config --global "credential.https://${host}.helper" ''
+	git config --global --add "credential.https://${host}.helper" '!gh auth git-credential'
+done
+if gh auth status > /dev/null 2>&1; then
+	gh extension install github/gh-stack --force
+	gh skill install github/gh-stack gh-stack --agent claude-code --scope project --force
+else
+	echo 'Skipped installing the gh stack extension and skill: GitHub CLI is not logged in.'
+	echo 'Log in with "gh auth login --with-token < <token file>", then run:'
+	echo '  gh extension install github/gh-stack --force'
+	echo '  gh skill install github/gh-stack gh-stack --agent claude-code --scope project --force'
+fi
 
 echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install

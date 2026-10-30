@@ -2,9 +2,8 @@ services:
   api:
     volumes:
       - shell-log:/home/${API_USER_NAME}/shell_log
+      - gh-config:/home/${API_USER_NAME}/.config/gh
     command: bash -c 'while sleep 1000; do :; done'
-    env_file:
-      - ./.devcontainer/environment/gh-token.env
     environment:
       CLAUDE_MEM_WORKER_HOST: '0.0.0.0'
       CLAUDE_MEM_WORKER_PORT: '37700'
@@ -15,3 +14,4 @@ services:
       - '127.0.0.1:${CLAUDE_MEM_UI_PORT:-37700}:37700'
 volumes:
   shell-log:
+  gh-config:
