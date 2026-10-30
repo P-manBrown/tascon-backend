@@ -34,3 +34,4 @@
 # Claude Code
 /.claude/hook-state/
 /.claude/settings.local.json
+/.claude/reviews/
