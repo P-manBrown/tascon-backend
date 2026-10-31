@@ -13,7 +13,8 @@ development:
 
 test:
   <<: *default
-  database: <%= ENV.fetch("MYSQL_TEST_DATABASE") %>
+  database: <%= ENV.fetch("MYSQL_TEST_DATABASE") %><%= ENV["TEST_ENV_NUMBER"] %>
+  seeds: false
 
 # production:
 #   <<: *default
