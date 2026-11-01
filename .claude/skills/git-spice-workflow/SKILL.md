@@ -58,6 +58,12 @@ git-spice使用。スタック型ブランチ管理。
 - **Changesセクション: 実装プロセスでなく最終状態記述。** 時系列的開発経緯 禁止。マージ後mainブランチへ最終的にもたらされる技術的構成要素（追加API・コンポーネント・スキーマ変更等）を、存在理由添えて列挙
 - 記述内容に対象ブランチ以外の変更が含まれていないか確認する
 
+## mainへの追従
+
+- スタックを最新の`main`の上に載せ直すときは、作業ツリーがクリーンな状態で、`git-spice repo sync`でローカルの`main`を更新し、`git-spice stack restack --branch <スタック内のブランチ>`でそのスタックだけをrestackする。`git-spice repo restack`は他のスタックもrestackするので使わない
+- 別のworktreeでcheckoutされているブランチは、restackされずに警告が出てスキップされる。そのworktreeに未コミットの変更が無いことを確かめ、そのworktreeの中で`git-spice branch restack`する
+- pushは、スタック内のブランチをcheckoutした状態で`git-spice stack submit --update-only`で行い、PRの無いブランチにPRを作らない
+
 ## スタックPRのマージ
 
 ### 前提
