@@ -1,0 +1,11 @@
+# skillのSKILL.md以外のファイルだけを変えた変更を、比較テストで試せない
+- **Status:** Open
+- **Priority:** Medium
+- **Category:** Test
+- **Area:** `.claude/rules/claude-md-maintenance.md`（必須手順）、`.claude/agents/rule-tester.md`、`.claude/hooks/rule-tester-guard.sh`
+- **Detected:** 2026-11-01
+- **Todoist Task ID:** 未発行
+- **Description:** `claude-md-maintenance`ルールは、`.claude/skills/`配下のファイルを1行でも変えたら`rule-tester`での比較テストを求める。しかし`rule-tester`は、`rule-tester-guard.sh`で`.claude/skills/`配下のRead・Grep・Globを拒否され、Bashも持たないため、skillについてはSkillツールが返すSKILL.mdの本文と`Base directory`しか見られない。SKILL.md以外のファイル（`gh-stack`の`references/`の文書や、skillに置くスクリプト等）は、本番では使う時点でReadやBashでディスクから読まれるが、`rule-tester`はそれらを読めない。2026-11-01に、Claude Code 2.1.316で一時的なskillをSkillツールで呼び出し、出力がSKILL.mdの本文と`Base directory`だけであることと、`rule-tester-guard.sh`が`.claude/skills`配下を拒否する判定とで確認した。
+- **Impact:** SKILL.md以外のファイルだけを変えた変更は、変更前後で`rule-tester`の答えが変わらず、必須の比較テストで効果を確かめられない。効果のある変更でもノイズと判定されて取り消されるか、比較テストを経ずにコミットされる。
+- **Proposed Resolution:** テスト対象のskillに限って`Base directory`配下のファイルを`rule-tester`が読めるようにする（ガードに例外を設ける等）か、SKILL.md以外のファイルの変更に合ったテスト方法をルールに定める。どちらにするかは、変更前の版の置き方（必須手順3のdetach）との兼ね合いを含めて決める。
+- **Related:** PR #766（https://github.com/P-manBrown/tascon-backend/pull/766）、`.claude/rules/claude-md-maintenance.md`
