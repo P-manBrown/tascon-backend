@@ -1,5 +1,5 @@
 # context-modeプラグインのhooks.jsonがnodeの絶対パスをハードコードし、コンテナ再ビルドのたびに全hookが失敗する
-- **Status:** Open
+- **Status:** Resolved
 - **Priority:** Medium
 - **Category:** Infrastructure
 - **Area:** `/usr/local/share/claude-code-config/claude/plugins/cache/context-mode/context-mode/<version>/hooks/hooks.json`、`.devcontainer/devcontainer.json`、`.devcontainer/postCreateCommand.sh`
@@ -9,3 +9,5 @@
 - **Impact:** 再ビルド後、`Stop hook error: Failed with non-blocking status code: /bin/sh: 1: /usr/local/share/nvm/versions/node/vX.Y.Z/bin/node: not found`が出る。エラーは非ブロッキングなので気付きにくいが、その間はcontext-modeの全hook（セッション記録・ツールルーティング・コンテキスト保護の注入等）が動いていない。毎回の手作業での復旧も必要になる。
 - **Proposed Resolution:** 次のいずれかで、Nodeのバージョンに依存しない状態にする。(1) `postCreateCommand.sh`で、`hooks.json`内のnodeパスを現在の`command -v node`に書き換える処理を追加する。(2) context-mode側の`/ctx-upgrade`（hooksの正規化処理）を再ビルド後に自動実行する。(3) Dev Containerのnode featureでバージョンを固定する（ただし更新は手動になる）。プラグイン更新でcacheディレクトリのバージョンが変わる点も考慮して選ぶ。
 - **Related:** —
+- **Resolution:** 2026-11-01に、バックエンドのDev Container内で、context-modeプラグインの`hooks.json`のcommandパスをバージョン番号を含まない`/usr/local/bin/bun`へ一度だけ書き換えた。プラグインのキャッシュは名前付きのDocker volumeにあるため、コンテナを作り直しても書き換えは残る。一方、nodeはイメージ側に入るため、作り直すたびに版が変わりうる。bunは`.devcontainer/devcontainer.json`の`ghcr.io/devcontainers-extra/features/bun:1`で入っており、プラグインのMCPサーバーはLinuxでbunの下で自分自身を再実行する設計で、すでにbunで動いていた。変更後、SessionStart・UserPromptSubmit・Stopの各hookがbunで成功することを確認した。コンテナの作り直しやプラグインの更新の後の点検では、hookのcommandが指す実行ファイルが存在するかを確かめる。リポジトリ側の変更（`postCreateCommand.sh`等）はしていない。
+- **Resolved:** 2026-11-01
