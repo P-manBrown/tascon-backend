@@ -30,7 +30,7 @@ description: 人がAIの書いた変更を、実際のコードを読みなが�
 ### Step 3 Codexレビュー
 
 - 全体要約の次、実行順の案内の前に行う。実行方法は`references/pr-and-codex.md`を読む
-- worktreeの中で、git-spiceのスタック上の親ブランチを比較元にして`codex review`を実行する
+- worktreeの中で、Step 1で決めた比較元に対して`codex review`を実行する
 - 指摘を要約して人に示し、どれを直すかは人と決める。Codexの指摘は判断材料であり、直すかどうかは人が決める
 - 直すと決めた指摘は、Step 7の修正方針に記録する（レビュー中はソースコードを変更しない）
 

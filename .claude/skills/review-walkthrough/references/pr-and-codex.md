@@ -9,5 +9,8 @@
 
 ## Codexレビュー
 
-- 実行（公式機能）: レビュー対象のworktreeの中で`codex review --base <親ブランチ>`を実行する。`<親ブランチ>`は`git-spice log short`で確かめたスタック上の親
+- 実行（公式機能）: レビュー対象のworktreeの中で、SKILL.mdの「対象diffの特定」で決めた対象と比較元に合わせて次を実行する
+  - ブランチ: `codex review --base <比較元>`
+  - 未コミットの変更: `codex review --uncommitted`
+  - コミット範囲: 範囲の終点のコミットへ移り、`codex review --base <始点>`
 - 実行はworktreeの中だけで行い、メインのcheckoutではブランチを切り替えない
