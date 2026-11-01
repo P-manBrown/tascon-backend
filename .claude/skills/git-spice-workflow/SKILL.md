@@ -21,6 +21,7 @@ git-spice使用。スタック型ブランチ管理。
 - 新設したprivateメソッドやassociation（`has_many`等）は、実際に呼び出す・使用するコードより先の別コミットに分離しない。使用コードと同一コミットに含める
 - コミット実行前に、ステージした変更が単一の決定・目的に絞られているか自問する。複数の独立したテーマが混ざっていたら、先に分けてコミットする
 - コミットしない変更が作業ツリーに残っている間は、`git-spice commit create --no-restack`でコミットする。上に積まれたブランチは、作業ツリーがクリーンになってから`git-spice upstack restack`で1回だけrestackする
+- restackで、別のworktreeでcheckoutされているブランチは、restackされずに警告が出てスキップされる。そのworktreeに未コミットの変更が無いことを確かめ、そのworktreeの中で`git-spice branch restack`する。その上のブランチは、`git-spice upstack restack`や`git-spice stack restack`をやり直してもスキップされたままなので、続けて下から順に`git-spice branch restack --branch <ブランチ>`でrestackする
 
 ## コミットメッセージ作成ルール
 
@@ -61,7 +62,7 @@ git-spice使用。スタック型ブランチ管理。
 ## mainへの追従
 
 - スタックを最新の`main`の上に載せ直すときは、作業ツリーがクリーンな状態で、`git-spice repo sync`でローカルの`main`を更新し、`git-spice stack restack --branch <スタック内のブランチ>`でそのスタックだけをrestackする。`git-spice repo restack`は他のスタックもrestackするので使わない
-- 別のworktreeでcheckoutされているブランチは、restackされずに警告が出てスキップされる。そのworktreeに未コミットの変更が無いことを確かめ、そのworktreeの中で`git-spice branch restack`する。その上のブランチは、`git-spice stack restack`をやり直してもスキップされたままなので、続けて下から順に`git-spice branch restack --branch <ブランチ>`でrestackする
+- 別のworktreeでcheckoutされているブランチとその上のブランチは、「コミット内容ルール」のとおりrestackする
 - pushは、スタック内のブランチをcheckoutした状態で`git-spice stack submit --update-only`で行い、PRの無いブランチにPRを作らない
 
 ## スタックPRのマージ
