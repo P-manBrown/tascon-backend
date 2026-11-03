@@ -19,7 +19,6 @@ APIエンドポイントの追加・変更を、正規のBruno Collectionリク�
   - `pgrep -af '^puma '`で他のPumaが起動していないことを確認し、起動していれば`pkill -f '^puma '`で停止する。同じsocketを使用するPumaは1つにする
   - `MAIN=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")`でメインcheckoutのパスを取得する
   - nginxが接続するsocketはメインcheckoutの`tmp/sockets`（名前付きvolume `puma-sockets`）に置く。`-b`で`config/puma.rb`の`bind`を置き換え、worktreeには`tmp/sockets`を作成しない
-  - worktreeには`config/master.key`が写されているため、そのまま起動する。`RAILS_MASTER_KEY`は使わない。キーを`echo`・`env`・`printenv`等で出力せず、閲覧ツールでも読み取らない
   - worktreeに`config/master.key`が無いとき（`.worktreeinclude`を使わずに作ったworktree等）は、コピー・symlinkせず、worktreeを作り直すか人に知らせる。キーを読み取ってコマンドに組み込まない
   - `bin/bundle exec puma -C ./config/puma.rb -b "unix://$MAIN/tmp/sockets/puma.sock" &`でバックグラウンド起動する
   - リクエストはworktreeのコードで処理される。ログはworktreeの`log/development.log`で確認する
