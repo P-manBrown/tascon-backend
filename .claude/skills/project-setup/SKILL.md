@@ -1,11 +1,11 @@
 ---
 name: project-setup
-description: 新しく取り出したリポジトリやworktreeで依存をインストールするskill。clone直後、worktree作成後、依存（Gemfile等）を変えた後に使用する。
+description: 新しく取り出したリポジトリやworktreeで依存をインストールするskill。セッション開始時とサブエージェント開始時に自動で実行される。手で実行するのは、clone直後、worktree作成後、依存（Gemfile等）を変えた後。
 ---
 
 # project-setup
 
-`scripts/setup.sh`を、clone直後、worktreeを作った後、依存を変えた後に実行する。SessionStartのhookからも自動で実行される。
+`scripts/setup.sh`を、clone直後、worktreeを作った後、依存を変えた後に実行する。SessionStart（起動時のみ）とSubagentStartのhookからも自動で実行される。手で実行するときは現在のディレクトリのリポジトリに対して動き、標準入力は読まない。
 
 ```bash
 bash .claude/skills/project-setup/scripts/setup.sh

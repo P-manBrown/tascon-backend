@@ -3,10 +3,22 @@
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "startup",
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/skills/project-setup/scripts/setup.sh",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/skills/project-setup/scripts/setup.sh --from-hook",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/skills/project-setup/scripts/setup.sh --from-hook",
             "timeout": 300
           }
         ]
