@@ -21,7 +21,6 @@ paths:
 - **Category:** Architecture / Code / Test / Performance / Security / Infrastructure / Dependency / Documentation
 - **Area:** <対象ファイル・ディレクトリ>
 - **Detected:** <YYYY-MM-DD>
-- **Todoist Task ID:** <紐づくTodoistタスクのID>
 - **Description:** <何が負債なのか>
 - **Impact:** <なぜ問題なのか。放置すると何が起きるか>
 - **Proposed Resolution:** <どう直すか>

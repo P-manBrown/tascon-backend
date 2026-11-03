@@ -67,7 +67,7 @@ while IFS= read -r -d '' file; do
       ;;
   esac
 
-  require_fields "$file" "Status" "Priority" "Category" "Area" "Detected" "Todoist Task ID" "Description" "Impact" "Proposed Resolution" "Related"
+  require_fields "$file" "Status" "Priority" "Category" "Area" "Detected" "Description" "Impact" "Proposed Resolution" "Related"
 
   placeholders=$(grep -nE '^(# <[^>]+>|- \*\*[A-Za-z ]+:\*\* <[^>]+>)$' "$file" || true)
   [ -n "$placeholders" ] && fail "$file has unfilled placeholder(s) at line(s): $(echo "$placeholders" | cut -d: -f1 | tr '\n' ' ')"

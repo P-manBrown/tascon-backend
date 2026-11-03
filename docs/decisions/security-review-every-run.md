@@ -1,7 +1,8 @@
 # security-reviewをdiffの種類によらず毎回実行する
 
-- **Status:** Accepted
-- **Verification Status:** Verified
+- **Status:** Deprecated
+  - 2026-11-03: この決定が前提にした`todoist-task-runner` skillの処理フローを廃止し、代わる決定もないため。
+- **Verification Status:** Stale
 - **Date:** 2026-09-10
 - **Related Files:** `.claude/skills/todoist-task-runner/SKILL.md`
 

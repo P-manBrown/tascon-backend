@@ -23,7 +23,7 @@ description: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`・`.claude
 
 ## 変更範囲
 
-- 変更してよい対象: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`配下のファイル内容修正、`tech-debt-tracker` skill経由での`.claude/tech-debt/`への記録・状態更新・Todoistタスク作成
+- 変更してよい対象: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`配下のファイル内容修正、`tech-debt-tracker` skill経由での`.claude/tech-debt/`への記録・状態更新
 - 変更してはいけない対象: 実装コード。不整合の原因がコード側にあってもコードは修正せず、ドキュメント側の追従、またはコードとドキュメントのどちらを直すべきかの提案に留める。コード側修正が必要と判断した場合は自律的に進めず、提案として報告する
 
 ## 完了条件
