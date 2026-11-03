@@ -15,7 +15,7 @@
 
 記録の主軸を、作業中のその場での確認に移す。plan完了時の反映は従来どおり行う。
 
-- メインセッションのターンの終わり（Stop）と、サブエージェントが報告を渡す直前（SubagentHandbackへのPreToolUse）に、`record-check.sh`が1回だけ止めて、各skill・ruleがその場での記録を定めているもの（planの`Decision Log`・`検証結果`・`Progress`、技術的負債、Todoistへの進捗コメント、memory）をすべて記録したかを確認させる。
+- メインセッションのターンの終わり（Stop）と、サブエージェントが報告を渡す直前（SubagentHandbackへのPreToolUse）に、`record-check.sh`が1回だけ止めて、各skill・ruleがその場での記録を定めているもの（planの`Decision Log`・`検証結果`・`Progress`、技術的負債、memory）をすべて記録したかを確認させる（2026-11-03: Todoistを前提にした流れを廃止したため、Todoistへの進捗コメントは確認の対象から外した）。
 - SubagentHandbackはauto modeでだけ使われるため、auto mode以外のサブエージェントはSubagentStopで1回止めて確認させる（2026-10-23）。入力の`permission_mode`が`auto`のときと、`agent_type`が空（起動していない内部のエージェント）のときは何もしない。止めたときは、記録の後に直前の報告を全文もう一度出力させ、呼び出し元への報告が確認の返答に置き換わらないようにする
 - SubagentHandbackの1回目を覚えておく状態ファイルは、メインcheckoutの`.claude/hook-state/record-check/`（gitignore）に置き、`record-check.sh`が実行のたびに24時間より古いものを消す（2026-10-22）。PreToolUseの入力には前回拒否したかを示す欄がなく、2回目の報告が来ないとファイルが残り続けるため
 - `docs/decisions/`・rules/skill・`ARCHITECTURE.md`への反映は、従来どおりplanの完了処理（全ブランチのマージ後、人間のPRレビューを経た後）にまとめて行う。完了処理では、claude-memを通常の検索ツールで検索し、まだ記録されていない決定・教訓等を洗い出す
