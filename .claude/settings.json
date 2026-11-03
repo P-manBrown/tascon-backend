@@ -1,6 +1,17 @@
 {
   "plansDirectory": "./.claude/plans",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/skills/project-setup/scripts/setup.sh",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "SubagentHandback",

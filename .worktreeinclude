@@ -1,0 +1,4 @@
+# Files Claude Code copies into every worktree it creates (.gitignore syntax).
+# Only what a working copy needs to run.
+config/master.key
+.env.local
