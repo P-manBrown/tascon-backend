@@ -27,6 +27,13 @@ GIT_ENV = {
 }
 
 
+def clean_env():
+    # A git hook sets GIT_DIR / GIT_INDEX_FILE etc.; keep them out so the temporary repos never touch the real one.
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    env.update(GIT_ENV)
+    return env
+
+
 def plan(decisions=DECISIONS, validation=VALIDATION, results=(), context="Build the tool."):
     lines = ["# Plan A", "", "## Context/Purpose", "", context, "", "## Progress", "", "- [x] Step1: build it", ""]
     lines += ["## 検証結果", "", "- Step1: tests pass", "", *results, ""]
@@ -52,7 +59,7 @@ class Repo:
         self.git("init", "-q", "-b", "main")
 
     def git(self, *args):
-        env = dict(os.environ, **GIT_ENV)
+        env = clean_env()
         proc = subprocess.run(["git", *args], cwd=self.root, env=env, capture_output=True, text=True, check=False)
         if proc.returncode != 0:
             raise AssertionError(f"git {args} failed: {proc.stderr}")
@@ -72,7 +79,7 @@ class Repo:
         self.git("commit", "-q", "--no-verify", "-m", "commit")
 
     def check(self, *args):
-        env = dict(os.environ, **GIT_ENV)
+        env = clean_env()
         proc = subprocess.run(
             [sys.executable, "-B", str(CHECK), *args],
             cwd=self.root,

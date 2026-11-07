@@ -27,6 +27,15 @@ pre-commit:
         - ".claude/plans/**/*.md"
         - ".claude/tech-debt/**/*.md"
       fail_text: 'Read the report above.'
+    - name: check-plan-completion
+      run: python3 .claude/skills/plan-completion/scripts/check-completion.py --link-dir docs/decisions --link-dir .claude/tech-debt
+      fail_text: 'Read the report above.'
+    - name: test-plan-completion
+      run: python3 -m unittest discover -s .claude/skills/plan-completion/scripts/tests
+      glob: ".claude/skills/plan-completion/**"
+      env:
+        PYTHONDONTWRITEBYTECODE: "1"
+      fail_text: 'Read the report above.'
 pre-push:
   commands:
     check-plan-steps:

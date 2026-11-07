@@ -20,6 +20,14 @@
 - 実際のリポジトリでの判定（2026-11-08、main 7d702543）: 空の一時フォルダで`judge-completion.sh --repo P-manBrown/tascon-backend`を走らせ、標準出力`{"completed": [], "missing_marker": [], "unreadable": []}`、終了コード0だった。走らせた後もフォルダは空だった
 - Step2の試し（2026-11-08）: `python3 -B -m unittest discover -s .claude/skills/plan-completion/scripts/tests`が77件通った（Task 1の36件＋検査の41件）
 - 実際のリポジトリの書式での検査（2026-11-08）: 何もステージしない状態で`check-completion.py --link-dir docs/decisions --link-dir .claude/tech-debt`が終了コード0だった。一時のクローン（HEAD 1fe8845f）で`plan-branch-list-completion.md`をcompletedへ正しく移すと終了コード0、記録を1つ欠くと最初の項目の行・`needs exactly one 書き写した/書き写さない line`・`Follow the plan-completion skill to fix the plan before committing.`が出て終了コード1だった（この2つの結果は仕様レビュー担当が再現して確認）
+- Step3の範囲確認（2026-11-08）: 試しが77件通った。`tascon|backend|rails`のgrepが`.claude/skills/plan-completion`で何も出さず終了コード1。古い仕組み6つの`git diff main`が0行。`lefthook.yml`の差分は足した9行だけで削除なし（計画は10行と書いたが、ブロックは9行）
+- 比較テスト（2026-11-08、`claude-md-maintenance`の手順）: 対象は`SKILL.md`と`.claude/rules/plan-completion-local.md`。Task 3は変更をコミットしていないため、変更前はTask 1の最初のコミット（a6fa5564）の1つ前（main 7d702543）をdetachして取った。変更前は`plan-completion`のSkillを呼べず（`Unknown skill`）、変更後は`判定`と`コミット前の検査`を引用できた（`touch`して35秒以上おいた後）。ルールの差し込みはP4の答えの根拠に`plan-completion-local.md`が出て確かめた。判定はすべて「変更前に無く変更後にある」行動の有無だけで行った
+  - P1（完了の判定）: 変更前は専用スクリプトに触れず、`git config`と`gh pr view`を挙げ、終了コード4を`gh`の認証要求と解釈した。変更後は`judge-completion.sh --repo P-manBrown/tascon-backend`を挙げ、4なら`missing_marker`・`unreadable`のPR本文を直し0になるまで完了の処理をしないと答えた。→ 指示を残した
+  - P2（Decision Logと検証結果の書き方）: 変更前は自由文の1行で、`書き写した/書き写さない`の形も`結果:`/`根拠:`の形も無かった。変更後は1つ目の下に`- 書き写した: \`docs/decisions/...\``、2つ目の下に`- 書き写さない: <理由>`、`### マージ後の判定`に条件の本文と`結果:`・`根拠:`を書いた。→ 指示を残した
+  - P3（Plan行）: 変更前は最後のStepのPRを🏃と答え、古いPRを閉じる前の手順は答えられなかった。変更後は✅（active）・✅（completed）と、閉じる前に本文の`Plan:`の行を消すと答えた。→ 指示を残した
+  - P4（ブランチの置き場所・テスト）: 変更前は`git-spice-workflow`の`--insert`と`bin/bundle exec rspec`を挙げ、`plan-completion-branch-placement.md`も`AGENTS.md`も挙げなかった。変更後は`docs/a`の直上に挿入し、根拠に`plan-completion-branch-placement.md`を挙げ、テストは`AGENTS.md`と各skillに従うと答えた。→ 指示を残した（置き場所の結論は古い仕組みと同じで、差は根拠にする文書。古い仕組みも同じ行動を引き出す可能性はあるが、この比較では差が出たので取り消さない）
+  - P5（検査に止められたときの直し方）: 変更前は書式不明のまま自由な直し方を推測した。変更後は項目の下に`書き写した`か`書き写さない`をちょうど1行書き、`git add`し直してコミットし直すと答えた。→ 指示を残した
+  - 取り消した指示は無い。要求REQ-007・REQ-015・AC-5は満たす
 
 ## Decision Log
 
@@ -30,6 +38,7 @@
 - 2026-11-07: 試しの`unittest`のジョブには、lefthookの`env`で`PYTHONDONTWRITEBYTECODE=1`を渡す。渡さないと`scripts/tests/__pycache__/`が作業ツリーに残るため
 - 2026-11-07: リンクを確かめるこのリポジトリ独自のフォルダ（`docs/decisions`・`.claude/tech-debt`）は、スクリプトに書かず`lefthook.yml`の`--link-dir`で渡す。Skillのフォルダには、どのリポジトリでも同じに使える中身だけを置くため
 - 2026-11-07: `scripts/`のファイルはそれだけではClaudeの行動を変えないため、`claude-md-maintenance`の比較テストは、Step3で`SKILL.md`・`.claude/rules/plan-completion-local.md`と合わせて、Step1の最初のコミットの前を変更前として行う
+- 2026-11-08: `check-completion.py`の試しの`git`呼び出しと検査の起動は、環境変数の`GIT_*`を引き継がない。引き継ぐと、lefthookのhookから走らせたとき（`GIT_DIR`・`GIT_INDEX_FILE`が入る）試しの一時リポジトリの操作が本物のリポジトリを書き換え、ブランチに`commit`というコミットが積まれたため
 
 ## Validation and Acceptance
 
