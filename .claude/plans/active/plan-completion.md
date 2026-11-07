@@ -18,6 +18,8 @@
 
 - Step1の試し（2026-11-08）: `python3 -B -m unittest discover -s .claude/skills/plan-completion/scripts/tests`が36件通った
 - 実際のリポジトリでの判定（2026-11-08、main 7d702543）: 空の一時フォルダで`judge-completion.sh --repo P-manBrown/tascon-backend`を走らせ、標準出力`{"completed": [], "missing_marker": [], "unreadable": []}`、終了コード0だった。走らせた後もフォルダは空だった
+- Step2の試し（2026-11-08）: `python3 -B -m unittest discover -s .claude/skills/plan-completion/scripts/tests`が77件通った（Task 1の36件＋検査の41件）
+- 実際のリポジトリの書式での検査（2026-11-08）: 何もステージしない状態で`check-completion.py --link-dir docs/decisions --link-dir .claude/tech-debt`が終了コード0だった。一時のクローン（HEAD 1fe8845f）で`plan-branch-list-completion.md`をcompletedへ正しく移すと終了コード0、記録を1つ欠くと最初の項目の行・`needs exactly one 書き写した/書き写さない line`・`Follow the plan-completion skill to fix the plan before committing.`が出て終了コード1だった（この2つの結果は仕様レビュー担当が再現して確認）
 
 ## Decision Log
 
