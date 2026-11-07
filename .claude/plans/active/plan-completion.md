@@ -11,7 +11,7 @@
 ## Progress
 
 - [x] Step1: `judge-completion.sh`・`judge_completion.py`と試しを足し、実際のリポジトリで判定を走らせる
-- [ ] Step2: `check-completion.py`と試しを足す
+- [x] Step2: `check-completion.py`と試しを足す
 - [ ] Step3: `SKILL.md`・`.claude/rules/plan-completion-local.md`・`lefthook.yml`のジョブを足し、`claude-md-maintenance`の比較テストを行う
 
 ## 検証結果
