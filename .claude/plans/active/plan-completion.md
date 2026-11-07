@@ -12,7 +12,7 @@
 
 - [x] Step1: `judge-completion.sh`・`judge_completion.py`と試しを足し、実際のリポジトリで判定を走らせる
 - [x] Step2: `check-completion.py`と試しを足す
-- [ ] Step3: `SKILL.md`・`.claude/rules/plan-completion-local.md`・`lefthook.yml`のジョブを足し、`claude-md-maintenance`の比較テストを行う
+- [x] Step3: `SKILL.md`・`.claude/rules/plan-completion-local.md`・`lefthook.yml`のジョブを足し、`claude-md-maintenance`の比較テストを行う
 
 ## 検証結果
 
@@ -28,6 +28,14 @@
   - P4（ブランチの置き場所・テスト）: 変更前は`git-spice-workflow`の`--insert`と`bin/bundle exec rspec`を挙げ、`plan-completion-branch-placement.md`も`AGENTS.md`も挙げなかった。変更後は`docs/a`の直上に挿入し、根拠に`plan-completion-branch-placement.md`を挙げ、テストは`AGENTS.md`と各skillに従うと答えた。→ 指示を残した（置き場所の結論は古い仕組みと同じで、差は根拠にする文書。古い仕組みも同じ行動を引き出す可能性はあるが、この比較では差が出たので取り消さない）
   - P5（検査に止められたときの直し方）: 変更前は書式不明のまま自由な直し方を推測した。変更後は項目の下に`書き写した`か`書き写さない`をちょうど1行書き、`git add`し直してコミットし直すと答えた。→ 指示を残した
   - 取り消した指示は無い。要求REQ-007・REQ-015・AC-5は満たす
+- lefthookでの検査（2026-11-08）: Step3のコミット（6f477b07）で`check-plan-completion`と`test-plan-completion`が通った。`lefthook-debride-scope-change.md`をactiveから外すだけのステージで`lefthook run pre-commit`は`check-plan-completion`が`.claude/plans/active/lefthook-debride-scope-change.md: deleted without adding .claude/plans/completed/lefthook-debride-scope-change.md (move the plan instead)`で失敗した（ステージは戻して`git status --short`は空）。最初のコミットの試しは、hookが渡す`GIT_DIR`・`GIT_INDEX_FILE`を試しが引き継ぎ、本物のリポジトリに`commit`というコミットが積まれて失敗した。コミットを`21a5ee8f`へ`reset --mixed`で戻し、試しから`GIT_*`を外して直した
+- Step3の受け入れ条件の判定（2026-11-08、「マージ後に判定」を除く、いずれも再実行）:
+  - Skillのフォルダに独自の中身が無い: `tascon|backend|rails|docs/decisions|tech-debt`のgrepが何も出さず終了コード1。満たす
+  - 試しがすべて通る: 77件、OK。満たす
+  - `judge-completion.sh`の出力と終了コードの記録: Step1の項目に記録済み。満たす
+  - lefthookのジョブ: globの無い`check-plan-completion`（`--link-dir`2つ付き）とSkillのフォルダをglobにした`test-plan-completion`があり、既存のジョブの削除は0行。満たす
+  - 古い仕組みと`pull_request_template.md`の`git diff main`: 0行。満たす
+  - 比較テストの記録: 上の比較テストの項目。満たす
 
 ## Decision Log
 
