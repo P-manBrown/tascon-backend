@@ -122,3 +122,42 @@ def normalize_path:
     end)
   | if . == null then null else join("/") end;
 
+
+def _record_re: "^[ \t]+- (?<kind>書き写した|書き写さない|結果|根拠):(?<value>.*)$";
+
+# Items of the plan section "## <name>". An item is a top-level "- " line with
+# the lines after it up to the next top-level "- " line or heading of level
+# 1-2. Output: array of {lines, records}: lines are the item's lines without
+# its completion record lines and without trailing blank lines; records are
+# the completion record lines as {kind, value} (kind: 書き写した, 書き写さない,
+# 結果 or 根拠; value trimmed). Lines before the first item are not items.
+def plan_items($name):
+  reduce md_marked_lines[] as $x ({in: false, items: []};
+    if ($x.fenced | not) and ($x.line | test("^#{1,2}[ \t]")) then .in = ($x.line == "## " + $name)
+    elif .in | not then .
+    elif ($x.fenced | not) and ($x.line | test("^- ")) then .items += [{lines: [$x.line], records: []}]
+    elif (.items | length) == 0 then .
+    elif ($x.fenced | not) and ($x.line | test(_record_re))
+      then .items[-1].records += [$x.line | capture(_record_re) | .value |= (sub("^[ \t]+"; "") | sub("[ \t]+$"; ""))]
+    else .items[-1].lines += [$x.line]
+    end)
+  | .items
+  | map(.lines |= until(length == 0 or (.[-1] | test("^[ \t]*$") | not); .[:-1]));
+
+# Lines of the plan section "## <name>" (heading excluded) without the
+# completion record lines of the given kinds.
+def plan_section_lines($name; $kinds):
+  reduce md_marked_lines[] as $x ({in: false, out: []};
+    if ($x.fenced | not) and ($x.line | test("^#{1,2}[ \t]")) then .in = ($x.line == "## " + $name)
+    elif .in | not then .
+    elif ($x.fenced | not) and ($x.line | test(_record_re)) and (($x.line | capture(_record_re).kind) as $k | $kinds | index($k))
+      then .
+    else .out += [$x.line]
+    end)
+  | .out;
+
+# Items of "## Validation and Acceptance" that say "マージ後に判定".
+def post_merge_items:
+  plan_items("Validation and Acceptance") | map(select(any(.lines[]; contains("マージ後に判定"))));
+
+def transfer_records: [.records[] | select(.kind == "書き写した" or .kind == "書き写さない")];
