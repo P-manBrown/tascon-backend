@@ -1,0 +1,26 @@
+# 計画 a
+
+## Context/Purpose
+
+計画 a の目的。
+
+## Decision Log
+
+- d1: 方式 A を選ぶ。理由 1
+  - 書き写した: `docs/decisions/x.md#方式の選び方`
+- d2: 方式 B を捨てる。理由 2
+  - 補足 2
+  - 書き写さない: この計画だけの経緯
+- d3: 名前を決める。理由 3
+  - 書き写した: `docs/x.md`、`docs/decisions/x.md`
+
+## Validation and Acceptance
+
+- v1: 試しが通る
+- v2: マージ後に判定: 実セッションで知らせが出る
+  - 結果: 満たす
+  - 根拠: 実セッションで gh pr merge の後に知らせが出た
+
+## Notes
+
+[設計](../../specs/a.md)

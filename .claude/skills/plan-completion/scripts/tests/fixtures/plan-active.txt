@@ -1,0 +1,21 @@
+# 計画 a
+
+## Context/Purpose
+
+計画 a の目的。
+
+## Decision Log
+
+- d1: 方式 A を選ぶ。理由 1
+- d2: 方式 B を捨てる。理由 2
+  - 補足 2
+- d3: 名前を決める。理由 3
+
+## Validation and Acceptance
+
+- v1: 試しが通る
+- v2: マージ後に判定: 実セッションで知らせが出る
+
+## Notes
+
+[設計](../../specs/a.md)
