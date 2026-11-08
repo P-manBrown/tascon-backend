@@ -1,6 +1,6 @@
 # planの受け入れ判定を最後のPR作成前に行い、マージ前に確かめる
 
-- **Status:** Accepted
+- **Status:** Superseded by [計画の完了をPR本文のRelated Documentsの印で判定する](plan-completion-by-pr-markers.md)
 - **Verification Status:** Verified
 - **Date:** 2026-10-24
 - **Related Files:** `.claude/skills/execution-plan/SKILL.md`, `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/rules/plans-maintenance.md`, `.claude/hooks/plan-completion-check.sh`, `.claude/plans/completed/plan-validation-before-pr.md`

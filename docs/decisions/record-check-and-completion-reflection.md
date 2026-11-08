@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Verification Status:** Verified
 - **Date:** 2026-10-19
-- **Related Files:** `.claude/hooks/record-check.sh`, `.claude/settings.json`, `.claude/skills/execution-plan/SKILL.md`, `.devcontainer/compose.devcontainer.yml`
+- **Related Files:** `.claude/hooks/record-check.sh`, `.claude/settings.json`, `.claude/skills/plan-completion/SKILL.md`, `.devcontainer/compose.devcontainer.yml`
 
 ## Context
 
