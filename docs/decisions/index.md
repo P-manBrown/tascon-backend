@@ -12,3 +12,4 @@
 - [planとブランチの対応をgitのブランチ設定に持つ](plan-branch-mapping-in-git-config.md)
 - [planの完了処理のブランチをPR作成済みのブランチの直上に挿入する](plan-completion-branch-placement.md)
 - [planの受け入れ判定を最後のPR作成前に行い、マージ前に確かめる](plan-validation-before-pr.md)
+- [計画の完了をPR本文のRelated Documentsの印で判定する](plan-completion-by-pr-markers.md)
