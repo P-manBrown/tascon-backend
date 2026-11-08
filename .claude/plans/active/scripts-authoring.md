@@ -20,6 +20,13 @@
   - 場面1（`.lefthook/pre-commit/`を読ませてpre-commitのスクリプトを足す）: 変更前はbashで書き、確かめるのは`lefthook.yml`と既存スクリプト。4か所は挙がらず、差し込まれたルールは`code-comments.md`と`claude-md-maintenance.md`だけ。変更後は`scripts-authoring.md`が差し込まれ、bashで書くことに加え、`devcontainer.json`のfeatures・ベースイメージとDockerfile・`common-utils`・パッケージの管理ファイルで入っているかを確かめ、ほかの道具の依存として入っているだけのものは使わないと答えた
   - 場面2（`.claude/hooks/`を読ませてhookを足す）: 変更前はbashと`jq`で書き、確かめるのは既存hookの書き方・過去の記録・入力JSONで、4か所は挙がらず。差し込まれたのは`hooks-authoring.md`。変更後は`scripts-authoring.md`が差し込まれ、bashと`jq`で書くが、`jq`の入手元を4か所で確かめるべきとし（未確認と明記）、ほかの道具の依存だけで入っているものは使わないと答えた。シェル優先は残った
   - 判定: 場面1・2とも期待する行動が変更前になく変更後にあるため、新ルールを残す。場面2でシェル優先が残ったため`hooks-authoring.md`の1行削除も維持する。再実行（35秒待ち）は不要だった
+- PR作成前の判定（2026-11-08、ブランチ`docs/add-scripts-authoring-rule`をcheckoutして`Validation and Acceptance`の6項目を判定。全項目を満たした）
+  - `scripts-authoring.md`の`paths`は5つ（`.claude/settings.json`、`.claude/hooks/**`、`.claude/skills/**/scripts/**`、`.lefthook/**`、`lefthook.yml`）のみ: 満たす（ファイルを読んで確認）
+  - 本文は4指示（明示的に入れたものだけを使う／基本はbashで込み入るときは入れてある言語／使う前に4か所を確かめる／依存として入っているだけのものは使わない）のみ: 満たす（ファイルを読んで確認）
+  - `grep -nE 'Gas City|bead|\bgc\b|mayor|Python|jq|例:'`は何も返さない: 満たす（再実行、終了コード1）
+  - `git diff main -- .claude/rules/hooks-authoring.md`は該当1行の削除のみ: 満たす（再実行）
+  - 比較テストの記録（場面・変更前後の違い・取り下げなし）: 満たす（上の比較テストの記録を根拠にした）
+  - mainが親で差分は3ファイルのみ: 満たす（`git merge-base main HEAD`がmainの先端と一致、`git diff --name-only main...HEAD`が`scripts-authoring.md`・`hooks-authoring.md`・このplanの3つ）
 
 ## Decision Log
 
