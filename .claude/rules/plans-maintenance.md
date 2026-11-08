@@ -7,7 +7,15 @@ paths:
 
 ## 構成
 
-planファイルは`Context/Purpose`、`Progress`、`検証結果`、`Decision Log`、`Validation and Acceptance`等のセクションを持つ。
+planファイルは`Context/Purpose`、`Decision Log`、`Validation and Acceptance`等のセクションを持つ。
+
+## 作成の手順
+
+1. **調査**: 実装作業を依頼されたら、着手前に関連コード・既存実装を確認する
+2. **ドラフト作成**: 調査結果を踏まえ、実装方針をドラフトとして作成する。構成はこのルールに従う
+3. **ユーザーへ提示・承認**: ドラフトの実装方針をユーザーに提示し、同意を得る
+4. **作成**: 同意を得た内容で`.claude/plans/active/<slug>.md`を作成する
+5. **連続実行**: 複数の段のplanは、`git-spice-workflow` skillに従って1段ずつブランチを切り、ブランチをスタックしながら連続実行する
 
 ## 保存ルール
 
@@ -17,12 +25,11 @@ planファイルは`Context/Purpose`、`Progress`、`検証結果`、`Decision L
 ## 各セクションの用途
 
 - `Decision Log`: 決定事項とその理由を記録する。設計判断を含む提案にユーザーが同意したら、次の作業に移る前にその場で追記する
-- `検証結果`: 変更前後の比較テスト等、決定を確かめた結果を記録する。Decision Logには書かない
-- `Context/Purpose`・`Progress`: 前提知識のない別セッションのClaude Codeが、これらを読むだけで作業を再開できる状態を保つ
-- `Progress`のチェックボックスは1つのStepに1つとし、`- [ ] StepN: `の形で書く。Stepの変化はチェックボックスを増やさず、その下に箇条書きで時系列に書き足す。Stepでない注記はチェックボックスにしない
-- `Validation and Acceptance`: そのplanの完了条件(受け入れ基準)を記録する。判定の時期・手順は`execution-plan` skillに従う。mainへのマージ後でないと確かめられない項目には「マージ後に判定」と明記する
+- `Context/Purpose`: 前提知識のない別セッションのClaude Codeが、これを読むだけで作業を再開できる状態を保つ
+- `Validation and Acceptance`: そのplanの完了条件(受け入れ基準)を記録する。最後の段のPRを作る前の判定は`git-spice-workflow` skill、マージ後の判定は`plan-completion` skillに従う。mainへのマージ後でないと確かめられない項目には「マージ後に判定」と明記する
 
-## ブランチとの対応
+## PRとの対応
 
+- planとPRの対応は、PR本文のRelated DocumentsのPlan行で持つ。印の書き方は`plan-completion` skillに従う
 - 別のplanの作業は、できるだけそのplanのブランチで行う
-- 別のplanの作業をした、または自分の作業が別のplanに影響してそのplanを更新したら、今のブランチの`branch.<name>.plan`にそのplanの値を足す（値の形は`git-spice-workflow` skillに従う）
+- 別のplanの作業をした、または自分の作業が別のplanに影響してそのplanを更新したら、そのPRのRelated Documentsに、そのplanを指すPlan行を足す
