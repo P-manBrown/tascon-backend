@@ -6,6 +6,10 @@
 # Exit: 0 nothing wrong / 1 something to fix (one "file: reason" line each)
 set -u
 
+# Every check below reads Markdown with jq, so without it nothing can be checked.
+# Fail here instead of passing silently.
+command -v jq >/dev/null 2>&1 || { printf '%s\n' "check-completion.sh: jq is required but not installed" >&2; exit 1; }
+
 script_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 1
 lib_dir="$script_dir/lib"
 top=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0

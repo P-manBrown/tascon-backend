@@ -260,4 +260,15 @@ run_check
 passes "unrelated commit"
 check "unrelated commit: no output" "" "$out"
 
+# Without jq the check must fail, not pass silently. An empty PATH has no jq.
+new_repo
+put app/x.rb 'puts 1'
+g add -A
+no_jq_bash=$(command -v bash)
+empty_path="$case_dir/empty-path"
+mkdir "$empty_path"
+out=$(cd "$repo" && PATH="$empty_path" "$no_jq_bash" "$scripts_dir/check-completion.sh" 2>&1)
+code=$?
+stops "jq is missing" "jq is required"
+
 finish
