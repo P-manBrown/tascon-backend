@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Fake gh for the plan-completion tests.
+# Every call appends its arguments, joined by spaces, as one line to
+# $FAKE_GH_LOG. `gh api <endpoint>` prints $FAKE_GH_DIR/<key> and exits with the
+# number in $FAKE_GH_DIR/<key>.exit (0 when absent), where <key> is the
+# endpoint with "/", "?", "&" and "=" replaced by "_". When <key> does not
+# exist it answers like gh does for a missing path: a 404 JSON and exit 1.
+# `gh repo view ...` prints $FAKE_GH_DIR/repo-view the same way.
+set -u
+printf '%s\n' "$*" >>"${FAKE_GH_LOG:?FAKE_GH_LOG is not set}"
+dir=${FAKE_GH_DIR:?FAKE_GH_DIR is not set}
+
+answer() {
+  local file="$dir/$1" code=0
+  if [ ! -f "$file" ]; then
+    printf '%s\n' '{"message":"Not Found","documentation_url":"https://docs.github.com","status":"404"}'
+    exit 1
+  fi
+  [ -f "$file.exit" ] && code=$(cat "$file.exit")
+  cat "$file"
+  exit "$code"
+}
+
+case "${1:-}" in
+  api)
+    [ $# -eq 2 ] || { printf '%s\n' "fake gh: only 'gh api <endpoint>' is supported" >&2; exit 64; }
+    answer "$(printf '%s' "$2" | tr '/?&=' '____')"
+    ;;
+  repo)
+    [ "${2:-}" = view ] || exit 64
+    answer repo-view
+    ;;
+  *)
+    printf '%s\n' "fake gh: unsupported command: $*" >&2
+    exit 64
+    ;;
+esac
