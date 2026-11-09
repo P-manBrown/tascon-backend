@@ -75,7 +75,7 @@ git-spice使用。スタック型ブランチ管理。
 
 - mainへのマージはsquash mergeのみ。マージ後、headブランチは自動削除され、1つ上のPRのマージ先はGitHubがmainへ付け替える
 - 作業ツリーがクリーンで、スタックの全ブランチのローカルとリモートが一致していること。未コミットの変更がある場合は、push前に`git stash push -u`で退避し、push後に戻す
-- マージを始める前に、マージする範囲にPlanに✅を付けたPRがあれば、そのPRごとに次を確かめる。1つでも満たさなければマージを始めない。ただし、Related DocumentsのPlan行が`.claude/plans/completed/`配下を指すPR（計画の完了のPR）は対象外にする。完了のPRは計画の項目を判定するのではなく計画を締めるPRで、その検査はコミット時の`check-completion.sh`が担うため。Plan行が`.claude/plans/active/`配下を指すPRや、パスが誤っているPRは対象のまま
+- マージを始める前に、マージする範囲にPlanに✅を付けたPR（Plan行が`.claude/plans/completed/`配下を指す、計画の完了のPRを除く）があれば、そのPRごとに次を確かめる。1つでも満たさなければマージを始めない
   - そのPRのTestingに、`Validation and Acceptance`の全項目（「マージ後に判定」を除く）を満たした判定の結果がある
   - 判定したコミットがそのPRのheadと同じ。違えば、マージ前に判定し直してTestingを直す
 - マージを始める前に、マージする範囲の一番上のブランチの先端で`bin/bundle exec rspec`を実行し、終了コードが0（failuresが0件で、`errors occurred outside of examples`もない）であることを確かめる。満たさなければマージを始めない。確かめた後に、マージする範囲のブランチへ変更が加わったら、確かめ直す
