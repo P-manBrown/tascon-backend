@@ -9,8 +9,8 @@ paths:
 
 planファイルは`Context/Purpose`、`Decision Log`、`Validation and Acceptance`等のセクションを持つ。
 
-- planファイルの先頭（見出しの直後）に`Spec:`行を置き、そのplanが基づく設計（`.claude/specs/`配下のファイル）のパスをリポジトリの根から書く
-- 設計が無いplanは`Spec: N/A`と書き、同じ行に続けて設計が無い理由を書く（例: `Spec: N/A（<設計が無い理由>）`）
+- planファイルの先頭（見出しの直後）に`Spec:`行を置き、そのplanが基づく設計のパスをリポジトリの根から書く
+- 設計が無いplanは`Spec: N/A`と書き、同じ行に続けて設計が無い理由を書く
 - 1つの設計を、複数のplanが参照してよい
 
 ## 作成の手順
