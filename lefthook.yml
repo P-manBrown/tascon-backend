@@ -27,6 +27,11 @@ pre-commit:
         - ".claude/plans/**/*.md"
         - ".claude/tech-debt/**/*.md"
       fail_text: 'Read the report above.'
+    - run: bash .claude/skills/plan-completion/scripts/check-completion.sh
+      fail_text: 'Read the report above.'
+    - run: bash .claude/skills/plan-completion/scripts/tests/run.sh
+      glob: ".claude/skills/plan-completion/**"
+      fail_text: 'Read the report above.'
 pre-push:
   commands:
     check-plan-steps:
