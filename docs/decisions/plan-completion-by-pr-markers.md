@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Verification Status:** Unverified
 - **Date:** 2026-11-03
-- **Related Files:** `.claude/skills/plan-completion/SKILL.md`, `.claude/skills/plan-completion/scripts/judge-completion.sh`, `.claude/skills/plan-completion/scripts/find-completion-pr.sh`, `.claude/skills/plan-completion/scripts/check-completion.sh`, `.claude/hooks/plan-completion-trigger.sh`, `.github/pull_request_template.md`
+- **Related Files:** `.claude/skills/plan-completion/SKILL.md`, `.claude/skills/plan-completion/scripts/judge-completion.sh`, `.claude/skills/plan-completion/scripts/find-completion-pr.sh`, `.claude/skills/plan-completion/scripts/check-completion.sh`, `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/hooks/plan-completion-trigger.sh`, `.github/pull_request_template.md`
 
 ## Context
 
@@ -30,3 +30,4 @@
 - 完了の処理の記録の欠けは、pre-commitの`check-completion.sh`がコミットの前に止める
 - 計画の書式から`Progress`・`検証結果`の節を除き、検証の結果はPRのTestingに書く
 - 判定は`.claude/plans/active/`の計画のパスとだけ照合するので、`.claude/plans/completed/`を指す完了の処理のPRの✅は判定に入らない。完了の処理の二重を防ぐ`find-completion-pr.sh`は印を問わず、completedを指す開いたPRを探す。このため、完了の処理のPRの印を✅にしても、判定と探しの動きは変わらない
+- スタックPRのマージ前の、TestingにValidation and Acceptanceの判定の結果があるかの確認（`git-spice-workflow` skill）は、Plan行が`.claude/plans/completed/`を指す完了の処理のPRを対象外にする。完了の処理のPRは計画の項目を判定せず計画を締めるPRで、その検査はコミット時の`check-completion.sh`が担う。`.claude/plans/active/`を指すPRや、パスが誤っているPRは対象のまま
