@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Verification Status:** Verified
 - **Date:** 2026-09-08
-- **Related Files:** `.claude/settings.json`, `.claude/hooks/check-docs-hook.sh`, `.lefthook/pre-commit/check-docs.sh`, `.claude/skills/execution-plan/SKILL.md`
+- **Related Files:** `.claude/settings.json`, `.claude/hooks/check-docs-hook.sh`, `.lefthook/pre-commit/check-docs.sh`, `.claude/skills/plan-completion/SKILL.md`
 
 ## Context
 

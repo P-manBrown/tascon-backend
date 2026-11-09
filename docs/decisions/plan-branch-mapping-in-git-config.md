@@ -1,6 +1,6 @@
 # planとブランチの対応をgitのブランチ設定に持つ
 
-- **Status:** Accepted
+- **Status:** Superseded by [計画の完了をPR本文のRelated Documentsの印で判定する](plan-completion-by-pr-markers.md)
 - **Verification Status:** Verified
 - **Date:** 2026-10-22
 - **Related Files:** `.claude/hooks/plan-completion-check.sh`, `.claude/hooks/plan-branch-config-check.sh`, `.lefthook/pre-push/check-plan-steps.sh`, `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/rules/plans-maintenance.md`, `.claude/settings.json`
