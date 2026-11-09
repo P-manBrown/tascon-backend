@@ -5,6 +5,7 @@ set -u
 
 A=.claude/plans/active/a.md
 B=.claude/plans/active/b.md
+CA=.claude/plans/completed/a.md
 EMPTY='{"completed":[],"missing_marker":[],"unreadable":[]}'
 M1=2026-11-01T00:00:00Z
 M2=2026-11-02T00:00:00Z
@@ -60,6 +61,27 @@ pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A")")" "$(pr 12 clos
 run_judge --repo "$REPO"
 check "missing marker: output" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10,12]}],"unreadable":[]}' "$out"
 check "missing marker: exit" 4 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- ✅ Plan: $A")")" "$(pr 30 open null main "$(body "- ✅ Plan: $CA" '- ⬜ Spec: N/A')")"
+run_judge --repo "$REPO"
+check "open check-marked completion pull request: output" '{"completed":[{"plan":".claude/plans/active/a.md","prs":[10],"completing_pr":10}],"missing_marker":[],"unreadable":[]}' "$out"
+check "open check-marked completion pull request: exit" 0 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A")")" "$(pr 30 closed $M2 main "$(body "- ✅ Plan: $CA")")"
+run_judge --repo "$REPO"
+check "check mark on the completed plan path does not complete the active plan: output" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10]}],"unreadable":[]}' "$out"
+check "check mark on the completed plan path does not complete the active plan: exit" 4 "$code"
+
+new_case
+repo_with_plans
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- ✅ Plan: $A")")" "$(pr 30 closed $M2 main "$(body "- ✅ Plan: $CA")")"
+run_judge --repo "$REPO"
+check "plan already moved to completed: output" "$EMPTY" "$out"
+check "plan already moved to completed: exit" 0 "$code"
 
 new_case
 repo_with_plans a.md b.md

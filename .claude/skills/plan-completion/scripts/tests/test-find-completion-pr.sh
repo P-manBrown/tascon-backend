@@ -24,6 +24,18 @@ check "open completion pull requests: gh calls are reads" yes "$(only_reads)"
 check "open completion pull requests: run directory stays empty" "" "$(ls -A "$case_dir/run")"
 
 new_case
+open_page1 "$(pr 23 open null main "$(body "- ✅ Plan: $CA" '- ✅ Spec: .claude/specs/a.md')")"
+run_find --repo "$REPO" --plan a
+check "check-marked completion pull request: output" 23 "$out"
+check "check-marked completion pull request: exit" 0 "$code"
+
+new_case
+open_page1 "$(pr 20 open null main "$(body "- 🏃 Plan: $CA")")" "$(pr 23 open null main "$(body "- ✅ Plan: $CA" '- ⬜ Spec: N/A')")"
+run_find --repo "$REPO" --plan a
+check "running and check-marked completion pull requests: output" "$(printf '20\n23')" "$out"
+check "running and check-marked completion pull requests: exit" 0 "$code"
+
+new_case
 open_page1
 run_find --repo "$REPO" --plan a
 check "no open pull request: output" "" "$out"
