@@ -1,5 +1,7 @@
 # lefthook debrideフックのスコープ変更（未着手）
 
+Spec: N/A（lefthookのフックの設定を変える計画で、方針は本文の「変更内容（案）」に書いており、別の設計は無い）
+
 ## 背景
 
 `lefthook.yml`の`debride`フックは、そのコミットでステージされた`.rb`ファイルのみ（`{all_files}`）をdebrideに渡している:
