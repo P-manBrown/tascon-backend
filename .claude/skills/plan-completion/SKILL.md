@@ -11,7 +11,7 @@ description: 計画（`.claude/plans/`）の完了を判定し、完了した計
 
 - 計画の段のPRは、本文の`### Related Documents`に、その計画と設計を指す行を書く。形は`- ` + 印 + 半角の空白1つ + `Plan: ` + リポジトリの根からのパス（Specも同じ形）
 - 印:
-  - ✅: Planは、計画を最後まで終えたPR（計画の最後の段の、いちばん上のPR）にだけ付ける。Specは、その設計につく最後の計画の最後の段のPRに付ける
+  - ✅: Planは、計画を最後まで終えたPR（計画の最後の段の、いちばん上のPR）と、完了の処理のPR（Plan行が`.claude/plans/completed/<name>.md`を指すPR）に付ける。Specは、その設計につく最後の計画の最後の段のPRと、その計画の完了の処理のPRに付ける
   - 🏃: それ以外の段のPR
   - ⬜: 計画・設計が無いPR。パスに`N/A`と書く（`- ⬜ Plan: N/A`・`- ⬜ Spec: N/A`）。行は省かない
 - 取りやめたPRが計画を指したまま閉じていると、その計画は完了にならない。人が確かめて、そのPRの本文の印を直す
@@ -43,7 +43,7 @@ description: 計画（`.claude/plans/`）の完了を判定し、完了した計
 6. 計画を`.claude/plans/active/`から`.claude/plans/completed/`へ同じ名前で移し、「完了の記録の書き方」のとおり記録を書き足す。設計（`.claude/specs/`）は移さない。completedの計画は削除せず、実装判断の根拠として保持し続ける
 7. 結果をユーザーへ報告する。手順ごとに、実施内容・判定と根拠・未実施の事項を示す。手順1は項目ごと、手順2・3は洗い出した候補ごとの扱いを全件示す
 
-完了の処理の変更は、`git-spice-workflow` skillに従って完了の処理用に挿入したブランチでコミットし、PRにする。そのPRのRelated Documentsは`- 🏃 Plan: .claude/plans/completed/<name>.md`と、その計画の設計があれば`- 🏃 Spec: <設計のパス>`、無ければ`- ⬜ Spec: N/A`にする。
+完了の処理の変更は、`git-spice-workflow` skillに従って完了の処理用に挿入したブランチでコミットし、PRにする。そのPRのRelated Documentsは`- ✅ Plan: .claude/plans/completed/<name>.md`と、その計画の設計があれば`- ✅ Spec: <設計のパス>`、無ければ`- ⬜ Spec: N/A`にする。
 
 ## 完了の記録の書き方
 

@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Verification Status:** Unverified
 - **Date:** 2026-11-03
-- **Related Files:** `.claude/skills/plan-completion/SKILL.md`, `.claude/skills/plan-completion/scripts/judge-completion.sh`, `.claude/skills/plan-completion/scripts/check-completion.sh`, `.claude/hooks/plan-completion-trigger.sh`, `.github/pull_request_template.md`
+- **Related Files:** `.claude/skills/plan-completion/SKILL.md`, `.claude/skills/plan-completion/scripts/judge-completion.sh`, `.claude/skills/plan-completion/scripts/find-completion-pr.sh`, `.claude/skills/plan-completion/scripts/check-completion.sh`, `.claude/hooks/plan-completion-trigger.sh`, `.github/pull_request_template.md`
 
 ## Context
 
@@ -11,7 +11,8 @@
 
 ## Decision
 
-- 計画の完了は、PR本文の`### Related Documents`のPlan行と、GitHubのPRの状態だけで判定する。計画を指すPRがすべてmainにマージ済みで、そのうち1つ以上が✅でその計画を指していれば完了とする。✅は計画を最後まで終えたPR（計画の最後の段の、いちばん上のPR）にだけ付け、それ以外の段のPRは🏃、計画が無いPRは`⬜ Plan: N/A`と書く
+- 計画の完了は、PR本文の`### Related Documents`のPlan行と、GitHubのPRの状態だけで判定する。計画を指すPRがすべてmainにマージ済みで、そのうち1つ以上が✅でその計画を指していれば完了とする。✅は計画を最後まで終えたPR（計画の最後の段の、いちばん上のPR）と完了の処理のPRに付け、それ以外の段のPRは🏃、計画が無いPRは`⬜ Plan: N/A`と書く
+- 完了の処理のPRのPlan行は、✅で`.claude/plans/completed/<name>.md`を指す。Spec行は、その計画の設計があれば✅で設計のパスを指し、無ければ`⬜ Spec: N/A`と書く。完了の処理のPRは計画を締めくくるPRで、🏃の「進行中」は意味が合わないため
 - ✅の付け忘れは、完了にならない側に倒れる。計画を指すPRがすべてmainにマージ済みなのに✅が無い計画は、判定の結果の`missing_marker`で見つけて人に知らせる
 - 閉じただけのPRを除外して「全部マージ済み」とはしない。取りやめたPRが計画を指していれば、人が確かめてそのPRの本文の印を直す
 - 進捗表・レビューの報告・実装のまとめを、恒久的な文書として増やさない。検証とレビューの証拠はPRに残す
@@ -28,3 +29,4 @@
 - ✅の付け忘れ・読めないPlan行・取りやめたPRは自動で直さず、人が本文の印を直す
 - 完了の処理の記録の欠けは、pre-commitの`check-completion.sh`がコミットの前に止める
 - 計画の書式から`Progress`・`検証結果`の節を除き、検証の結果はPRのTestingに書く
+- 判定は`.claude/plans/active/`の計画のパスとだけ照合するので、`.claude/plans/completed/`を指す完了の処理のPRの✅は判定に入らない。完了の処理の二重を防ぐ`find-completion-pr.sh`は印を問わず、completedを指す開いたPRを探す。このため、完了の処理のPRの印を✅にしても、判定と探しの動きは変わらない
