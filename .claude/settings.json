@@ -74,7 +74,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/plan-completion-check.sh\""
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/plan-completion-trigger.sh\"",
+            "timeout": 120
           },
           {
             "type": "command",
