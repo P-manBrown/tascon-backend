@@ -31,11 +31,17 @@
 ## Decision Log
 
 - 2026-11-08: 言語・コマンドの方針は、`.claude/rules/scripts-authoring.md`として5パスに差し込む共通ルールにする。特定のパスを触るときだけ必要な規約は`claude-md-maintenance`の置き場所判断でrulesに置く。`AGENTS.md`/`CLAUDE.md`に常時の方針として書く案は、常時の文脈を増やすため採らなかった
+  - 書き写した: `.claude/rules/scripts-authoring.md`
 - 2026-11-08: 本文には道具・言語の名前の具体例、このリポジトリ固有の事情、外部の仕組みの言葉を書かない。ほかのリポジトリへそのまま持っていける共通ルールにするため。指示の中身である「シェル（bash）」と、確かめる場所として挙げる`.devcontainer/devcontainer.json`・`common-utils`・Dockerfileは残す
+  - 書き写した: `.claude/rules/scripts-authoring.md`
 - 2026-11-08: 確かめる場所は、`.devcontainer/devcontainer.json`のfeatures、ベースイメージ・Dockerfile、Feature `common-utils`、パッケージの管理ファイルの4か所にする。ここで明示的に入れたものだけが、別の環境でも入っていると言えるため。ほかの道具の依存として入っているだけのものは、その道具の構成が変わると消えるので使わない
+  - 書き写した: `.claude/rules/scripts-authoring.md`
 - 2026-11-08: `hooks-authoring.md`の「hookスクリプトはシェルスクリプトを優先する。追加インタプリタへの依存は避ける」は、新ルールへの移設として削除する。新ルールの「明示的に入れてある言語・コマンドだけ」「基本はシェル（bash）」「依存として入っているだけのものは使わない」が同じ方針を含み、2つのルールに重複して書かないため
+  - 書き写した: `.claude/rules/scripts-authoring.md`
 - 2026-11-08: ブランチは未マージのスタックの最上段ではなくmainから切る。依頼が、ほかの作業と混ざらない独立したスタックのPRとしてレビュー・承認することを求めているため（`git-spice-workflow`の「最上段に積む」の例外）
+  - 書き写さない: このスタックだけの経緯。一般のブランチ規則は`git-spice-workflow`の「ブランチ作成ルール」にすでにある
 - 2026-11-08: `docs/decisions/`への記録はこのブランチでは作らない。理由はこのDecision Logに書き、横断的な決定として移すかは完了処理で決める
+  - 書き写さない: 横断的な設計判断ではなくルール1本の新設で、決めた内容はルール本文にある。claude-memにも追加の決定はなく、`docs/decisions/`に個別ファイル化しない
 
 ## Validation and Acceptance
 
