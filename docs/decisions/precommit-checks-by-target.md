@@ -7,12 +7,13 @@
 
 ## Context
 
-計画の完了の記録の検査（`check-completion.sh`）は`plan-completion` skillの`scripts/`にあったが、skill自身が実行するのは完了の判定と完了の処理のPRの検索だけで、この検査はlefthookのpre-commitからしか呼ばれない。検査にはMarkdownのリンクの検査も同居し、`check-docs.sh`にも別のリンクの検査があって、リンクの検査が2つに分かれていた。計画の検査は全コミットで動き、skillのテストはSKILL.mdの変更でも動いた。
+計画の完了の記録の検査（`check-completion.sh`）は`plan-completion` skillの`scripts/`にあったが、skill自身が実行するのは完了の判定と完了の処理のPRの検索だけで、この検査はlefthookのpre-commitからしか呼ばれない。検査にはMarkdownのリンクの検査も同居し、`check-docs.sh`にも別のリンクの検査があって、リンクの検査が2つに分かれていた。計画の検査は全コミットで動き、skillのテストはSKILL.mdの変更でも動いた。外部から入れた道具（BMAD）が生成するファイルは、リンクがこのリポジトリの構成と合わず、直せない。
 
 ## Decision
 
 - pre-commitのチェックとそのテストは`.lefthook/pre-commit/`に置く。skillの`scripts/`には、skill自身が使う判定・PR検索のスクリプトとそのテストだけを残す
 - チェックは対象ごとに分ける。計画の検査（`check-plan-completion.sh`）と、Markdownのリンクの検査（`check-links.sh`）は別のスクリプトにし、`check-docs.sh`からリンクの検査を除く。リンクの検査はコミットするMarkdown全体を対象に、ステージの内容（index）で行う
+- リンクの検査は、外部から入れた道具が生成するファイル（`.agents/skills/bmad-*/**`・`_bmad/**`）を調べない。除外する一覧は`check-links.sh`の1か所に持つ
 - 計画の検査は、コミットが`.claude/plans/**`か`.claude/specs/**`に触れるときだけ実行する（lefthookのglob）。計画を移すのは削除と追加なので、移した後に壊れるリンクはリンクの検査が止める
 - テストは、テストする対象が変わるときだけ実行する。pre-commitのチェックのテストはチェックのスクリプト・`lib/`・テストの変更で、skillのテストはskillの`scripts/`の変更で実行する
 
