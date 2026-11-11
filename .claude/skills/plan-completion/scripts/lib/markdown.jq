@@ -1,5 +1,5 @@
-# Markdown readers shared by judge-completion.sh, find-completion-pr.sh and
-# check-completion.sh. Load with: jq -L <scripts/lib> 'include "markdown"; ...'
+# Markdown readers shared by judge-completion.sh, find-completion-pr.sh and the
+# pre-commit checks in .lefthook/pre-commit/. Load with: jq -L <scripts/lib> 'include "markdown"; ...'
 # Every function takes the whole Markdown text as its input unless noted.
 
 # Lines of the text. CRLF counts as one line break, so a CR never becomes
