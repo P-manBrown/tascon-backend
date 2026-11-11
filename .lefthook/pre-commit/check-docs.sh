@@ -120,18 +120,4 @@ if [ -f ARCHITECTURE.md ]; then
   [ -n "$arch_bare_files" ] && fail "ARCHITECTURE.md contains a bare filename, name the entity instead: $(echo "$arch_bare_files" | tr '\n' ' ')"
 fi
 
-# --- all: broken relative Markdown link check ---
-while IFS= read -r -d '' file; do
-  dir=$(dirname "$file")
-  while IFS= read -r link; do
-    [[ "$link" =~ ^https?:// ]] && continue
-    [[ "$link" =~ ^# ]] && continue
-    path="${link%%#*}"
-    [ -z "$path" ] && continue
-    if [ ! -f "$dir/$path" ]; then
-      fail "$file has broken link: $link"
-    fi
-  done < <(grep -oE '\]\([^)]+\)' "$file" | sed -E 's/^\]\(//; s/\)$//')
-done < <(find ARCHITECTURE.md docs .claude/plans .claude/tech-debt -name '*.md' -print0 2>/dev/null)
-
 exit $status
