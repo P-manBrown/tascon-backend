@@ -28,4 +28,26 @@ new_case() {
   [ -n "${case_dir:-}" ] && rm -rf "$case_dir"
   case_dir=$(mktemp -d) || exit 1
 }
+g() { git -C "$repo" "$@"; }
+put() {
+  mkdir -p "$repo/$(dirname -- "$1")"
+  printf '%s\n' "$2" >"$repo/$1"
+}
+commit_all() {
+  g add -A
+  g -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false commit -q --no-verify -m "$1"
+}
+# stops <name> <text the output must contain>
+stops() {
+  check "$1: exit" 1 "$code"
+  case "$out" in
+    *"$2"*) check "$1: reason" found found ;;
+    *) check "$1: reason" "$2" "$out" ;;
+  esac
+}
+passes() {
+  check "$1: exit" 0 "$code"
+  [ "$code" -eq 0 ] || printf '%s\n' "$out"
+}
+
 trap '[ -n "${case_dir:-}" ] && rm -rf "$case_dir"' EXIT
