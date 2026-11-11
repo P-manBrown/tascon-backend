@@ -25,6 +25,11 @@
       "resolved": "ghcr.io/devcontainers/features/node@sha256:8c0de46939b61958041700ee89e3493f3b2e4131a06dc46b4d9423427d06e5f6",
       "integrity": "sha256:8c0de46939b61958041700ee89e3493f3b2e4131a06dc46b4d9423427d06e5f6"
     },
+    "ghcr.io/P-manBrown/devcontainer-features/bmad:1": {
+      "version": "1.0.0",
+      "resolved": "ghcr.io/p-manbrown/devcontainer-features/bmad@sha256:f927d4ccde5db875e4721634458c1c514a4c41a535ee1e01c34c7ca0e00a4766",
+      "integrity": "sha256:f927d4ccde5db875e4721634458c1c514a4c41a535ee1e01c34c7ca0e00a4766"
+    },
     "ghcr.io/P-manBrown/devcontainer-features/bruno-cli:1": {
       "version": "1.1.1",
       "resolved": "ghcr.io/p-manbrown/devcontainer-features/bruno-cli@sha256:1141a9608b84ec1475c40203358d4465c1baaf2e1e100c4d0bf130e52c2922a0",
