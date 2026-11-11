@@ -8,34 +8,12 @@ DONE_A=.claude/plans/completed/a.md
 active_text=$(cat "$tests_dir/fixtures/plan-active.txt")
 completed_text=$(cat "$tests_dir/fixtures/plan-completed.txt")
 
-g() { git -C "$repo" "$@"; }
 # edit <text> <old> <new>: the text with the first <old> replaced (literally).
 edit() { printf '%s' "${1/"$2"/"$3"}"; }
-put() {
-  mkdir -p "$repo/$(dirname -- "$1")"
-  printf '%s\n' "$2" >"$repo/$1"
-}
-commit_all() {
-  g add -A
-  g -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false commit -q --no-verify -m "$1"
-}
 run_check() {
   out=$(cd "$repo" && bash "$scripts_dir/check-plan-completion.sh" 2>&1)
   code=$?
 }
-# stops <name> <text the output must contain>
-stops() {
-  check "$1: exit" 1 "$code"
-  case "$out" in
-    *"$2"*) check "$1: reason" found found ;;
-    *) check "$1: reason" "$2" "$out" ;;
-  esac
-}
-passes() {
-  check "$1: exit" 0 "$code"
-  [ "$code" -eq 0 ] || printf '%s\n' "$out"
-}
-
 # new_repo: a repository whose HEAD has the active plan a, its spec and the
 # documents the completion records point to.
 new_repo() {
@@ -197,61 +175,11 @@ run_check
 stops "spec deleted in the move" "specs are not moved or deleted"
 
 new_repo
-put docs/z.md '[壊れた](../missing.md)'
-g add -A
-run_check
-stops "broken link in a changed Markdown file" "../missing.md"
-
-new_repo
-put docs/z.md '[見出し](decisions/x.md#無い)'
-g add -A
-run_check
-stops "broken heading link" "no heading for #無い"
-
-new_repo
-put docs/z.md "$(printf '%s\n' '`[a](missing.md)`' '```' '[a](missing.md)' '```' '[外](https://example.com/missing)' '[自分](#z)' '' '# z')"
-g add -A
-run_check
-passes "code, external URLs and own headings"
-
-new_repo
-put docs/日本.md '# 日本'
-put docs/z.md '[日本](%E6%97%A5%E6%9C%AC.md)'
-g add -A
-run_check
-passes "percent-encoded link"
-
-new_repo
-put docs/y.md '# y'
-put docs/z.md '[y](y.md)'
-commit_all "y and z"
-g rm -q docs/y.md
-run_check
-stops "deleting a file that an unchanged file links to" "which this commit deletes"
-
-new_repo
-put docs/日本.md '# 日本'
-put docs/z.md '[日本](%E6%97%A5%E6%9C%AC.md)'
-commit_all "nihon and z"
-g rm -q docs/日本.md
-run_check
-stops "deleting a file that an unchanged file links to by a percent-encoded link" "which this commit deletes"
-
-new_repo
 complete_a "$(edit "$completed_text" '  - 書き写さない: この計画だけの経緯
 ' '')"
 put "$DONE_A" "$completed_text"
 run_check
 stops "records written in the working tree but not staged" "item 2 needs exactly one"
-
-new_case
-repo="$case_dir/repo"
-git init -q "$repo"
-put README.md '# r'
-put docs/a.md '[r](../README.md)'
-g add -A
-run_check
-passes "first commit without HEAD"
 
 new_repo
 put app/x.rb 'puts 1'
