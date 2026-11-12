@@ -51,8 +51,5 @@ fi
 echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install
 
-echo 'Setting up Claude Mem for Codex...'
-CI=true npx --yes claude-mem install --provider claude --ide codex-cli
-
 echo 'Setting up Ruby LSP...'
 gem install ruby-lsp --no-document

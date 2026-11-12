@@ -23,7 +23,10 @@
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/devcontainers-extra/features/bun:1": {},
     "ghcr.io/P-manBrown/devcontainer-features/claude-code:1": {},
-    "ghcr.io/P-manBrown/devcontainer-features/claude-mem:1": {},
+    "ghcr.io/P-manBrown/devcontainer-features/claude-mem:1": {
+      "ide": "claude-code,codex-cli",
+      "provider": "by-source"
+    },
     "ghcr.io/P-manBrown/devcontainer-features/codex:3": {},
     "ghcr.io/P-manBrown/devcontainer-features/bmad:1": {
       "modules": "bmm,tea"
