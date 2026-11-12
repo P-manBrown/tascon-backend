@@ -55,5 +55,8 @@ echo 'Setting up Context Mode for Codex...'
 npm install --global context-mode@2.1.8
 context-mode setup --agents codex --yes
 
+echo 'Setting up Claude Mem for Codex...'
+CI=true npx --yes claude-mem install --provider claude --ide codex-cli
+
 echo 'Setting up Ruby LSP...'
 gem install ruby-lsp --no-document
