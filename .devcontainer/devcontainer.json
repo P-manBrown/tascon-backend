@@ -33,7 +33,8 @@
       "portRelay": true
     },
     "ghcr.io/P-manBrown/devcontainer-features/rtk:1": {
-      "claudeCodeHook": true
+      "claudeCodeHook": true,
+      "codexHook": true
     },
     "ghcr.io/P-manBrown/devcontainer-features/bruno-cli:1": {}
   },
