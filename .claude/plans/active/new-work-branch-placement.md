@@ -2,7 +2,12 @@
 
 ## Context/Purpose
 
-`git-spice-workflow` skillの「ブランチ作成ルール」は、新しい作業のブランチを未マージのスタックの最上段に積み、内容が独立して見える変更でも`main`から切らないと定めていた。このため、ほかの作業に依存しない作業まで無関係なスタックの上に積まれ、独立してレビュー・承認・マージできなかった。この計画は、その行を、作業の依存でブランチを切る場所を決める1行に書き換える。1段の計画で、変えるのは`.claude/skills/git-spice-workflow/SKILL.md`の「ブランチ作成ルール」の、新しい作業のブランチを切る場所の行だけ。同じ節のほかの行と、ほかのSkill・ルールは変えない。
+`git-spice-workflow` skillの「ブランチ作成ルール」は、新しい作業のブランチを未マージのスタックの最上段に積み、内容が独立して見える変更でも`main`から切らないと定めていた。このため、ほかの作業に依存しない作業まで無関係なスタックの上に積まれ、独立してレビュー・承認・マージできなかった。この計画は、その行を、作業の依存でブランチを切る場所を決める1行に書き換え、その直下の`plan-completion` skillの完了の処理のブランチの例外の行を削る。1段の計画で、変えるのは次の4か所だけ。同じ節のほかの行と、ほかのSkill・ルールは変えない。
+
+- `.claude/skills/git-spice-workflow/SKILL.md`の「ブランチ作成ルール」の、新しい作業のブランチを切る場所の行（書き換え）と、完了の処理のブランチの例外の行（削除）
+- `.claude/skills/plan-completion/SKILL.md`の、完了の処理の変更をコミットするブランチを指す一文
+- `docs/decisions/plan-completion-branch-placement.md`の`Status`（`Superseded`に変える）
+- `docs/decisions/plan-completion-branch-by-dependency.md`（新しい決定）と`docs/decisions/index.md`の索引
 
 ## Decision Log
 
@@ -15,7 +20,7 @@
 
 ## Validation and Acceptance
 
-- `git diff main -- .claude/skills/git-spice-workflow/SKILL.md`が、「ブランチ作成ルール」の新しい作業のブランチを切る場所の行の置き換え（1行削除・1行追加）だけを示す。`plan-completion` skillの例外の行を含む同じ節のほかの行は変わっていない
+- `git diff main -- .claude/skills/git-spice-workflow/SKILL.md`が、「ブランチ作成ルール」の新しい作業のブランチを切る場所の行の置き換えと、その直下の`plan-completion` skillの完了の処理のブランチの例外の行の削除（2行削除・1行追加）だけを示す。同じ節のほかの行は変わっていない
 - 新しい行が次の5点を含む（`claude-md-maintenance`ルールの比較テストで取り下げた点を除く。取り下げた点はDecision Logにある）: 依存しない作業は`main`から切る別のスタック／依存する作業だけ依存する作業のスタックの上に積む／1つの作業の上の互いに独立した作業は別々のスタックにし枝分かれさせない／1つのスタックの中は一直線／作成前に`git-spice ls --all`で全ブランチを確かめ依存する作業があるかを判断する
-- `.claude/skills/`・`.claude/rules/`・`.claude/agents/`・`.claude/hooks/`・`AGENTS.md`・`.claude/CLAUDE.md`を`最上段に積|から切らない|未マージのスタックがあれば`で検索すると、`plan-completion` skillの例外の行だけが当たる
-- `claude-md-maintenance`ルールの比較テストを行い、新しい行動を足す点（依存しない作業を`main`から別のスタックにする、独立した作業を別々のスタックにする）が変更前に無く変更後に有ることを確かめている
+- `.claude/skills/`・`.claude/rules/`・`.claude/agents/`・`.claude/hooks/`・`AGENTS.md`・`.claude/CLAUDE.md`を`最上段に積|から切らない|未マージのスタックがあれば`で検索すると、何も当たらない
+- `claude-md-maintenance`ルールの比較テストを行い、新しい行動を足す点（依存しない作業を`main`から別のスタックにする、独立した作業を別々のスタックにする）が変更前に無く変更後に有ることと、完了の処理のブランチを挿入せず依存で切る点が変更前に無く変更後に有ることを確かめている
