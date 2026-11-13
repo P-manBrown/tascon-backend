@@ -11,6 +11,7 @@
 - 2026-11-09: `plan-completion` skillの完了の処理のブランチの例外は変えない（依頼が対象外とした）。スタックが複数並ぶと、例外の「PR作成済みのブランチのうち最上段のもの」がどのスタックを指すかが揺れるが、直すなら別の依頼にする
 - 2026-11-09: 「別々のスタック」をgit-spiceでどう作るかの手順はSKILL.mdに足さない。共通の土台の上に2本を作るとgit-spiceでは同じ木の枝分かれとして表示され、手順が要るかはまだ確かめていないため。運用で確かめてから決める
 - 2026-11-09: `docs/decisions/plan-completion-branch-placement.md`のContextは古い決まり（未マージのスタックの最上段に積む）を前提に書かれているが、書き換えない。その決定（完了の処理のブランチを挿入する場所）は今も有効で、decisionsは決定の本文を書き換えず、有効でなくなったときも`Status`だけを変える決まりのため
+- 2026-11-13: 完了の処理のブランチの挿入の例外をやめ、ほかの作業と同じく依存で切る場所を決める（ユーザーの依頼）。スタックが複数並ぶと例外の「最上段のもの」が指すスタックが揺れ、完了の処理は依存しない作業のため`main`から切れば足りるため。`docs/decisions/plan-completion-branch-placement.md`は`Status`だけを`Superseded`に変え、新しい決定を`docs/decisions/plan-completion-branch-by-dependency.md`に置いた
 
 ## Validation and Acceptance
 

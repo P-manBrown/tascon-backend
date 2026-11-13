@@ -14,3 +14,4 @@
 - [planの受け入れ判定を最後のPR作成前に行い、マージ前に確かめる](plan-validation-before-pr.md)
 - [計画の完了をPR本文のRelated Documentsの印で判定する](plan-completion-by-pr-markers.md)
 - [計画の完了をPR本文のRelated DocumentsのPlan行の✅で判定する](plan-completion-by-check-mark-only.md)
+- [planの完了処理のブランチも依存で切る場所を決める](plan-completion-branch-by-dependency.md)
