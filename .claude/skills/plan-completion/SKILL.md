@@ -43,7 +43,7 @@ description: 計画（`.claude/plans/`）の完了を判定し、完了した計
 6. 計画を`.claude/plans/active/`から`.claude/plans/completed/`へ同じ名前で移し、「完了の記録の書き方」のとおり記録を書き足す。設計（`.claude/specs/`）は移さない。completedの計画は削除せず、実装判断の根拠として保持し続ける
 7. 結果をユーザーへ報告する。手順ごとに、実施内容・判定と根拠・未実施の事項を示す。手順1は項目ごと、手順2・3は洗い出した候補ごとの扱いを全件示す
 
-完了の処理の変更は、`git-spice-workflow` skillに従って完了の処理用に挿入したブランチでコミットし、PRにする。そのPRのRelated Documentsは`- 🏃 Plan: .claude/plans/completed/<name>.md`と、その計画の設計があれば`- 🏃 Spec: <設計のパス>`、無ければ`- ⬜ Spec: N/A`にする。
+完了の処理の変更は、`git-spice-workflow` skillのブランチ作成ルールに従って切ったブランチでコミットし、PRにする。そのPRのRelated Documentsは`- 🏃 Plan: .claude/plans/completed/<name>.md`と、その計画の設計があれば`- 🏃 Spec: <設計のパス>`、無ければ`- ⬜ Spec: N/A`にする。
 
 ## 完了の記録の書き方
 
