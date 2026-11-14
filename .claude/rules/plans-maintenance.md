@@ -9,6 +9,9 @@ paths:
 
 planファイルは`Context/Purpose`、`Decision Log`、`Validation and Acceptance`等のセクションを持つ。
 
+- planファイルの先頭（見出しの直後）に`Spec:`行を置き、そのplanが基づく設計のパスをリポジトリの根から書く
+- 設計が無いplanは`Spec: N/A`と書き、同じ行に続けて設計が無い理由を書く
+
 ## 作成の手順
 
 1. **調査**: 実装作業を依頼されたら、着手前に関連コード・既存実装を確認する
