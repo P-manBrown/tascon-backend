@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tests for check-completion.sh in temporary git repositories.
+# Tests for check-plan-completion.sh in temporary git repositories.
 set -u
 . "$(dirname -- "${BASH_SOURCE[0]}")/helpers.sh"
 
@@ -20,7 +20,7 @@ commit_all() {
   g -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false commit -q --no-verify -m "$1"
 }
 run_check() {
-  out=$(cd "$repo" && bash "$scripts_dir/check-completion.sh" 2>&1)
+  out=$(cd "$repo" && bash "$scripts_dir/check-plan-completion.sh" 2>&1)
   code=$?
 }
 # stops <name> <text the output must contain>
@@ -267,7 +267,7 @@ g add -A
 no_jq_bash=$(command -v bash)
 empty_path="$case_dir/empty-path"
 mkdir "$empty_path"
-out=$(cd "$repo" && PATH="$empty_path" "$no_jq_bash" "$scripts_dir/check-completion.sh" 2>&1)
+out=$(cd "$repo" && PATH="$empty_path" "$no_jq_bash" "$scripts_dir/check-plan-completion.sh" 2>&1)
 code=$?
 stops "jq is missing" "jq is required"
 

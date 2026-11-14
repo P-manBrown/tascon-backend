@@ -27,7 +27,12 @@ pre-commit:
         - ".claude/plans/**/*.md"
         - ".claude/tech-debt/**/*.md"
       fail_text: 'Read the report above.'
-    - run: bash .claude/skills/plan-completion/scripts/check-completion.sh
+    - run: bash .lefthook/pre-commit/check-plan-completion.sh
+      fail_text: 'Read the report above.'
+    - run: bash .lefthook/pre-commit/tests/run.sh
+      glob:
+        - ".lefthook/pre-commit/**"
+        - ".claude/skills/plan-completion/scripts/lib/markdown.jq"
       fail_text: 'Read the report above.'
     - run: bash .claude/skills/plan-completion/scripts/tests/run.sh
       glob: ".claude/skills/plan-completion/**"

@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Verification Status:** Unverified
 - **Date:** 2026-11-03
-- **Related Files:** `.claude/skills/plan-completion/SKILL.md`, `.claude/skills/plan-completion/scripts/judge-completion.sh`, `.claude/skills/plan-completion/scripts/check-completion.sh`, `.claude/hooks/plan-completion-trigger.sh`, `.github/pull_request_template.md`
+- **Related Files:** `.claude/skills/plan-completion/SKILL.md`, `.claude/skills/plan-completion/scripts/judge-completion.sh`, `.lefthook/pre-commit/check-plan-completion.sh`, `.claude/hooks/plan-completion-trigger.sh`, `.github/pull_request_template.md`
 
 ## Context
 
@@ -26,5 +26,5 @@
 
 - 判定は`judge-completion.sh`が`gh api`の読み取りだけで行う。`gh pr merge`の後のhookと、リポジトリの外からの呼び出しのどちらでも同じ結果になる
 - ✅の付け忘れ・読めないPlan行・取りやめたPRは自動で直さず、人が本文の印を直す
-- 完了の処理の記録の欠けは、pre-commitの`check-completion.sh`がコミットの前に止める
+- 完了の処理の記録の欠けは、pre-commitの`check-plan-completion.sh`がコミットの前に止める
 - 計画の書式から`Progress`・`検証結果`の節を除き、検証の結果はPRのTestingに書く

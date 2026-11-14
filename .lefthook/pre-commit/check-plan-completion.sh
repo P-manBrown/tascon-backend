@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: check-completion.sh   (run from lefthook pre-commit, inside the repository)
+# Usage: check-plan-completion.sh   (run from lefthook pre-commit, inside the repository)
 # Checks that, after this commit, the index keeps the plan completion records
 # and links intact. Reads the index (git show :<path>) and HEAD, never the
 # working tree. The staged diff only decides which files to look at.
@@ -8,10 +8,11 @@ set -u
 
 # Every check below reads Markdown with jq, so without it nothing can be checked.
 # Fail here instead of passing silently.
-command -v jq >/dev/null 2>&1 || { printf '%s\n' "check-completion.sh: jq is required but not installed" >&2; exit 1; }
+command -v jq >/dev/null 2>&1 || { printf '%s\n' "check-plan-completion.sh: jq is required but not installed" >&2; exit 1; }
 
 script_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 1
-lib_dir="$script_dir/lib"
+# The Markdown readers live in the plan-completion skill, which also reads pull request bodies with them.
+lib_dir="$script_dir/../../.claude/skills/plan-completion/scripts/lib"
 top=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$top" || exit 1
 
