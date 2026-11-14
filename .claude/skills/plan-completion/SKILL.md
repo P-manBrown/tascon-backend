@@ -67,4 +67,3 @@ pre-commitの`.lefthook/pre-commit/check-plan-completion.sh`は、コミット�
 - activeの計画を消したのに、同じ名前の計画がcompletedに無い。completedに移したのに、activeにも残っている → 消すのではなく移す。両方には残さない
 - 計画の`Decision Log`の項目を減らした。completedの計画から完了の記録の行を消した → 減らさない。文の直しと転記先のリンクの直しはよい
 - completedの計画を消した。計画を移すコミットで`.claude/specs/`のファイルを消した → 消さない
-- Markdownのリンクの行き先・見出しがコミットに無い（このコミットで消したファイルを指すリンクを含む） → 行き先を直すか、消したファイルを戻す
