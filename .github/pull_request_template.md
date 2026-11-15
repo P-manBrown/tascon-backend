@@ -19,7 +19,7 @@
 <!-- Plan and spec this pull request implements -->
 <!-- Put ✅ only on the plan line of the pull request that completes the plan. Leave every other line unmarked, and write N/A as the path when there is none -->
 - Plan: .claude/plans/active/<name>.md
-- Spec: .claude/specs/<name>.md
+- Spec: docs/design/<name>.md
 
 ### Notes (Optional)
 

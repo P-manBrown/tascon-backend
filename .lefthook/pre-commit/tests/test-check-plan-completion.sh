@@ -21,7 +21,7 @@ new_repo() {
   repo="$case_dir/repo"
   git init -q "$repo"
   put "$ACTIVE_A" "$active_text"
-  put .claude/specs/a.md "# 設計 a"
+  put docs/design/a.md "# 設計 a"
   put docs/decisions/x.md "$(cat "$tests_dir/fixtures/decision.txt")"
   put docs/x.md "# x"
   commit_all "base"
@@ -156,7 +156,7 @@ passes "completed plan with records: transfer link fixed"
 new_repo
 put .claude/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[壊れた](missing.md)\n')"
 commit_all "old completed plan"
-put .claude/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[直した](../../specs/a.md)\n')"
+put .claude/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[直した](../../../docs/design/a.md)\n')"
 g add -A
 run_check
 passes "old completed plan without records: link fixed"
@@ -170,7 +170,7 @@ stops "completed plan deleted" "completed plans are kept"
 
 new_repo
 complete_a
-g rm -q .claude/specs/a.md
+g rm -q docs/design/a.md
 run_check
 stops "spec deleted in the move" "specs are not moved or deleted"
 

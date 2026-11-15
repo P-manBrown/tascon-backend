@@ -3,7 +3,7 @@
 # Checks that, after this commit, the index keeps the plan completion records
 # intact and the specs in place. Reads the index (git show :<path>) and HEAD,
 # never the working tree. The staged diff only decides which files to look at.
-# lefthook runs it only for commits that touch .claude/plans/ or .claude/specs/.
+# lefthook runs it only for commits that touch .claude/plans/ or docs/design/.
 # Exit: 0 nothing wrong / 1 something to fix (one "file: reason" line each)
 set -u
 
@@ -147,7 +147,7 @@ done
 if [ "${#moves[@]}" -gt 0 ]; then
   for path in "${!change[@]}"; do
     case "$path" in
-      .claude/specs/*) [ "${change[$path]}" = D ] && problem "$path" "specs are not moved or deleted when a plan is completed" ;;
+      docs/design/*) [ "${change[$path]}" = D ] && problem "$path" "specs are not moved or deleted when a plan is completed" ;;
     esac
   done
 fi

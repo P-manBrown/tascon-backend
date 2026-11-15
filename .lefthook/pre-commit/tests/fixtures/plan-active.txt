@@ -18,4 +18,4 @@
 
 ## Notes
 
-[設計](../../specs/a.md)
+[設計](../../../docs/design/a.md)
