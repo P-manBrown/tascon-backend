@@ -48,9 +48,10 @@ def related_documents:
     end)
   | .out;
 
-def _plan_line_re: "^- (?<mark>✅|🏃|⬜) Plan: (?<path>\\S+)$";
+def _plan_line_re: "^- (?:(?<mark>✅|🏃|⬜) )?Plan: (?<path>\\S+)$";
 
-# Plan lines of the Related Documents sections as {mark, path}. U+FE0F is
+# Plan lines of the Related Documents sections as {mark, path}. The mark is
+# ✅, one of the earlier marks 🏃 and ⬜, or none (mark is null). U+FE0F is
 # removed before matching, so "✅" and "✅\uFE0F" read the same.
 def plan_lines:
   [related_documents[] | select(.fenced | not) | .line | gsub("\uFE0F"; "") | capture(_plan_line_re)];
