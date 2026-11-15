@@ -41,7 +41,7 @@ is_kebab_case_md() {
 # --- tech-debt: fixed-value validation ---
 valid_td_status="Open|Accepted|Resolved"
 valid_td_priority="High|Medium|Low"
-valid_td_category="Architecture|Code|Test|Performance|Security|Infrastructure|Dependency|Documentation"
+valid_td_category="Architecture|Code|Test|Performance|Security|Infrastructure|Dependency|Documentation|Bug|Enhancement"
 
 while IFS= read -r -d '' file; do
   base=$(basename "$file")
