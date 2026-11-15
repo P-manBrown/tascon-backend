@@ -55,6 +55,7 @@ TASCON = タスク管理・テンプレート共有Webアプリ。
 - アーキテクチャ（コード構造）の理解が必要な場合→`ARCHITECTURE.md` を参照
 - 実装計画の進行状況・完了記録の確認が必要な場合→`.claude/plans/active/`・`.claude/plans/completed/` を参照
 - 既知の技術的負債・設計上の妥協点の確認が必要な場合→`docs/tech-debt/active/` を参照
+- BMADの後回しの一覧（`_bmad-output/implementation-artifacts/deferred-work.md`）に項目ができた場合→`.claude/skills/tech-debt-tracker/SKILL.md`の手順で`docs/tech-debt/`へ移す
 - 横断的な設計判断の経緯の確認が必要な場合→`docs/decisions/` を参照
 - 特定タスク遂行時の作業手順（コミット・PR作成・検証等）が必要な場合→`.claude/skills/` 配下の該当SKILL.mdを参照
 - 特定ファイルパス編集時の規約確認が必要な場合→`.claude/rules/` 配下の該当ルールを参照

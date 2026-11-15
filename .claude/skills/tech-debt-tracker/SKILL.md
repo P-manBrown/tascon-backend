@@ -1,6 +1,6 @@
 ---
 name: tech-debt-tracker
-description: 技術的負債・懸念事項を`docs/tech-debt/`へ記録して追跡するスキル。作業中に技術的負債・設計上の妥協・既知の制約を発見した場合、既存tech-debtを解消・却下した場合に使用する。
+description: 技術的負債・懸念事項を`docs/tech-debt/`へ記録して追跡するスキル。作業中に技術的負債・設計上の妥協・既知の制約を発見した場合、既存tech-debtを解消・却下した場合、BMADの後回しの一覧（`deferred-work.md`）に項目ができた場合に使用する。
 ---
 
 # tech-debt-tracker
@@ -19,3 +19,10 @@ description: 技術的負債・懸念事項を`docs/tech-debt/`へ記録して�
 - **Resolved（解消済み）**: コード上で実際に負債が解消されたことを確認する。確認できたら`Status`を`Resolved`に変更し、`Resolution`と`Resolved`を追記して、ファイルごと`docs/tech-debt/active/<slug>.md`から`docs/tech-debt/completed/<slug>.md`へ移動
 - **Accepted（意図的に残す）**: 検討の結果、対応せず現状のまま残すと判断した場合は`Status`を`Accepted`に変更し、その判断理由を`Resolution`相当の記述として追記する。ファイルは移動せず`docs/tech-debt/active/`内に留める
 - どちらの場合も**ファイルを削除しない**。ファイル名もそのまま維持する
+
+## BMADの後回しの一覧の移し替え
+
+BMADが後回しにした項目は`_bmad-output/implementation-artifacts/deferred-work.md`に書かれる。項目ができたら、すべてtech-debtへ移す。
+
+1. 項目を1件ずつ「新規記録の手順」で記録する
+2. すべて移したら`deferred-work.md`を削除する
