@@ -1,5 +1,7 @@
 # planに書いた作業ブランチによる完了検出
 
+Spec: N/A（方針は本文の「合意した方針」に書いており、別の設計は無い）
+
 ## Context/Purpose
 
 完了検出フック（`.claude/hooks/plan-completion-check.sh`、Bash実行後のPostToolUse）は、planの本文にある`` `type/name` ``形式の文字列をすべてブランチとして拾い、前回の実行からローカルブランチが消えたか、mainが進んだかで、完了処理の候補を知らせている。この方式には次の問題がある。
