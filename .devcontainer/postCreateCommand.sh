@@ -51,9 +51,5 @@ fi
 echo 'Setting up Lefthook...'
 bin/bundle exec lefthook install
 
-echo 'Setting up Context Mode for Codex...'
-npm install --global context-mode@2.1.8
-context-mode setup --agents codex --yes
-
 echo 'Setting up Ruby LSP...'
 gem install ruby-lsp --no-document
