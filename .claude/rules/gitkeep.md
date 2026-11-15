@@ -1,7 +1,7 @@
 ---
 paths:
   - ".claude/plans/**"
-  - ".claude/tech-debt/**"
+  - "docs/tech-debt/**"
 ---
 
 # .gitkeepの扱い

@@ -59,10 +59,10 @@ while IFS= read -r -d '' file; do
   [ -n "$td_detected" ] && ! is_valid_date "$td_detected" && fail "$file has invalid Detected date: $td_detected"
 
   case "$file" in
-    .claude/tech-debt/active/*)
+    docs/tech-debt/active/*)
       [ "$td_status" = "Resolved" ] && fail "$file is in active/ but Status is Resolved (should move to completed/)"
       ;;
-    .claude/tech-debt/completed/*)
+    docs/tech-debt/completed/*)
       [ -n "$td_status" ] && [ "$td_status" != "Resolved" ] && fail "$file is in completed/ but Status is $td_status (expected Resolved)"
       ;;
   esac
@@ -71,7 +71,7 @@ while IFS= read -r -d '' file; do
 
   placeholders=$(grep -nE '^(# <[^>]+>|- \*\*[A-Za-z ]+:\*\* <[^>]+>)$' "$file" || true)
   [ -n "$placeholders" ] && fail "$file has unfilled placeholder(s) at line(s): $(echo "$placeholders" | cut -d: -f1 | tr '\n' ' ')"
-done < <(find .claude/tech-debt -name '*.md' -print0 2>/dev/null)
+done < <(find docs/tech-debt -name '*.md' -print0 2>/dev/null)
 
 # --- decisions: fixed-value validation, required fields/headings, orphan detection ---
 valid_decision_status="Proposed|Accepted|Deprecated|Superseded by .+"

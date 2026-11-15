@@ -1,14 +1,14 @@
 ---
 paths:
-  - ".claude/tech-debt/**/*.md"
+  - "docs/tech-debt/**/*.md"
 ---
 
 # tech-debt運用方針
 
 ## 保存ルール
 
-- `.claude/tech-debt/active/<slug>.md`：`Open`・`Accepted`のtech-debt
-- `.claude/tech-debt/completed/<slug>.md`：`Resolved`のtech-debt
+- `docs/tech-debt/active/<slug>.md`：`Open`・`Accepted`のtech-debt
+- `docs/tech-debt/completed/<slug>.md`：`Resolved`のtech-debt
 - ファイル名は内容が分かる英語kebab-case（`<slug>.md`）にする
 - 削除しない。ファイル名も維持する
 
