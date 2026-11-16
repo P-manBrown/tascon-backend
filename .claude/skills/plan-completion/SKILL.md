@@ -1,6 +1,6 @@
 ---
 name: plan-completion
-description: 計画（`.claude/plans/`）の完了を判定し、完了した計画の完了の処理を行うスキル。「計画は完了した？」「完了の処理をして」等の指示があった場合、`gh pr merge`の後に完了の処理を促された場合に加え、計画の段のPRのRelated Documentsの印を書く場合にも使用する。
+description: 計画（`docs/design/plans/`）の完了を判定し、完了した計画の完了の処理を行うスキル。「計画は完了した？」「完了の処理をして」等の指示があった場合、`gh pr merge`の後に完了の処理を促された場合に加え、計画の段のPRのRelated Documentsの印を書く場合にも使用する。
 ---
 
 # plan-completion
@@ -28,7 +28,7 @@ description: 計画（`.claude/plans/`）の完了を判定し、完了した計
 
 計画ごとに次を行う。リポジトリの外から判定を走らせて始めるときも、同じ手順で行う。
 
-0. `scripts/find-completion-pr.sh --repo <owner>/<name> --plan <計画のファイル名から.mdを除いたもの>`で、その計画の完了の処理のPR（開いているPRで、Plan行が`.claude/plans/completed/<name>.md`を指すもの）を探す。番号が出たら、その計画には何もしない。終了コードが0でなければ始めない
+0. `scripts/find-completion-pr.sh --repo <owner>/<name> --plan <計画のファイル名から.mdを除いたもの>`で、その計画の完了の処理のPR（開いているPRで、Plan行が`docs/design/plans/completed/<name>.md`を指すもの）を探す。番号が出たら、その計画には何もしない。終了コードが0でなければ始めない
 1. `Validation and Acceptance`のうち「マージ後に判定」と明記した項目を、最新のmainをdetachした一時のworktreeで1件ずつ判定する。該当する項目がなければ判定しない
    - 満たさない項目、記述と実態が食い違う項目は、隠さずに記録と報告に含める
 2. claude-memを検索し、この計画に関係する決定・ドキュメント化すべき内容・記録すべき教訓のうち、まだ記録されていないものを洗い出す
@@ -39,14 +39,14 @@ description: 計画（`.claude/plans/`）の完了を判定し、完了した計
    - 恒久的な振る舞いルール・手順の変更、ユーザーの作業スタイル → `claude-md-maintenance`ルールの置き場所判断に従い、CLAUDE.md・`.claude/rules/*.md`・`.claude/skills/*/SKILL.md`・memoryのうち該当する場所へ反映する
 4. コードの変更が`ARCHITECTURE.md`に影響を与える場合、`ARCHITECTURE.md`を更新する
 5. 完了した計画がtech-debtに関連するものであれば`tech-debt-tracker` skillに従い、tech-debtも更新する
-6. 計画を`.claude/plans/active/`から`.claude/plans/completed/`へ同じ名前で移し、「完了の記録の書き方」のとおり記録を書き足す。設計（`docs/design/`）は移さない。completedの計画は削除せず、実装判断の根拠として保持し続ける
+6. 計画を`docs/design/plans/active/`から`docs/design/plans/completed/`へ同じ名前で移し、「完了の記録の書き方」のとおり記録を書き足す。設計（`docs/design/`）は移さない。completedの計画は削除せず、実装判断の根拠として保持し続ける
 7. 結果をユーザーへ報告する。手順ごとに、実施内容・判定と根拠・未実施の事項を示す。手順1は項目ごと、手順2・3は洗い出した候補ごとの扱いを全件示す
 
-完了の処理の変更は、`git-spice-workflow` skillのブランチ作成ルールに従って切ったブランチでコミットし、PRにする。そのPRのRelated Documentsは`- Plan: .claude/plans/completed/<name>.md`と、その計画の設計があれば`- Spec: <設計のパス>`、無ければ`- Spec: N/A`にする。
+完了の処理の変更は、`git-spice-workflow` skillのブランチ作成ルールに従って切ったブランチでコミットし、PRにする。そのPRのRelated Documentsは`- Plan: docs/design/plans/completed/<name>.md`と、その計画の設計があれば`- Spec: <設計のパス>`、無ければ`- Spec: N/A`にする。
 
 ## 完了の記録の書き方
 
-移した後の`.claude/plans/completed/<name>.md`の、各項目のすぐ下に入れ子で書き足す。項目の本文は書き換えない。
+移した後の`docs/design/plans/completed/<name>.md`の、各項目のすぐ下に入れ子で書き足す。項目の本文は書き換えない。
 
 - `Decision Log`の各項目（トップレベルの`- `の行とその続き）に、次のどちらかをちょうど1行:
   - `  - 書き写した: <転記先>`: 転記先はリポジトリの根からのパスをバッククォートで囲む。見出しを指すときは`#アンカー`を付ける。複数なら`、`で区切る

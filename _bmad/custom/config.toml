@@ -7,4 +7,4 @@
 # description = "Prefers short, bulleted PRDs over narrative drafts."
 
 [modules.bmm]
-planning_artifacts = "{project-root}/docs/design"
+planning_artifacts = "{project-root}/docs/design/requirements"

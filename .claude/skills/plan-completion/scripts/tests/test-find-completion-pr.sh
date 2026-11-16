@@ -3,8 +3,8 @@
 set -u
 . "$(dirname -- "${BASH_SOURCE[0]}")/helpers.sh"
 
-CA=.claude/plans/completed/a.md
-CB=.claude/plans/completed/b.md
+CA=docs/design/plans/completed/a.md
+CB=docs/design/plans/completed/b.md
 
 run_find() {
   out=$(cd "$case_dir/run" && bash "$scripts_dir/find-completion-pr.sh" "$@" 2>"$case_dir/err")

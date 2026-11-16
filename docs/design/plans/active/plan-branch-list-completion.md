@@ -14,7 +14,7 @@ Spec: N/A（方針は本文の「合意した方針」に書いており、別�
 ## 合意した方針
 
 - planに`## Branches`を設け、そのplanで作業したブランチをすべて書く。ブランチを作ったら足し、改名したら書き換え、PRにせず捨てたら外す
-- pre-commitで、`.claude/plans/active/`のplanを変更するコミットのとき、今のブランチがそのplanの`## Branches`にあることを確かめる
+- pre-commitで、`docs/design/plans/active/`のplanを変更するコミットのとき、今のブランチがそのplanの`## Branches`にあることを確かめる
 - 完了検出フックは次のとおり判定する
   - きっかけ: ローカルのmainが前回の記録から早送りで進んだとき（どのコマンドで進めたかは問わない）
   - 前回から今回までにmainへ入ったコミットごとに、`gh api repos/{owner}/{repo}/commits/<sha>/pulls`でmainへマージされたPRの元のブランチ名を取る（今回マージされたブランチ）

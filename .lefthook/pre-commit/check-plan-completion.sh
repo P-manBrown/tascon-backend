@@ -3,7 +3,7 @@
 # Checks that, after this commit, the index keeps the plan completion records
 # intact and the specs in place. Reads the index (git show :<path>) and HEAD,
 # never the working tree. The staged diff only decides which files to look at.
-# lefthook runs it only for commits that touch .claude/plans/ or docs/design/.
+# lefthook runs it only for commits that touch docs/design/.
 # Exit: 0 nothing wrong / 1 something to fix (one "file: reason" line each)
 set -u
 
@@ -17,8 +17,8 @@ top=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$top" || exit 1
 . "$lib_dir/index.sh"
 
-active=.claude/plans/active
-completed=.claude/plans/completed
+active=docs/design/plans/active
+completed=docs/design/plans/completed
 
 load_changes
 
@@ -147,7 +147,8 @@ done
 if [ "${#moves[@]}" -gt 0 ]; then
   for path in "${!change[@]}"; do
     case "$path" in
-      docs/design/*) [ "${change[$path]}" = D ] && problem "$path" "specs are not moved or deleted when a plan is completed" ;;
+      docs/design/plans/*) ;;
+      docs/design/*) [ "${change[$path]}" = D ] && problem "$path" "designs are not moved or deleted when a plan is completed" ;;
     esac
   done
 fi

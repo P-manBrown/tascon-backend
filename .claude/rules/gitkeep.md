@@ -1,6 +1,6 @@
 ---
 paths:
-  - ".claude/plans/**"
+  - "docs/design/**"
   - "docs/tech-debt/**"
 ---
 

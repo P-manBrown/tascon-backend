@@ -32,7 +32,7 @@ paths:
 - `.claude/skills/`配下のファイル
 
 1. 変更後に期待する行動を1点決め、それを引き出す具体的プロンプトを1つ書き出す。プロンプトは、本番でそのルール・skillが読み込まれる場面（関係するファイルの編集、該当する作業の依頼等）にし、ルール・skillの名前や手順の有無を直接問わない
-   - 手順1の場面を`rule-tester`で作れないとき（`paths`が`rule-tester`の読めない場所だけを指すルール等）は、ダミーのファイル等で場面を作る。`.claude/plans/`配下を`paths`に持つルールは、`.claude/plans/rule-test-fixture.md`に中身のないダミーのplanを置き、プロンプトでそれを読むよう指示する。ダミーはテストの後に消す。場面を作れないまま変更を残さない
+   - 手順1の場面を`rule-tester`で作れないとき（`paths`が`rule-tester`の読めない場所だけを指すルール等）は、ダミーのファイル等で場面を作る。`docs/design/plans/`配下を`paths`に持つルールは、`docs/design/plans/rule-test-fixture.md`に中身のないダミーのplanを置き、プロンプトでそれを読むよう指示する。ダミーはテストの後に消す。場面を作れないまま変更を残さない
 2. テスト対象のファイル以外の未コミット変更を`git stash push -u -m <その他用の一意の名前> -- . ':(exclude)<テスト対象のファイル>'`で退避し、続けてテスト対象の未コミット変更を`git stash push -u -m <テスト対象用の一意の名前> -- <テスト対象のファイル>`で退避する。stashの一覧は全worktreeで共有されるため、名前は他の作業者と重ならないもの（ブランチ名やセッション名を含める等）にし、戻すときは`git stash list`で名前から該当の`stash@{n}`を探し、自分のstashだけを`git stash pop stash@{n}`で戻す（名前を付けない`git stash pop`は他の作業者のstashを戻しうるので使わない）。`git stash push`が`No local changes to save`で何も退避しなかったときは、対応する`git stash pop`をしない。手順5まで戻さず、退避中は他の作業をしない
 3. テスト対象の変更、またはその変更の意図を書いた記録（plan等）をコミット済みなら、それらを最初に含むコミットの1つ前へ`git switch --detach <コミット>^`で移る。移ったら、最初に`rule-tester`を起動する前に、`git restore --source=<元のブランチ> --worktree -- .claude/agents/rule-tester.md .claude/hooks/rule-tester-guard.sh`で今の`rule-tester`の定義とガードを作業ツリーへ置き、`rule-tester`に定義の指示文を答えさせて、今の定義で動いていることを確かめる。Agentツールで`rule-tester`を`isolation`なしで起動して、そのプロンプトのみを与える（変更前の挙動）。`isolation: "worktree"`は使わない
 4. 手順3で移ったなら、置いた2つのファイルを`git restore --worktree -- <ファイル>`で戻す（移った先にないファイルは削除する）。そのうえで`git switch -`で元のブランチへ戻る。手順2でテスト対象の変更を退避したなら、テスト対象用の名前のstashを戻す。同じプロンプトで`rule-tester`を起動する（変更後の挙動）
@@ -45,7 +45,7 @@ paths:
 ## SKILL.md/rules執筆時の原則
 
 - 日本語で記述する
-- 理由・経緯は書かない。書く場所は`.claude/plans/`のDecision Log。SKILL.md/rulesは「今の正しい手順」だけに絞る
+- 理由・経緯は書かない。書く場所は`docs/design/plans/`のDecision Log。SKILL.md/rulesは「今の正しい手順」だけに絞る
 - 動作を確認していない手順は加えず、未確認であることをplanに記録する
 - 他skillの実装詳細（具体的なコマンド・パス等）はコピーせず、そのskill名への参照に留める。実装は1箇所に集約し、変更時の追従漏れを防ぐ
 - 具体例の列挙・具体的な実装手法（コード片・コマンド等）ではなく、一般原則を記述する

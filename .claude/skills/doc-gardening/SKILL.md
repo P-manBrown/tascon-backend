@@ -1,6 +1,6 @@
 ---
 name: doc-gardening
-description: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`・`docs/tech-debt/`の記述が実装・実際の状態から乖離（陳腐化）していないかを検知し、修正案を提示するスキル。「ドキュメントの陳腐化をチェックして」「doc-gardeningを実行して」等の指示があった場合に使用する。
+description: `ARCHITECTURE.md`・`docs/decisions/`・`docs/design/plans/`・`docs/tech-debt/`の記述が実装・実際の状態から乖離（陳腐化）していないかを検知し、修正案を提示するスキル。「ドキュメントの陳腐化をチェックして」「doc-gardeningを実行して」等の指示があった場合に使用する。
 ---
 
 # doc-gardening
@@ -13,7 +13,7 @@ description: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`・`docs/te
 
 - `ARCHITECTURE.md`（基準: `.claude/rules/architecture-md-maintenance.md`）
 - `docs/decisions/`（基準: `.claude/rules/decisions-maintenance.md`）
-- `.claude/plans/`（基準: `.claude/rules/plans-maintenance.md`）
+- `docs/design/plans/`（基準: `.claude/rules/plans-maintenance.md`）
 - `docs/tech-debt/`（基準: `.claude/rules/tech-debt-maintenance.md`）
 
 ## 手順
@@ -23,7 +23,7 @@ description: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`・`docs/te
 
 ## 変更範囲
 
-- 変更してよい対象: `ARCHITECTURE.md`・`docs/decisions/`・`.claude/plans/`配下のファイル内容修正、`tech-debt-tracker` skill経由での`docs/tech-debt/`への記録・状態更新
+- 変更してよい対象: `ARCHITECTURE.md`・`docs/decisions/`・`docs/design/plans/`配下のファイル内容修正、`tech-debt-tracker` skill経由での`docs/tech-debt/`への記録・状態更新
 - 変更してはいけない対象: 実装コード。不整合の原因がコード側にあってもコードは修正せず、ドキュメント側の追従、またはコードとドキュメントのどちらを直すべきかの提案に留める。コード側修正が必要と判断した場合は自律的に進めず、提案として報告する
 
 ## 完了条件

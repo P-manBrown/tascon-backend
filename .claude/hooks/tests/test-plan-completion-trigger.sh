@@ -61,13 +61,13 @@ run_hook() {
   err=$(cat "$root/stderr")
 }
 
-export FAKE_JUDGE_OUT='{"completed":[{"plan":".claude/plans/active/a-b.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[]}'
+export FAKE_JUDGE_OUT='{"completed":[{"plan":"docs/design/plans/active/a-b.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[]}'
 for cmd in 'gh pr merge 12 --squash --match-head-commit 0123abc' 'cd x && gh pr merge 3' 'x=$(gh pr merge 3)' 'echo `gh pr merge 3`' 'echo "x; gh pr merge 3"'; do
   run_hook "$cmd"
   check "fires on: $cmd" 2 "$code"
 done
 case "$err" in
-  *".claude/plans/active/a-b.md は完了した（完了させた PR: #12）"*) check "names the completed plan and its pull request" yes yes ;;
+  *"docs/design/plans/active/a-b.md は完了した（完了させた PR: #12）"*) check "names the completed plan and its pull request" yes yes ;;
   *) check "names the completed plan and its pull request" "message about a-b.md" "$err" ;;
 esac
 check "judge gets the repository and runs in an empty directory" "judge --repo o/n" "$(sed -n 1p "$FAKE_LOG")"
@@ -92,7 +92,7 @@ run_hook 'gh pr merge 12 --squash'
 check "nothing to do: exit" 0 "$code"
 check "nothing to do: no output" "" "$err"
 
-export FAKE_JUDGE_OUT='{"completed":[],"missing_marker":[{"plan":".claude/plans/active/c.md","prs":[5,6]}],"unreadable":[{"pr":7,"line":"- ✅　Plan: x"}]}'
+export FAKE_JUDGE_OUT='{"completed":[],"missing_marker":[{"plan":"docs/design/plans/active/c.md","prs":[5,6]}],"unreadable":[{"pr":7,"line":"- ✅　Plan: x"}]}'
 export FAKE_JUDGE_EXIT=4
 run_hook 'gh pr merge 12 --squash'
 check "marks to fix: exit" 2 "$code"

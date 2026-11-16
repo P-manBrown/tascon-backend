@@ -106,7 +106,7 @@ done < <(find docs/decisions -maxdepth 1 -name '*.md' -print0 2>/dev/null)
 while IFS= read -r -d '' file; do
   base=$(basename "$file")
   is_kebab_case_md "$base" || fail "$file does not match naming convention <kebab-case-slug>.md"
-done < <(find .claude/plans -maxdepth 2 -mindepth 2 -name '*.md' -print0 2>/dev/null)
+done < <(find docs/design/plans -maxdepth 2 -mindepth 2 -name '*.md' -print0 2>/dev/null)
 
 # --- ARCHITECTURE.md: no links, no multi-segment paths (name entities, don't point at location) ---
 if [ -f ARCHITECTURE.md ]; then
