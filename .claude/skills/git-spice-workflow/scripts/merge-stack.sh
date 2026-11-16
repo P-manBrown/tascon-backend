@@ -197,6 +197,48 @@ check_plan_records() {
   [ -z "$findings" ] || finish precondition_failed "$(one_line "$findings")"
 }
 
+# run_pre_merge_check: runs pre-merge-check.sh once per commit at the head of
+# the range's top, recording pass or fail under the common git directory,
+# and puts HEAD back where it was (REQ-006).
+run_pre_merge_check() {
+  local sha dir record log rc changed back
+  sha=$(jq -r '.[-1].headRefOid' <<<"$range_json")
+  dir=$(git rev-parse --path-format=absolute --git-common-dir)/pre-merge-checks
+  mkdir -p "$dir" || finish transient "$dir を作れなかった"
+  record=$dir/$sha
+  log=$dir/$sha.log
+  if [ -f "$record" ]; then
+    case $(<"$record") in
+      pass) return 0 ;;
+      fail) finish pre_merge_check_failed "マージ前の確かめが $sha で失敗している。出力: $log。環境の一時的な失敗なら、環境を直してから $record と $log を消して走らせ直す" ;;
+      *) finish precondition_failed "マージ前の確かめの記録 $record の中身が pass でも fail でもない" ;;
+    esac
+  fi
+  restore_to=$(git rev-parse HEAD) || finish transient "HEAD を読めなかった"
+  if ! git switch --quiet --detach "$sha"; then
+    back=$restore_to
+    if ! restore_head; then
+      changed=$(git status --porcelain)
+      restore_to=""
+      finish precondition_failed "作業場所の HEAD を $back に戻せなかった。変わったファイル: $(one_line "$changed")"
+    fi
+    restore_to=""
+    finish transient "コミット $sha に移れなかった"
+  fi
+  (cd "$(git rev-parse --show-toplevel)" && bash "$scripts/pre-merge-check.sh") >"$log" 2>&1
+  rc=$?
+  if [ "$rc" -eq 0 ]; then printf 'pass\n' >"$record"; else printf 'fail\n' >"$record"; fi
+  back=$restore_to
+  if ! restore_head; then
+    changed=$(git status --porcelain)
+    restore_to=""
+    finish precondition_failed "マージ前の確かめの後、作業場所の HEAD を $back に戻せなかった。変わったファイル: $(one_line "$changed")"
+  fi
+  restore_to=""
+  [ "$rc" -eq 0 ] \
+    || finish pre_merge_check_failed "マージ前の確かめが $sha で失敗した（終了コード $rc）。出力: $log。環境の一時的な失敗なら、環境を直してから $record と $log を消して走らせ直す"
+}
+
 main() {
   local src
   pr=null
@@ -218,6 +260,7 @@ main() {
   check_worktrees
   if is_stale; then run_restack; fi
   check_plan_records
+  run_pre_merge_check
   finish transient "マージの段はまだ作っていない"
 }
 

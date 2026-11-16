@@ -229,4 +229,71 @@ restack_hook
 run_merge
 expect "✅ behind restacks first" 10 restacked
 
+# --- pre-merge check (REQ-006) ---
+checks_dir() { printf '%s/pre-merge-checks' "$(git -C "$merge_wt" rev-parse --path-format=absolute --git-common-dir)"; }
+
+new_case
+two_prs
+before=$(git -C "$merge_wt" rev-parse HEAD)
+run_merge
+check "pass: ran at the top head" "$sha_b" "$(<"$FAKE_CHECK_LOG")"
+check "pass: recorded" pass "$(<"$(checks_dir)/$sha_b")"
+check "pass: log kept" yes "$([ -f "$(checks_dir)/$sha_b.log" ] && echo yes)"
+check "pass: HEAD back" "detached $before" "$(head_state "$merge_wt")"
+check "pass: tree clean" "" "$(git -C "$merge_wt" status --porcelain)"
+: >"$FAKE_CHECK_LOG"
+run_merge
+check "pass: not run again" "" "$(<"$FAKE_CHECK_LOG")"
+
+new_case
+two_prs
+export FAKE_CHECK_EXIT=1
+before=$(git -C "$merge_wt" rev-parse HEAD)
+run_merge
+expect "fail" 22 pre_merge_check_failed
+check "fail: recorded" fail "$(<"$(checks_dir)/$sha_b")"
+check "fail: reason has the record" yes "$([[ "$(json reason)" == *"$(checks_dir)/$sha_b"* ]] && echo yes)"
+check "fail: HEAD back" "detached $before" "$(head_state "$merge_wt")"
+check "fail: no merge request" no "$(gh_called merge-async)"
+: >"$FAKE_CHECK_LOG"
+unset FAKE_CHECK_EXIT
+run_merge
+expect "fail record kept" 22 pre_merge_check_failed
+check "fail record: not run again" "" "$(<"$FAKE_CHECK_LOG")"
+rm -f "$(checks_dir)/$sha_b" "$(checks_dir)/$sha_b.log"
+run_merge
+check "deleted record: runs again" "$sha_b" "$(<"$FAKE_CHECK_LOG")"
+
+new_case
+two_prs
+export FAKE_CHECK_EXIT=2
+run_merge
+expect "exit 2 is a failure" 22 pre_merge_check_failed
+check "exit 2: recorded fail" fail "$(<"$(checks_dir)/$sha_b")"
+unset FAKE_CHECK_EXIT
+
+new_case
+two_prs
+export FAKE_CHECK_TOUCH="$merge_wt/b.txt"
+before=$(git -C "$merge_wt" rev-parse HEAD)
+run_merge
+expect "check changed a tracked file" 23 precondition_failed
+check "changed file: no merge request" no "$(gh_called merge-async)"
+check "changed file: reason names the file" yes "$([[ "$(json reason)" == *b.txt* ]] && echo yes)"
+check "changed file: reason names the commit" yes "$([[ "$(json reason)" == *"$before"* ]] && echo yes)"
+unset FAKE_CHECK_TOUCH
+
+new_case
+two_prs
+mkdir -p "$(checks_dir)"
+printf 'x\n' >"$(checks_dir)/$sha_b"
+run_merge
+expect "unknown record content" 23 precondition_failed
+
+new_case
+two_prs
+run_merge
+check "the check next to merge-stack.sh ran" yes "$([ -s "$FAKE_CHECK_LOG" ] && echo yes)"
+check "copies are removed" "" "$(ls -A "$case_dir/tmp")"
+
 finish

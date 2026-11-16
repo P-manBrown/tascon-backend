@@ -40,7 +40,7 @@ new_dir() {
   export FAKE_GS_DIR="$case_dir/gs" FAKE_GS_LOG="$case_dir/gs.log"
   export FAKE_CHECK_LOG="$case_dir/check.log"
   unset FAKE_CHECK_EXIT FAKE_CHECK_TOUCH
-  mkdir "$FAKE_GH_DIR" "$FAKE_GS_DIR"
+  mkdir "$FAKE_GH_DIR" "$FAKE_GS_DIR" "$case_dir/tmp"
   : >"$FAKE_GH_LOG"
   : >"$FAKE_GS_LOG"
   : >"$FAKE_CHECK_LOG"
@@ -199,7 +199,7 @@ two_prs() {
 # (default --pr 2).
 run_merge() {
   [ $# -eq 0 ] && set -- --pr 2
-  out=$(cd "$merge_wt" && bash "$inst/merge-stack.sh" "$@")
+  out=$(cd "$merge_wt" && TMPDIR="$case_dir/tmp" bash "$inst/merge-stack.sh" "$@")
   code=$?
 }
 
