@@ -1,6 +1,6 @@
 # 計画の完了をPR本文のRelated Documentsの印で判定する
 
-- **Status:** Accepted
+- **Status:** Superseded by [計画の完了をPR本文のRelated DocumentsのPlan行の✅で判定する](plan-completion-by-check-mark-only.md)
 - **Verification Status:** Unverified
 - **Date:** 2026-11-03
 - **Related Files:** `.claude/skills/plan-completion/SKILL.md`, `.claude/skills/plan-completion/scripts/judge-completion.sh`, `.lefthook/pre-commit/check-plan-completion.sh`, `.claude/hooks/plan-completion-trigger.sh`, `.github/pull_request_template.md`

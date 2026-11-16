@@ -17,9 +17,9 @@
 ### Related Documents
 
 <!-- Plan and spec this pull request implements -->
-<!-- ✅ = this pull request completes it, 🏃 = in progress, ⬜️ = not applicable (write N/A as the path) -->
-- 🏃 Plan: .claude/plans/active/<name>.md
-- 🏃 Spec: .claude/specs/<name>.md
+<!-- Put ✅ only on the plan line of the pull request that completes the plan. Leave every other line unmarked, and write N/A as the path when there is none -->
+- Plan: .claude/plans/active/<name>.md
+- Spec: .claude/specs/<name>.md
 
 ### Notes (Optional)
 

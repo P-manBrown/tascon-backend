@@ -16,7 +16,7 @@ open_page1() {
 }
 
 new_case
-open_page1 "$(pr 20 open null main "$(body "- 🏃 Plan: $CA" '- ⬜ Spec: N/A')")" "$(pr 21 open null main "$(body "- 🏃 Plan: $CA")")"
+open_page1 "$(pr 20 open null main "$(body "- Plan: $CA" '- Spec: N/A')")" "$(pr 21 open null main "$(body "- 🏃 Plan: $CA")")"
 run_find --repo "$REPO" --plan a
 check "open completion pull requests: output" "$(printf '20\n21')" "$out"
 check "open completion pull requests: exit" 0 "$code"
@@ -30,12 +30,12 @@ check "no open pull request: output" "" "$out"
 check "no open pull request: exit" 0 "$code"
 
 new_case
-open_page1 "$(pr 20 closed null main "$(body "- 🏃 Plan: $CA")")"
+open_page1 "$(pr 20 closed null main "$(body "- Plan: $CA")")"
 run_find --repo "$REPO" --plan a
 check "closed pull request is not counted" "" "$out"
 
 new_case
-open_page1 "$(pr 22 open null main "$(body "- 🏃 Plan: $CB")")"
+open_page1 "$(pr 22 open null main "$(body "- Plan: $CB")")"
 run_find --repo "$REPO" --plan a
 check "pull request for another plan: output" "" "$out"
 check "pull request for another plan: exit" 0 "$code"

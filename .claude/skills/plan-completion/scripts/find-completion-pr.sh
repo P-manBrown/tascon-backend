@@ -2,7 +2,8 @@
 # Usage: find-completion-pr.sh --repo <owner>/<name> --plan <name>
 # Prints, one per line in ascending order, the numbers of the open pull
 # requests whose Related Documents has a plan line pointing at
-# .claude/plans/completed/<name>.md (any mark). Prints nothing when none.
+# .claude/plans/completed/<name>.md, with or without a mark. Prints nothing
+# when none.
 # Exit: 0 checked / 3 GitHub queries incomplete / 2 usage error / 1 internal error
 set -u
 

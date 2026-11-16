@@ -28,7 +28,7 @@ check "no pull requests: exit" 0 "$code"
 
 new_case
 repo_with_plans a.md b.md
-pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- ✅ Plan: $A")")"
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- ✅ Plan: $A")")"
 run_judge --repo "$REPO"
 check "completed: output" '{"completed":[{"plan":".claude/plans/active/a.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[]}' "$out"
 check "completed: exit" 0 "$code"
@@ -37,14 +37,14 @@ check "completed: run directory stays empty" "" "$(ls -A "$case_dir/run")"
 
 new_case
 repo_with_plans a.md
-pulls_page1 "$(pr 10 closed $M1 main "$(body "- ✅ Plan: $A")")" "$(pr 13 open null main "$(body "- 🏃 Plan: $A")")"
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- ✅ Plan: $A")")" "$(pr 13 open null main "$(body "- Plan: $A")")"
 run_judge --repo "$REPO"
 check "open pull request: output" "$EMPTY" "$out"
 check "open pull request: exit" 0 "$code"
 
 new_case
 repo_with_plans a.md
-pulls_page1 "$(pr 10 closed $M1 main "$(body "- ✅ Plan: $A")")" "$(pr 11 closed null main "$(body "- 🏃 Plan: $A")")"
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- ✅ Plan: $A")")" "$(pr 11 closed null main "$(body "- Plan: $A")")"
 run_judge --repo "$REPO"
 check "closed without merge: output" "$EMPTY" "$out"
 
@@ -56,10 +56,24 @@ check "merged into another branch: output" "$EMPTY" "$out"
 
 new_case
 repo_with_plans a.md
-pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- 🏃 Plan: $A")")"
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- Plan: $A")")"
 run_judge --repo "$REPO"
 check "missing marker: output" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10,12]}],"unreadable":[]}' "$out"
 check "missing marker: exit" 4 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A")")" "$(pr 11 closed $M1 main "$(body "- ⬜ Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- Plan: $A")")"
+run_judge --repo "$REPO"
+check "old marks are not check marks: output" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10,11,12]}],"unreadable":[]}' "$out"
+check "old marks are not check marks: exit" 4 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "old mark and check mark: output" '{"completed":[{"plan":".claude/plans/active/a.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[]}' "$out"
+check "old mark and check mark: exit" 0 "$code"
 
 new_case
 repo_with_plans a.md b.md
@@ -81,14 +95,21 @@ check "completing_pr is the latest merged check-marked pull request" 10 "$(print
 
 new_case
 repo_with_plans a.md
-pulls_page1 "$(pr 20 open null main "$(printf '### Summary\n\nPlan: outside\n\n### Related Documents\n\n- ✅　Plan: %s\n- 🏃 Plan: %s \n- ⬜️ Plan: N/A\n- ⬜ Spec: N/A\n' "$A" "$A")")"
+pulls_page1 "$(pr 20 open null main "$(printf '### Summary\n\nPlan: outside\n\n### Related Documents\n\n- ✅　Plan: %s\n- 🏃 Plan: %s \n- Plan:　%s\n- Plan: %s \n-  Plan: %s\n- 🔥 Plan: %s\n- ⬜️ Plan: N/A\n- ⬜ Spec: N/A\n' "$A" "$A" "$A" "$A" "$A" "$A")")"
 run_judge --repo "$REPO"
-check "unreadable lines: output" '[{"pr":20,"line":"- ✅　Plan: .claude/plans/active/a.md"},{"pr":20,"line":"- 🏃 Plan: .claude/plans/active/a.md "}]' "$(printf '%s' "$out" | jq -c .unreadable)"
+check "unreadable lines: output" '[{"pr":20,"line":"-  Plan: .claude/plans/active/a.md"},{"pr":20,"line":"- Plan: .claude/plans/active/a.md "},{"pr":20,"line":"- Plan:　.claude/plans/active/a.md"},{"pr":20,"line":"- ✅　Plan: .claude/plans/active/a.md"},{"pr":20,"line":"- 🏃 Plan: .claude/plans/active/a.md "},{"pr":20,"line":"- 🔥 Plan: .claude/plans/active/a.md"}]' "$(printf '%s' "$out" | jq -c .unreadable)"
 check "unreadable lines: exit" 4 "$code"
 
 new_case
 repo_with_plans a.md
-pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A" '```' "- ✅ Plan: $A" "- ✅　Plan: broken" '```')")"
+pulls_page1 "$(pr 20 open null main "$(body "- Plan: $A" '- Plan: N/A' '- Spec: .claude/specs/a.md' '- Spec: N/A')")"
+run_judge --repo "$REPO"
+check "lines without a mark are readable: output" "$EMPTY" "$out"
+check "lines without a mark are readable: exit" 0 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(body "- Plan: $A" '```' "- ✅ Plan: $A" "- ✅　Plan: broken" '```')")"
 run_judge --repo "$REPO"
 check "plan line in a code block is neither counted nor reported" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10]}],"unreadable":[]}' "$out"
 
