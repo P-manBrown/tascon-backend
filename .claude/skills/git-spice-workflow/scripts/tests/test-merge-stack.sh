@@ -477,4 +477,77 @@ expect "merged bottom, second run merges #2" 0 merged
 check "second run: merged numbers" '[2]' "$(jq -c .merged <<<"$out")"
 check "second run: merge requested" yes "$(gh_called 'merge-async')"
 
+# The "merged bottom" state with exactly one condition unmet: the run tidies up
+# and stops (or stops with 23), and does not merge #2.
+# merged_bottom_case: #1 MERGED, #2 open on main, the tidy state except for
+# what the case then breaks.
+merged_bottom_case() {
+  new_case
+  answer repo-view '{"nameWithOwner":"o/n"}'
+  stack_answer 2 1 2
+  answer pr-view-1 "$(pr_json 1 feat/a main "$sha_a" '.state = "MERGED"')"
+  answer pr-view-2 "$(pr_json 2 feat/b main "$sha_b")"
+  github_merged feat/a
+  git -C "$merge_wt" branch -q -D feat/a
+  spice_ls \
+    '{"name":"feat/b","down":{"name":"main"},"change":{"id":"#2"},"push":{"ahead":0,"behind":0}}' \
+    '{"name":"main","ups":[{"name":"feat/b"}]}'
+  gs_hook repo_sync true
+}
+merged_bottom_stops() {
+  check "$1: no merge request" no "$(gh_called merge-async)"
+  check "$1: no pre-merge check" "" "$(<"$FAKE_CHECK_LOG")"
+}
+
+# (a) feat/a is still on the remote.
+merged_bottom_case
+git -C "$remote" branch -q feat/a "$sha_a"
+run_merge
+expect "merged bottom, only the remote branch left" 23 precondition_failed
+check "remote branch left: names feat/a" yes "$([[ "$(json reason)" == *feat/a* ]] && echo yes)"
+merged_bottom_stops "remote branch left"
+
+# (b) the local feat/b differs from origin/feat/b.
+merged_bottom_case
+git -C "$work" switch -q -c rebased main
+printf 'b\n' >"$work/b.txt"
+git -C "$work" add b.txt
+git -C "$work" commit -q -m "b rebased"
+git -C "$work" push -q -f origin rebased:feat/b
+git -C "$work" switch -q main
+run_merge
+expect "merged bottom, only a branch behind origin" 0 merged
+check "behind origin: merged numbers" '[1]' "$(jq -c .merged <<<"$out")"
+check "behind origin: feat/b follows GitHub" "$(git -C "$work" rev-parse rebased)" "$(git -C "$merge_wt" rev-parse feat/b)"
+merged_bottom_stops "behind origin"
+
+# (c) git-spice still lists feat/b on feat/a.
+merged_bottom_case
+spice_ls \
+  '{"name":"feat/b","down":{"name":"feat/a"},"change":{"id":"#2"},"push":{"ahead":0,"behind":0}}' \
+  '{"name":"main","ups":[]}'
+gs_hook repo_sync "printf '%s\n' '{\"name\":\"feat/b\",\"down\":{\"name\":\"main\"},\"change\":{\"id\":\"#2\"},\"push\":{\"ahead\":0,\"behind\":0}}' '{\"name\":\"main\",\"ups\":[{\"name\":\"feat/b\"}]}' >'$FAKE_GS_DIR/ls'"
+run_merge
+expect "merged bottom, only git-spice's base wrong" 0 merged
+check "git-spice base: merged numbers" '[1]' "$(jq -c .merged <<<"$out")"
+check "git-spice base: repo sync ran" yes "$(logged "$FAKE_GS_LOG" 'repo sync --restack=none')"
+merged_bottom_stops "git-spice base"
+
+# (d) the local feat/a is still there (the remote one is gone).
+merged_bottom_case
+git -C "$merge_wt" branch -q feat/a "$sha_a"
+run_merge
+expect "merged bottom, only the local branch left" 23 precondition_failed
+check "local branch left: names feat/a" yes "$([[ "$(json reason)" == *feat/a* ]] && echo yes)"
+merged_bottom_stops "local branch left"
+
+# (e) only a MERGED pull request is left and everything is tidy.
+merged_bottom_case
+stack_answer 1 1
+run_merge --pr 1
+expect "only merged pull requests, tidy" 0 merged
+check "only merged: merged numbers" '[1]' "$(jq -c .merged <<<"$out")"
+check "only merged: no repo sync" no "$(logged "$FAKE_GS_LOG" 'repo sync')"
+merged_bottom_stops "only merged"
+
 finish

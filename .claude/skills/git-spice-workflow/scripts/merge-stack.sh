@@ -283,11 +283,44 @@ wait_for_merge() {
   done
 }
 
+# check_settled <merged pull requests JSON> [numbers JSON]: the one definition
+# of the cleaned-up state after a merge. Sets unsettled to what still differs,
+# empty when settled: a merged branch still local or on the remote, an open
+# branch that differs from origin/<B>, the bottom open branch not based on main
+# in git-spice. Changes nothing. [numbers] go with a transient failure.
+check_settled() {
+  local merged=$1 numbers=${2:-} b local_sha remote_sha rc spice bottom
+  unsettled=""
+  for b in $(jq -r '.[].headRefName' <<<"$merged"); do
+    git show-ref --verify -q "refs/heads/$b" && unsettled+="${unsettled:+, }$b（ローカル）"
+    git ls-remote --exit-code --heads origin "refs/heads/$b" >/dev/null 2>&1
+    rc=$?
+    case $rc in
+      0) unsettled+="${unsettled:+, }$b（リモート）" ;;
+      2) ;;
+      *) finish transient "git ls-remote が失敗した" "$numbers" ;;
+    esac
+  done
+  [ -z "$unsettled" ] || unsettled="マージしたブランチが残っている: $unsettled"
+  for b in $(jq -r '.[] | select(.state == "OPEN") | .headRefName' <<<"$prs"); do
+    remote_sha=$(git rev-parse --verify -q "refs/remotes/origin/$b") || continue
+    local_sha=$(git rev-parse --verify -q "refs/heads/$b") || continue
+    [ "$local_sha" = "$remote_sha" ] || unsettled+="${unsettled:+; }$b が origin/$b と違う"
+  done
+  bottom=$(jq -r '[.[] | select(.state == "OPEN")][0].headRefName // empty' <<<"$prs")
+  if [ -n "$bottom" ] && git show-ref --verify -q "refs/heads/$bottom"; then
+    spice=$(spice_branches) || finish transient "git-spice ls が失敗した" "$numbers"
+    [ "$(jq -r --arg b "$bottom" '.[] | select(.name == $b) | .down.name // empty' <<<"$spice")" = main ] \
+      || unsettled+="${unsettled:+; }git-spice の記録で $bottom の土台が main になっていない"
+  fi
+  return 0
+}
+
 # after_merge <merged pull requests JSON>: aligns the local repository with
 # GitHub without restacking or pushing (REQ-008). The remaining pull requests
 # are in prs.
 after_merge() {
-  local merged=$1 numbers b local_sha remote_sha left="" rc spice bottom
+  local merged=$1 numbers b local_sha remote_sha
   numbers=$(jq -c 'map(.number)' <<<"$merged")
   git fetch --quiet --prune origin || finish transient "マージの後の git fetch --prune が失敗した" "$numbers"
   git-spice repo sync --restack=none >&2 || finish transient "マージの後の git-spice repo sync が失敗した" "$numbers"
@@ -298,53 +331,8 @@ after_merge() {
     git update-ref "refs/heads/$b" "$remote_sha" "$local_sha" \
       || finish transient "$b を origin/$b に合わせられなかった" "$numbers"
   done
-  for b in $(jq -r '.[].headRefName' <<<"$merged"); do
-    git show-ref --verify -q "refs/heads/$b" && left+="${left:+, }$b（ローカル）"
-    git ls-remote --exit-code --heads origin "refs/heads/$b" >/dev/null 2>&1
-    rc=$?
-    case $rc in
-      0) left+="${left:+, }$b（リモート）" ;;
-      2) ;;
-      *) finish transient "git ls-remote が失敗した" "$numbers" ;;
-    esac
-  done
-  [ -z "$left" ] || finish precondition_failed "マージしたブランチが残っている: $left" "$numbers"
-  bottom=$(jq -r '[.[] | select(.state == "OPEN")][0].headRefName // empty' <<<"$prs")
-  if [ -n "$bottom" ] && git show-ref --verify -q "refs/heads/$bottom"; then
-    spice=$(spice_branches) || finish transient "git-spice ls が失敗した" "$numbers"
-    [ "$(jq -r --arg b "$bottom" '.[] | select(.name == $b) | .down.name // empty' <<<"$spice")" = main ] \
-      || finish precondition_failed "git-spice の記録で $bottom の土台が main になっていない" "$numbers"
-  fi
-}
-
-# is_settled <merged pull requests JSON>: true when the local repository
-# already matches GitHub for them: the merged branches are gone locally and on
-# the remote, the remaining open branches equal origin/<B>, and the bottom open
-# branch is based on main in git-spice. Changes nothing but remote-tracking refs.
-is_settled() {
-  local merged=$1 b local_sha remote_sha rc spice bottom
-  git fetch --quiet --prune origin || finish transient "後片付けの確認の git fetch --prune が失敗した"
-  for b in $(jq -r '.[].headRefName' <<<"$merged"); do
-    git show-ref --verify -q "refs/heads/$b" && return 1
-    git ls-remote --exit-code --heads origin "refs/heads/$b" >/dev/null 2>&1
-    rc=$?
-    case $rc in
-      0) return 1 ;;
-      2) ;;
-      *) finish transient "git ls-remote が失敗した" ;;
-    esac
-  done
-  for b in $(jq -r '.[] | select(.state == "OPEN") | .headRefName' <<<"$prs"); do
-    remote_sha=$(git rev-parse --verify -q "refs/remotes/origin/$b") || continue
-    local_sha=$(git rev-parse --verify -q "refs/heads/$b") || continue
-    [ "$local_sha" = "$remote_sha" ] || return 1
-  done
-  bottom=$(jq -r '[.[] | select(.state == "OPEN")][0].headRefName // empty' <<<"$prs")
-  if [ -n "$bottom" ] && git show-ref --verify -q "refs/heads/$bottom"; then
-    spice=$(spice_branches) || finish transient "git-spice ls が失敗した"
-    [ "$(jq -r --arg b "$bottom" '.[] | select(.name == $b) | .down.name // empty' <<<"$spice")" = main ] || return 1
-  fi
-  return 0
+  check_settled "$merged" "$numbers"
+  [ -z "$unsettled" ] || finish precondition_failed "$unsettled" "$numbers"
 }
 
 # settle_merged_bottom: when the stack starts with merged pull requests (an
@@ -357,7 +345,9 @@ settle_merged_bottom() {
       if .open then . elif $p.state == "MERGED" then .out += [$p] else .open = true end) | .out' <<<"$prs")
   [ "$(jq length <<<"$merged")" -eq 0 ] && return 0
   prs=$(jq -c --argjson m "$merged" '.[($m | length):]' <<<"$prs")
-  if is_settled "$merged"; then
+  git fetch --quiet --prune origin || finish transient "後片付けの確認の git fetch --prune が失敗した"
+  check_settled "$merged"
+  if [ -z "$unsettled" ]; then
     [ "$(jq length <<<"$prs")" -gt 0 ] || finish merged "マージ済みの PR だけが残っていて、後片付けは済んでいる" "$(jq -c 'map(.number)' <<<"$merged")"
     return 0
   fi
@@ -367,7 +357,7 @@ settle_merged_bottom() {
 }
 
 main() {
-  local src
+  local src merged_numbers
   pr=null
   run_dir=""
   restore_to=""
@@ -391,7 +381,6 @@ main() {
   run_pre_merge_check
   check_worktrees
   request_merge
-  local merged_numbers
   merged_numbers=$(jq -c 'map(.number)' <<<"$range_json")
   prs=$(jq -c --argjson m "$range_json" '.[($m | length):]' <<<"$prs")
   after_merge "$range_json"
