@@ -317,15 +317,50 @@ after_merge() {
   fi
 }
 
+# is_settled <merged pull requests JSON>: true when the local repository
+# already matches GitHub for them: the merged branches are gone locally and on
+# the remote, the remaining open branches equal origin/<B>, and the bottom open
+# branch is based on main in git-spice. Changes nothing but remote-tracking refs.
+is_settled() {
+  local merged=$1 b local_sha remote_sha rc spice bottom
+  git fetch --quiet --prune origin || finish transient "後片付けの確認の git fetch --prune が失敗した"
+  for b in $(jq -r '.[].headRefName' <<<"$merged"); do
+    git show-ref --verify -q "refs/heads/$b" && return 1
+    git ls-remote --exit-code --heads origin "refs/heads/$b" >/dev/null 2>&1
+    rc=$?
+    case $rc in
+      0) return 1 ;;
+      2) ;;
+      *) finish transient "git ls-remote が失敗した" ;;
+    esac
+  done
+  for b in $(jq -r '.[] | select(.state == "OPEN") | .headRefName' <<<"$prs"); do
+    remote_sha=$(git rev-parse --verify -q "refs/remotes/origin/$b") || continue
+    local_sha=$(git rev-parse --verify -q "refs/heads/$b") || continue
+    [ "$local_sha" = "$remote_sha" ] || return 1
+  done
+  bottom=$(jq -r '[.[] | select(.state == "OPEN")][0].headRefName // empty' <<<"$prs")
+  if [ -n "$bottom" ] && git show-ref --verify -q "refs/heads/$bottom"; then
+    spice=$(spice_branches) || finish transient "git-spice ls が失敗した"
+    [ "$(jq -r --arg b "$bottom" '.[] | select(.name == $b) | .down.name // empty' <<<"$spice")" = main ] || return 1
+  fi
+  return 0
+}
+
 # settle_merged_bottom: when the stack starts with merged pull requests (an
-# earlier run stopped after merging), aligns the local repository for them and
-# ends this run (REQ-009).
+# earlier run stopped after merging), tidies the local repository for them and
+# ends this run when that changed something; when it was already tidy, drops
+# them from prs and lets the run go on (REQ-009).
 settle_merged_bottom() {
   local merged
   merged=$(jq -c 'reduce .[] as $p ({open: false, out: []};
       if .open then . elif $p.state == "MERGED" then .out += [$p] else .open = true end) | .out' <<<"$prs")
   [ "$(jq length <<<"$merged")" -eq 0 ] && return 0
   prs=$(jq -c --argjson m "$merged" '.[($m | length):]' <<<"$prs")
+  if is_settled "$merged"; then
+    [ "$(jq length <<<"$prs")" -gt 0 ] || finish merged "マージ済みの PR だけが残っていて、後片付けは済んでいる" "$(jq -c 'map(.number)' <<<"$merged")"
+    return 0
+  fi
   check_worktrees
   after_merge "$merged"
   finish merged "マージ済みの PR の後片付けをした。続きがあれば走らせ直す" "$(jq -c 'map(.number)' <<<"$merged")"

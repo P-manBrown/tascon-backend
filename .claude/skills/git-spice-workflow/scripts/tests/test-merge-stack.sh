@@ -467,4 +467,14 @@ check "merged bottom: merged numbers" '[1]' "$(jq -c .merged <<<"$out")"
 check "merged bottom: no merge request" no "$(gh_called merge-async)"
 check "merged bottom: no pre-merge check" "" "$(<"$FAKE_CHECK_LOG")"
 
+# The cleanup is done, #1 stays MERGED in the stack: the rerun goes on with #2.
+answer pr-view-2 "$(pr_json 2 feat/b main "$sha_b")"
+answer "$put_key" "$(include 'HTTP/2.0 200 OK' '{"merged":true}')"
+github_merged feat/b
+sync_deletes feat/b
+run_merge
+expect "merged bottom, second run merges #2" 0 merged
+check "second run: merged numbers" '[2]' "$(jq -c .merged <<<"$out")"
+check "second run: merge requested" yes "$(gh_called 'merge-async')"
+
 finish
