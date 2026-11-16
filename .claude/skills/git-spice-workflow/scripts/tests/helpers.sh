@@ -153,3 +153,55 @@ run_restack() {
   out=$(cd "$dir" && bash "$inst/restack-stack.sh" "$@")
   code=$?
 }
+
+REPO=o/n
+
+# answer <key> <body> [exit code]: an answer of the fake gh.
+answer() {
+  printf '%s\n' "$2" >"$FAKE_GH_DIR/$1"
+  [ -n "${3:-}" ] && printf '%s\n' "$3" >"$FAKE_GH_DIR/$1.exit"
+  return 0
+}
+
+# pr_json <number> <head> <base> <oid> [jq update]: a `gh pr view` answer of
+# an open, approved pull request whose checks passed, changed by the update.
+pr_json() {
+  jq -cn --argjson n "$1" --arg h "$2" --arg b "$3" --arg o "$4" \
+    '{number: $n, state: "OPEN", isDraft: false, reviewDecision: "APPROVED",
+      statusCheckRollup: [{__typename: "CheckRun", name: "ci", status: "COMPLETED", conclusion: "SUCCESS"}],
+      headRefName: $h, headRefOid: $o, baseRefName: $b, mergeStateStatus: "CLEAN", body: ""}' \
+    | jq -c "${5:-.}"
+}
+
+# stack_answer <asked number> <number>...: the stacks answer for the asked
+# pull request (the numbers bottom to top; none for "not in a stack").
+stack_answer() {
+  local asked=$1
+  shift
+  if [ $# -eq 0 ]; then
+    answer "GET_repos_o_n_stacks_pull_request_$asked" '[]'
+  else
+    answer "GET_repos_o_n_stacks_pull_request_$asked" \
+      "$(jq -cn '[{pull_requests: [$ARGS.positional[] | {number: tonumber}]}]' --args "$@")"
+  fi
+}
+
+# two_prs [jq update for #1] [jq update for #2]: #1 feat/a <- #2 feat/b.
+two_prs() {
+  answer repo-view '{"nameWithOwner":"o/n"}'
+  stack_answer 2 1 2
+  answer pr-view-1 "$(pr_json 1 feat/a main "$sha_a" "${1:-.}")"
+  answer pr-view-2 "$(pr_json 2 feat/b feat/a "$sha_b" "${2:-.}")"
+  default_ls
+}
+
+# run_merge [args]: runs the installed merge-stack.sh in the merge worktree
+# (default --pr 2).
+run_merge() {
+  [ $# -eq 0 ] && set -- --pr 2
+  out=$(cd "$merge_wt" && bash "$inst/merge-stack.sh" "$@")
+  code=$?
+}
+
+# gh_called <text>: yes when a fake gh call contains the text.
+gh_called() { logged "$FAKE_GH_LOG" "$1"; }
