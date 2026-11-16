@@ -54,3 +54,102 @@ logged() {
   done <"$1"
   echo no
 }
+
+# install_scripts: copies the scripts under $case_dir/skills/ the way they sit
+# in the repository, with the fake pre-merge-check.sh next to merge-stack.sh.
+install_scripts() {
+  inst="$case_dir/skills/git-spice-workflow/scripts"
+  mkdir -p "$inst" "$case_dir/skills/plan-completion/scripts/lib"
+  cp -R "$scripts_dir/lib" "$inst/"
+  cp "$scripts_dir/restack-stack.sh" "$inst/"
+  [ -f "$scripts_dir/merge-stack.sh" ] && cp "$scripts_dir/merge-stack.sh" "$inst/"
+  cp "$tests_dir/fakes/pre-merge-check.sh" "$inst/pre-merge-check.sh"
+  cp "$plan_lib_src/markdown.jq" "$case_dir/skills/plan-completion/scripts/lib/"
+}
+
+# make_repo: a bare remote, the clone "work" with main checked out (like the
+# main checkout), the stack main <- feat/a <- feat/b pushed, refs/spice/data,
+# and the worktree "merge" detached at origin/main.
+make_repo() {
+  remote="$case_dir/remote.git"
+  work="$case_dir/work"
+  merge_wt="$case_dir/merge"
+  git init -q --bare -b main "$remote"
+  git clone -q "$remote" "$work" 2>/dev/null
+  git -C "$work" commit -q --allow-empty -m init
+  printf 'base\n' >"$work/f.txt"
+  git -C "$work" add f.txt
+  git -C "$work" commit -q -m base
+  git -C "$work" switch -q -c feat/a
+  printf 'a\n' >"$work/a.txt"
+  git -C "$work" add a.txt
+  git -C "$work" commit -q -m a
+  git -C "$work" switch -q -c feat/b
+  printf 'b\n' >"$work/b.txt"
+  git -C "$work" add b.txt
+  git -C "$work" commit -q -m b
+  git -C "$work" switch -q main
+  git -C "$work" push -q origin main feat/a feat/b
+  git -C "$work" update-ref refs/spice/data "$(git -C "$work" rev-parse main)"
+  git -C "$work" worktree add -q --detach "$merge_wt" origin/main
+  sha_main=$(git -C "$work" rev-parse main)
+  sha_a=$(git -C "$work" rev-parse feat/a)
+  sha_b=$(git -C "$work" rev-parse feat/b)
+  sha_data=$(git -C "$work" rev-parse refs/spice/data)
+}
+
+# new_case: new_dir, the scripts and the repository.
+new_case() {
+  new_dir
+  install_scripts
+  make_repo
+}
+
+# spice_ls <JSON line>...: the answer of `git-spice ls --all --json`.
+spice_ls() { printf '%s\n' "$@" >"$FAKE_GS_DIR/ls"; }
+
+# default_ls: feat/a (#1) <- feat/b (#2), both pushed and in sync.
+default_ls() {
+  spice_ls \
+    '{"name":"feat/a","down":{"name":"main"},"ups":[{"name":"feat/b"}],"change":{"id":"#1"},"push":{"ahead":0,"behind":0}}' \
+    '{"name":"feat/b","down":{"name":"feat/a"},"change":{"id":"#2"},"push":{"ahead":0,"behind":0}}' \
+    '{"name":"main","ups":[{"name":"feat/a"}]}'
+}
+
+# gs_hook <key> <bash code>: what the fake git-spice runs for the key.
+gs_hook() { printf '%s\n' "$2" >"$FAKE_GS_DIR/$1.sh"; }
+
+# advance_main <file> <content>: a new commit on the remote main.
+advance_main() {
+  git -C "$work" switch -q main
+  printf '%s\n' "$2" >"$work/$1"
+  git -C "$work" add "$1"
+  git -C "$work" commit -q -m "main $1"
+  git -C "$work" push -q origin main
+}
+
+# sync_hook: `git-spice repo sync` brings the local main to origin/main.
+sync_hook() { gs_hook repo_sync 'git fetch -q origin && git update-ref refs/heads/main refs/remotes/origin/main'; }
+
+# restack_hook: `git-spice stack restack` rebases feat/a on main and feat/b
+# on feat/a in the running worktree, leaving feat/b checked out like git-spice.
+restack_hook() {
+  gs_hook stack_restack 'git switch -q feat/a && git rebase -q main && git switch -q feat/b && git rebase -q feat/a'
+}
+
+# json <field>: a field of the last result line in $out.
+json() { jq -r ".$1" <<<"$out"; }
+
+# head_state <dir>: "branch <name>" or "detached <sha>" of a worktree.
+head_state() {
+  local b
+  if b=$(git -C "$1" symbolic-ref -q --short HEAD); then echo "branch $b"; else echo "detached $(git -C "$1" rev-parse HEAD)"; fi
+}
+
+# run_restack <dir> <args>...: runs the installed restack-stack.sh in the dir.
+run_restack() {
+  local dir=$1
+  shift
+  out=$(cd "$dir" && bash "$inst/restack-stack.sh" "$@")
+  code=$?
+}
