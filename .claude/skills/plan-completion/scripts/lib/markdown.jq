@@ -1,5 +1,6 @@
-# Markdown readers shared by judge-completion.sh, find-completion-pr.sh and the
-# pre-commit checks in .lefthook/pre-commit/. Load with: jq -L <scripts/lib> 'include "markdown"; ...'
+# Markdown readers shared by judge-completion.sh, find-completion-pr.sh,
+# check-pr-body.sh and the pre-commit checks in .lefthook/pre-commit/.
+# Load with: jq -L <scripts/lib> 'include "markdown"; ...'
 # Every function takes the whole Markdown text as its input unless noted.
 
 # Lines of the text. CRLF counts as one line break, so a CR never becomes
@@ -62,6 +63,27 @@ def unreadable_lines:
   [related_documents[] | select(.fenced | not) | .line
    | select(test("Plan:"))
    | select(gsub("\uFE0F"; "") | test(_plan_line_re) | not)];
+
+# Number of "### Related Documents" headings outside fences.
+def related_documents_count:
+  [md_marked_lines[] | select((.fenced | not) and .line == "### Related Documents")] | length;
+
+def _document_line_re: "^- (?:(?<mark>✅|🏃|⬜) )?(?<kind>Plan|Spec): (?<path>\\S+)$";
+
+# Lines of the Related Documents sections outside fences as
+# {line, kind, mark, path}. line is as written. kind is "Plan" or "Spec" for
+# lines of the document line format (mark and path read as in plan_lines),
+# "blank" for empty or whitespace-only lines, "comment" for one-line HTML
+# comments and "other" for every other line (mark and path are null).
+def document_lines:
+  [related_documents[] | select(.fenced | not) | .line as $line
+   | ($line | gsub("\uFE0F"; "")) as $plain
+   | if ($plain | test(_document_line_re))
+     then ($plain | capture(_document_line_re)) as $c | {line: $line, kind: $c.kind, mark: $c.mark, path: $c.path}
+     elif ($line | test("^[ \t]*$")) then {line: $line, kind: "blank", mark: null, path: null}
+     elif ($line | test("^[ \t]*<!--.*-->[ \t]*$")) then {line: $line, kind: "comment", mark: null, path: null}
+     else {line: $line, kind: "other", mark: null, path: null}
+     end];
 
 # Input: heading text. Output: the anchor GitHub generates for it (before the
 # -1, -2 suffixes for repeated anchors).
