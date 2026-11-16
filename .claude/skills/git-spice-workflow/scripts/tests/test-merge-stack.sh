@@ -296,4 +296,175 @@ run_merge
 check "the check next to merge-stack.sh ran" yes "$([ -s "$FAKE_CHECK_LOG" ] && echo yes)"
 check "copies are removed" "" "$(ls -A "$case_dir/tmp")"
 
+# --- merge (REQ-007, REQ-008, REQ-016) ---
+put_key=PUT_repos_o_n_pulls_2_merge-async
+get_key=GET_repos_o_n_pulls_2_merge-async_u1
+
+# include <status line> <body>: a `gh api --include` answer.
+include() { printf '%s\nContent-Type: application/json\n\n%s' "$1" "$2"; }
+
+# github_merged: GitHub deleted the merged heads (done before the run, since
+# the script fetches with --prune after the merge).
+github_merged() { git -C "$remote" branch -q -D "$@"; }
+
+# sync_deletes <branch>...: `git-spice repo sync` deletes the local branches.
+sync_deletes() { gs_hook repo_sync "git branch -q -D $*"; }
+
+no_forbidden_calls() {
+  check "$1: no gh pr merge" no "$(gh_called 'pr merge')"
+  check "$1: no gh stack" no "$(gh_called 'stack ')"
+  check "$1: no git-spice merge" no "$(logged "$FAKE_GS_LOG" merge)"
+  check "$1: no submit" no "$(logged "$FAKE_GS_LOG" submit)"
+  check "$1: no push" no "$(logged "$FAKE_GS_LOG" push)"
+}
+
+new_case
+two_prs
+answer "$put_key" "$(include 'HTTP/2.0 202 Accepted' '{"status":"pending","details":{"uuid":"u1"}}')"
+answer "$get_key.1" '{"status":"pending","details":{"uuid":"u1"}}'
+answer "$get_key.2" '{"status":"merged","details":{"sha":"abc"}}'
+github_merged feat/a feat/b
+sync_deletes feat/a feat/b
+run_merge
+expect "202 pending merged" 0 merged
+check "merged numbers" '[1,2]' "$(jq -c .merged <<<"$out")"
+check "one PUT to the top" yes "$(gh_called "api --include --method PUT -H X-GitHub-Api-Version: 2026-03-10 repos/o/n/pulls/2/merge-async -f sha=$sha_b -f merge_method=squash -f merge_action=direct_merge")"
+check "polled twice" 2 "$(<"$FAKE_GH_DIR/$get_key.count")"
+check "repo sync without restack" yes "$(logged "$FAKE_GS_LOG" 'repo sync --restack=none')"
+no_forbidden_calls "202 pending merged"
+
+new_case
+two_prs
+answer "$put_key" "$(include 'HTTP/2.0 200 OK' '{"status":"merged","details":{"sha":"abc"}}')"
+github_merged feat/a feat/b
+sync_deletes feat/a feat/b
+run_merge
+expect "200 already merged" 0 merged
+
+new_case
+two_prs
+answer "$put_key" "$(include 'HTTP/2.0 202 Accepted' '{"status":"pending","details":{"uuid":"u1"}}')"
+answer "$get_key" '{"status":"failed","details":{"message":"Merge conflict"}}'
+run_merge
+expect "failed" 24 merge_rejected
+check "failed: reason has the message" yes "$([[ "$(json reason)" == *"Merge conflict"* ]] && echo yes)"
+
+new_case
+two_prs
+answer "$put_key" "$(include 'HTTP/2.0 409 Conflict' '{"status":"pending","details":{"uuid":"u1"}}')" 1
+answer "$get_key" '{"status":"merged","details":{}}'
+github_merged feat/a feat/b
+sync_deletes feat/a feat/b
+run_merge
+expect "409 polls the existing request" 0 merged
+
+new_case
+two_prs
+answer "$put_key" "$(include 'HTTP/2.0 409 Conflict' '{"message":"exists"}')" 1
+run_merge
+expect "409 without a UUID" 3 transient
+
+new_case
+two_prs
+answer "$put_key" "$(include 'HTTP/2.0 202 Accepted' '{"status":"pending","details":{"uuid":"u1"}}')"
+answer "$get_key" '{"status":"pending","details":{"uuid":"u1"}}'
+run_merge
+expect "poll timeout" 3 transient
+
+for status in 400 422; do
+  new_case
+  two_prs
+  answer "$put_key" "$(include "HTTP/2.0 $status Bad" '{"message":"not mergeable"}')" 1
+  run_merge
+  expect "HTTP $status" 24 merge_rejected
+done
+
+new_case
+two_prs
+answer "$put_key" "$(include 'HTTP/2.0 502 Bad Gateway' '{"message":"oops"}')" 1
+run_merge
+expect "HTTP 502" 3 transient
+
+new_case
+two_prs
+answer "$put_key" 'connection reset' 1
+run_merge
+expect "no status line" 3 transient
+
+new_case
+two_prs
+answer "$put_key" "$(include 'HTTP/2.0 202 Accepted' '{"status":"pending","details":{"uuid":"u1"}}')"
+answer "$get_key" '{"status":"merged","details":{}}'
+sync_deletes feat/a
+run_merge
+expect "merged branch left" 23 precondition_failed
+check "merged branch left: merged numbers" '[1,2]' "$(jq -c .merged <<<"$out")"
+check "merged branch left: names feat/b" yes "$([[ "$(json reason)" == *feat/b* ]] && echo yes)"
+
+new_case
+two_prs
+cat >"$FAKE_GS_DIR/ls.sh" <<EOF
+n=\$(cat '$FAKE_GS_DIR/ls.count' 2>/dev/null || echo 0)
+n=\$((n + 1))
+echo "\$n" >'$FAKE_GS_DIR/ls.count'
+[ "\$n" -eq 2 ] && git worktree add -q '$case_dir/late' feat/a >/dev/null 2>&1
+cat '$FAKE_GS_DIR/ls'
+EOF
+answer "$put_key" "$(include 'HTTP/2.0 202 Accepted' '{"status":"pending","details":{"uuid":"u1"}}')"
+run_merge
+expect "worktree check again before merging" 23 precondition_failed
+check "late worktree: checked twice" 2 "$(<"$FAKE_GS_DIR/ls.count")"
+check "late worktree: pre-merge check ran" "$sha_b" "$(<"$FAKE_CHECK_LOG")"
+check "late worktree: no merge request" no "$(gh_called merge-async)"
+
+# sync_retargets_feat_b: `git-spice repo sync` deletes the local feat/a and
+# git-spice then lists feat/b on main.
+sync_retargets_feat_b() {
+  cat >"$FAKE_GS_DIR/ls.after" <<'EOF'
+{"name":"feat/b","down":{"name":"main"},"change":{"id":"#2"},"push":{"ahead":0,"behind":0}}
+{"name":"main","ups":[{"name":"feat/b"}]}
+EOF
+  gs_hook repo_sync "git branch -q -D feat/a && cp '$FAKE_GS_DIR/ls.after' '$FAKE_GS_DIR/ls'"
+}
+
+# Partial merge: #2 is not approved, #1 is merged; GitHub restacked feat/b.
+new_case
+answer repo-view '{"nameWithOwner":"o/n"}'
+stack_answer 1 1 2
+answer pr-view-1 "$(pr_json 1 feat/a main "$sha_a")"
+answer pr-view-2 "$(pr_json 2 feat/b feat/a "$sha_b" '.reviewDecision = "REVIEW_REQUIRED"')"
+default_ls
+answer PUT_repos_o_n_pulls_1_merge-async "$(include 'HTTP/2.0 202 Accepted' '{"status":"pending","details":{"uuid":"u1"}}')"
+answer GET_repos_o_n_pulls_1_merge-async_u1 '{"status":"merged","details":{}}'
+git -C "$work" switch -q -c rebased main
+printf 'b\n' >"$work/b.txt"
+git -C "$work" add b.txt
+git -C "$work" commit -q -m "b rebased"
+git -C "$work" push -q -f origin rebased:feat/b
+git -C "$work" switch -q main
+rebased=$(git -C "$work" rev-parse rebased)
+github_merged feat/a
+sync_retargets_feat_b
+run_merge --pr 1
+expect "partial merge" 0 merged
+check "partial merge: merged numbers" '[1]' "$(jq -c .merged <<<"$out")"
+check "partial merge: feat/b follows GitHub" "$rebased" "$(git -C "$merge_wt" rev-parse feat/b)"
+check "partial merge: no upstream config added" "" "$(git -C "$merge_wt" config --get branch.feat/b.merge)"
+check "partial merge: checks ran at #1" "$sha_a" "$(<"$FAKE_CHECK_LOG")"
+
+# Rerun after cleanup stopped: #1 is already MERGED at the bottom.
+new_case
+answer repo-view '{"nameWithOwner":"o/n"}'
+stack_answer 2 1 2
+answer pr-view-1 "$(pr_json 1 feat/a main "$sha_a" '.state = "MERGED"')"
+answer pr-view-2 "$(pr_json 2 feat/b feat/a "$sha_b")"
+default_ls
+github_merged feat/a
+sync_retargets_feat_b
+run_merge
+expect "merged bottom is cleaned up" 0 merged
+check "merged bottom: merged numbers" '[1]' "$(jq -c .merged <<<"$out")"
+check "merged bottom: no merge request" no "$(gh_called merge-async)"
+check "merged bottom: no pre-merge check" "" "$(<"$FAKE_CHECK_LOG")"
+
 finish

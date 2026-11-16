@@ -239,6 +239,98 @@ run_pre_merge_check() {
     || finish pre_merge_check_failed "マージ前の確かめが $sha で失敗した（終了コード $rc）。出力: $log。環境の一時的な失敗なら、環境を直してから $record と $log を消して走らせ直す"
 }
 
+# request_merge: one asynchronous squash merge of the range's top (REQ-007).
+request_merge() {
+  local top sha uuid message
+  top=$(jq -r '.[-1].number' <<<"$range_json")
+  sha=$(jq -r '.[-1].headRefOid' <<<"$range_json")
+  gh_merge_async "$repo" "$top" "$sha"
+  case $http_code in
+    200) return 0 ;;
+    202 | 409)
+      uuid=$(jq -r '.details.uuid // empty' <<<"$http_body" 2>/dev/null)
+      [ -n "$uuid" ] || finish transient "merge-async の応答（HTTP $http_code）に UUID が無い"
+      wait_for_merge "$top" "$uuid"
+      ;;
+    "" | 5??) finish transient "merge-async の要求が失敗した（HTTP ${http_code:-応答なし}）。走らせ直す" ;;
+    *)
+      message=$(jq -r '.message // .details.message // empty' <<<"$http_body" 2>/dev/null)
+      finish merge_rejected "GitHub が PR #$top のマージを断った（HTTP $http_code）: $message"
+      ;;
+  esac
+}
+
+# wait_for_merge <number> <uuid>: polls the request until it is merged.
+wait_for_merge() {
+  local top=$1 uuid=$2 interval=${MERGE_STACK_POLL_INTERVAL:-10} timeout=${MERGE_STACK_POLL_TIMEOUT:-900}
+  local deadline result status
+  [[ "$interval" =~ ^[0-9]+$ ]] || interval=10
+  [[ "$timeout" =~ ^[0-9]+$ ]] || timeout=900
+  deadline=$((SECONDS + timeout))
+  while :; do
+    result=$(gh_merge_async_result "$repo" "$top" "$uuid") \
+      || finish transient "merge-async の結果を問い合わせられなかった（UUID $uuid）。走らせ直す"
+    status=$(jq -r .status <<<"$result")
+    case $status in
+      merged) return 0 ;;
+      failed) finish merge_rejected "GitHub が PR #$top をマージできなかった: $(jq -r '.details.message // empty' <<<"$result")" ;;
+      pending | enqueued) ;;
+      *) finish transient "merge-async の結果の status が分からない: $status" ;;
+    esac
+    [ "$SECONDS" -lt "$deadline" ] \
+      || finish transient "merge-async の結果が $timeout 秒のうちに出なかった（UUID $uuid）。走らせ直すと問い合わせ直す"
+    sleep "$interval"
+  done
+}
+
+# after_merge <merged pull requests JSON>: aligns the local repository with
+# GitHub without restacking or pushing (REQ-008). The remaining pull requests
+# are in prs.
+after_merge() {
+  local merged=$1 numbers b local_sha remote_sha left="" rc spice bottom
+  numbers=$(jq -c 'map(.number)' <<<"$merged")
+  git fetch --quiet --prune origin || finish transient "マージの後の git fetch --prune が失敗した" "$numbers"
+  git-spice repo sync --restack=none >&2 || finish transient "マージの後の git-spice repo sync が失敗した" "$numbers"
+  for b in $(jq -r '.[] | select(.state == "OPEN") | .headRefName' <<<"$prs"); do
+    remote_sha=$(git rev-parse --verify -q "refs/remotes/origin/$b") || continue
+    local_sha=$(git rev-parse --verify -q "refs/heads/$b") || continue
+    [ "$local_sha" = "$remote_sha" ] && continue
+    git update-ref "refs/heads/$b" "$remote_sha" "$local_sha" \
+      || finish transient "$b を origin/$b に合わせられなかった" "$numbers"
+  done
+  for b in $(jq -r '.[].headRefName' <<<"$merged"); do
+    git show-ref --verify -q "refs/heads/$b" && left+="${left:+, }$b（ローカル）"
+    git ls-remote --exit-code --heads origin "refs/heads/$b" >/dev/null 2>&1
+    rc=$?
+    case $rc in
+      0) left+="${left:+, }$b（リモート）" ;;
+      2) ;;
+      *) finish transient "git ls-remote が失敗した" "$numbers" ;;
+    esac
+  done
+  [ -z "$left" ] || finish precondition_failed "マージしたブランチが残っている: $left" "$numbers"
+  bottom=$(jq -r '[.[] | select(.state == "OPEN")][0].headRefName // empty' <<<"$prs")
+  if [ -n "$bottom" ] && git show-ref --verify -q "refs/heads/$bottom"; then
+    spice=$(spice_branches) || finish transient "git-spice ls が失敗した" "$numbers"
+    [ "$(jq -r --arg b "$bottom" '.[] | select(.name == $b) | .down.name // empty' <<<"$spice")" = main ] \
+      || finish precondition_failed "git-spice の記録で $bottom の土台が main になっていない" "$numbers"
+  fi
+}
+
+# settle_merged_bottom: when the stack starts with merged pull requests (an
+# earlier run stopped after merging), aligns the local repository for them and
+# ends this run (REQ-009).
+settle_merged_bottom() {
+  local merged
+  merged=$(jq -c 'reduce .[] as $p ({open: false, out: []};
+      if .open then . elif $p.state == "MERGED" then .out += [$p] else .open = true end) | .out' <<<"$prs")
+  [ "$(jq length <<<"$merged")" -eq 0 ] && return 0
+  prs=$(jq -c --argjson m "$merged" '.[($m | length):]' <<<"$prs")
+  check_worktrees
+  after_merge "$merged"
+  finish merged "マージ済みの PR の後片付けをした。続きがあれば走らせ直す" "$(jq -c 'map(.number)' <<<"$merged")"
+}
+
 main() {
   local src
   pr=null
@@ -255,13 +347,20 @@ main() {
   check_workspace
   repo=$(gh_repo) || finish transient "gh repo view でリポジトリ名を読めなかった"
   read_stack
+  settle_merged_bottom
   choose_range
   check_order
   check_worktrees
   if is_stale; then run_restack; fi
   check_plan_records
   run_pre_merge_check
-  finish transient "マージの段はまだ作っていない"
+  check_worktrees
+  request_merge
+  local merged_numbers
+  merged_numbers=$(jq -c 'map(.number)' <<<"$range_json")
+  prs=$(jq -c --argjson m "$range_json" '.[($m | length):]' <<<"$prs")
+  after_merge "$range_json"
+  finish merged "PR $(jq -r 'map("#\(.)") | join(", ")' <<<"$merged_numbers") をマージした" "$merged_numbers"
 }
 
 main "$@"; exit $?
