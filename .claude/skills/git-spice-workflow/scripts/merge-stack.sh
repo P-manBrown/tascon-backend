@@ -180,6 +180,23 @@ run_restack() {
   esac
 }
 
+# check_plan_records: plan-completing pull requests of the range (a ✅ Plan
+# line) record their current head in Testing, and no Plan line is unreadable
+# (REQ-005).
+check_plan_records() {
+  local findings
+  findings=$(jq -r -L "$plan_lib_dir" -L "$lib_dir" '
+    include "markdown";
+    include "pr-body";
+    .[] | . as $p | ($p.body // "") as $b | ($b | unreadable_lines) as $bad
+    | if ($bad | length) > 0 then $bad[] | "PR #\($p.number) の Plan 行が読めない: \(.)"
+      elif ($b | plan_lines | any(.mark == "✅")) and (($b | has_head_record($p.headRefOid)) | not)
+      then "PR #\($p.number) の Testing に head \($p.headRefOid[0:7]) で判定した記録が無い"
+      else empty
+      end' <<<"$range_json") || finish transient "PR 本文を読めなかった"
+  [ -z "$findings" ] || finish precondition_failed "$(one_line "$findings")"
+}
+
 main() {
   local src
   pr=null
@@ -200,6 +217,7 @@ main() {
   check_order
   check_worktrees
   if is_stale; then run_restack; fi
+  check_plan_records
   finish transient "マージの段はまだ作っていない"
 }
 

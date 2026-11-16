@@ -171,4 +171,62 @@ git -C "$merge_wt" switch -q --detach origin/main
 run_merge
 expect "push check passes through" 21 push_check_failed
 
+# --- plan-completing pull requests (REQ-005) ---
+# done_body <testing text> [notes text]: a body with a ✅ Plan line.
+done_body() {
+  printf '### Summary\n\nx\n\n### Related Documents\n\n- ✅ Plan: .claude/plans/p.md\n\n### Testing\n\n%s\n\n### Notes (Optional)\n\n%s\n' \
+    "$1" "${2:-none}"
+}
+# with_body <body>: a jq update that sets the body.
+with_body() { printf '.body = %s' "$(jq -cn --arg b "$1" '$b')"; }
+
+new_case
+two_prs '.' "$(with_body "$(done_body "judged at 0000000aaaaaaa")")"
+run_merge
+expect "✅ without the head" 23 precondition_failed
+check "✅ without the head: reason" "PR #2 の Testing に head ${sha_b:0:7} で判定した記録が無い" "$(json reason)"
+check "✅ without the head: no merge request" no "$(gh_called merge-async)"
+
+new_case
+two_prs '.' "$(with_body "$(done_body "judged at $sha_b")")"
+run_merge
+check "✅ with 40 digits passes" no "$([ "$(json result)" = precondition_failed ] && echo yes || echo no)"
+
+new_case
+two_prs '.' "$(with_body "$(done_body "judged at ${sha_b:0:7}")")"
+run_merge
+check "✅ with 7 digits passes" no "$([ "$(json result)" = precondition_failed ] && echo yes || echo no)"
+
+new_case
+two_prs '.' "$(with_body "$(done_body "judged at ${sha_a}")")"
+run_merge
+expect "✅ with an old head only" 23 precondition_failed
+
+new_case
+two_prs '.' "$(with_body "$(done_body "none" "judged at $sha_b")")"
+run_merge
+expect "✅ head only in Notes" 23 precondition_failed
+
+new_case
+two_prs '.' "$(with_body "$(done_body $'```\n'"$sha_b"$'\n```')")"
+run_merge
+expect "✅ head only in a fence" 23 precondition_failed
+
+new_case
+two_prs '.' "$(with_body $'### Related Documents\n\n- Plan: .claude/plans/p.md\n\n### Testing\n\nnone')"
+run_merge
+check "no ✅: Testing not read" no "$([ "$(json result)" = precondition_failed ] && echo yes || echo no)"
+
+new_case
+two_prs "$(with_body $'### Related Documents\n\n- Plan:.claude/plans/p.md')"
+run_merge
+expect "unreadable Plan line" 23 precondition_failed
+check "unreadable Plan line: names #1" yes "$([[ "$(json reason)" == *"#1"* ]] && echo yes)"
+
+new_case
+two_prs '.mergeStateStatus = "BEHIND"' "$(with_body "$(done_body "none")")"
+restack_hook
+run_merge
+expect "✅ behind restacks first" 10 restacked
+
 finish
