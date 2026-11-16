@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Fake git-spice for the git-spice-workflow script tests.
+# Every call appends its arguments, joined by spaces, as one line to
+# $FAKE_GS_LOG. The key is the first argument, joined to the second by "_"
+# unless the second starts with "-" ("ls --all --json" -> ls,
+# "repo sync --restack=none" -> repo_sync).
+# When $FAKE_GS_DIR/<key>.sh exists, it runs with bash and the original
+# arguments and its exit code is returned. Otherwise $FAKE_GS_DIR/<key> is
+# printed (nothing when absent) and the exit code is $FAKE_GS_DIR/<key>.exit
+# (0 when absent).
+set -u
+printf '%s\n' "$*" >>"${FAKE_GS_LOG:?FAKE_GS_LOG is not set}"
+dir=${FAKE_GS_DIR:?FAKE_GS_DIR is not set}
+key=${1:-}
+case "${2:-}" in
+  "" | -*) ;;
+  *) key="${key}_$2" ;;
+esac
+[ -f "$dir/$key.sh" ] && exec bash "$dir/$key.sh" "$@"
+[ -f "$dir/$key" ] && cat "$dir/$key"
+code=0
+[ -f "$dir/$key.exit" ] && code=$(<"$dir/$key.exit")
+exit "$code"

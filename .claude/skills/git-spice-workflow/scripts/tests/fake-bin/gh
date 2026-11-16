@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Fake gh for the git-spice-workflow script tests.
+# Every call appends its arguments, joined by spaces, as one line to
+# $FAKE_GH_LOG. Answers are files in $FAKE_GH_DIR named by a key:
+#   gh api ...          <METHOD>_<endpoint>: METHOD from -X/--method (GET by
+#                       default); "/", "?", "&" and "=" in the endpoint become "_"
+#   gh pr view <n> ...  pr-view-<n>
+#   gh repo view ...    repo-view
+# When <key>.1, <key>.2, ... exist, the n-th call reads <key>.n, and later
+# calls read the last numbered file. <file>.exit holds the exit code (0 when
+# absent). A missing answer prints a 404 like gh (after an
+# "HTTP/2.0 404 Not Found" status line and a blank line with --include) and
+# exits 1.
+set -u
+printf '%s\n' "$*" >>"${FAKE_GH_LOG:?FAKE_GH_LOG is not set}"
+dir=${FAKE_GH_DIR:?FAKE_GH_DIR is not set}
+include=no
+
+reply() {
+  local key=$1 count=0 file code=0
+  if [ -f "$dir/$key.1" ]; then
+    [ -f "$dir/$key.count" ] && count=$(<"$dir/$key.count")
+    count=$((count + 1))
+    printf '%s\n' "$count" >"$dir/$key.count"
+    while [ "$count" -gt 1 ] && [ ! -f "$dir/$key.$count" ]; do count=$((count - 1)); done
+    file="$dir/$key.$count"
+  else
+    file="$dir/$key"
+  fi
+  if [ ! -f "$file" ]; then
+    [ "$include" = yes ] && printf 'HTTP/2.0 404 Not Found\n\n'
+    printf '%s\n' '{"message":"Not Found","status":"404"}'
+    exit 1
+  fi
+  [ -f "$file.exit" ] && code=$(<"$file.exit")
+  cat "$file"
+  exit "$code"
+}
+
+case "${1:-}" in
+  api)
+    shift
+    method=GET
+    endpoint=""
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        -i | --include) include=yes; shift ;;
+        -X | --method) method=$2; shift 2 ;;
+        -H | --header | -f | -F | --field | --raw-field | -q | --jq) shift 2 ;;
+        -*) printf 'fake gh: unsupported option %s\n' "$1" >&2; exit 64 ;;
+        *)
+          [ -z "$endpoint" ] || { printf '%s\n' "fake gh: more than one endpoint" >&2; exit 64; }
+          endpoint=$1
+          shift
+          ;;
+      esac
+    done
+    key="${method}_$endpoint"
+    key=${key//\//_}
+    key=${key//\?/_}
+    key=${key//&/_}
+    key=${key//=/_}
+    reply "$key"
+    ;;
+  pr)
+    [ "${2:-}" = view ] || exit 64
+    reply "pr-view-$3"
+    ;;
+  repo)
+    [ "${2:-}" = view ] || exit 64
+    reply repo-view
+    ;;
+  *)
+    printf '%s\n' "fake gh: unsupported command: $*" >&2
+    exit 64
+    ;;
+esac
