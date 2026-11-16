@@ -87,10 +87,11 @@ check_workspace() {
 read_stack() {
   local numbers n one
   numbers=$(gh_stack_numbers "$repo" "$pr") || finish transient "PR #$pr のスタックを読めなかった"
+  [ -n "$numbers" ] || finish transient "PR #$pr のスタックに PR の番号が無かった"
   prs='[]'
   for n in $numbers; do
     one=$(gh_pr "$n") || finish transient "PR #$n を読めなかった"
-    prs=$(jq -c --argjson p "$one" '. + [$p]' <<<"$prs")
+    prs=$(jq -c --argjson p "$one" '. + [$p]' <<<"$prs") || finish transient "PR #$n の内容を読めなかった"
   done
   all_prs=$prs
 }
@@ -98,7 +99,7 @@ read_stack() {
 # choose_range: sets range_json to the bottom pull requests that are open,
 # not drafts, approved and passing every check (REQ-002).
 choose_range() {
-  local chosen waiting why
+  local chosen waiting why len
   chosen=$(jq -c '
     def passed: all((.statusCheckRollup // [])[];
       if .__typename == "StatusContext" then .state == "SUCCESS"
@@ -110,9 +111,10 @@ choose_range() {
       elif ($p | ready) then .range += [$p]
       else .stop = true | .waiting = $p.number
         | .why = "state=\($p.state) draft=\($p.isDraft) review=\($p.reviewDecision) checks_passed=\($p | passed)"
-      end)' <<<"$prs")
-  range_json=$(jq -c .range <<<"$chosen")
-  if [ "$(jq length <<<"$range_json")" -eq 0 ]; then
+      end)' <<<"$prs") || finish transient "PR の承認・チェックの状態を読めなかった"
+  range_json=$(jq -c .range <<<"$chosen") || finish transient "マージする範囲を読めなかった"
+  len=$(jq length <<<"$range_json") || finish transient "マージする範囲の長さを読めなかった"
+  if [ "$len" -eq 0 ]; then
     waiting=$(jq -r .waiting <<<"$chosen")
     why=$(jq -r .why <<<"$chosen")
     finish wait "PR #$waiting の承認・チェックを待つ（$why）" '[]' "$waiting"
@@ -126,7 +128,8 @@ check_order() {
   bad=$(jq -r '. as $r | range(0; length) as $i
     | (if $i == 0 then "main" else $r[$i - 1].headRefName end) as $want
     | select($r[$i].baseRefName != $want)
-    | "PR #\($r[$i].number) の base が \($r[$i].baseRefName)（\($want) であるべき）"' <<<"$range_json")
+    | "PR #\($r[$i].number) の base が \($r[$i].baseRefName)（\($want) であるべき）"' <<<"$range_json") \
+    || finish transient "スタックの並びを読めなかった"
   [ -z "$bad" ] || finish precondition_failed "スタックの並びが合わない: $(one_line "$bad")"
 }
 

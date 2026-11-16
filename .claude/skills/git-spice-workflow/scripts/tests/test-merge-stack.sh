@@ -9,6 +9,13 @@ expect() {
   check "$1: exit field" "$2" "$(json exit)"
 }
 
+# --- fail closed on an unreadable pull request ---
+new_case
+two_prs '.statusCheckRollup = ["weird"]'
+run_merge
+expect "unreadable checks" 3 transient
+check "unreadable checks: stops before the end" "" "$([[ "$(json reason)" == *まだ作っていない* ]] && echo yes)"
+
 # --- where it runs (REQ-001) ---
 new_case
 two_prs
