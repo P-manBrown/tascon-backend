@@ -27,6 +27,12 @@ repo_root="$(git rev-parse --show-toplevel)"
 set -e
 sudo git config --system --add safe.directory "${repo_root:-${PWD}}"
 git config --local core.editor 'zed --wait'
+# Native GitHub stacks and the merge commands of git-spice, merging by squash.
+# .git/config is shared by every worktree, so setting it once here is enough.
+git config --local spice.forge.github.stacks true
+git config --local spice.experiment.merge true
+git config --local spice.merge.method squash
+git config --local spice.submit.navigationComment false
 
 echo 'Setting up GitHub CLI...'
 # ~/.config/gh is a named volume; Docker creates its mount point owned by root.
