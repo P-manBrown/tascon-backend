@@ -79,38 +79,29 @@ git-spice使用。スタック型ブランチ管理。
 
 ### 前提
 
-- mainへのマージはsquash mergeのみ。マージ後、headブランチは自動削除され、1つ上のPRのマージ先はGitHubがmainへ付け替える
-- 作業ツリーがクリーンで、スタックの全ブランチのローカルとリモートが一致していること。未コミットの変更がある場合は、push前に`git stash push -u`で退避し、push後に戻す
-- マージを始める前に、マージする範囲にPlanに✅を付けたPRがあれば、そのPRごとに次を確かめる。1つでも満たさなければマージを始めない
-  - そのPRのTestingに、`Validation and Acceptance`の全項目（「マージ後に判定」を除く）を満たした判定の結果がある
-  - 判定したコミットがそのPRのheadと同じ。違えば、マージ前に判定し直してTestingを直す
-- マージを始める前に、マージする範囲の一番上のブランチの先端で`bin/bundle exec rspec`を実行し、終了コードが0（failuresが0件で、`errors occurred outside of examples`もない）であることを確かめる。満たさなければマージを始めない。確かめた後に、マージする範囲のブランチへ変更が加わったら、確かめ直す
+- mainへのマージはsquash mergeのみ。ネイティブのスタックとマージのコマンドの設定は、`project-setup` skillのリポジトリの準備で済んでいる
+- 作業ツリーがクリーンで、マージする範囲の全ブランチのローカルとリモートが一致していること。未コミットの変更がある場合は、push前に`git stash push -u`で退避し、push後に戻す
 
-### 1本ごとの手順
+### 手順
 
-1. `git-spice ls`で一番下のブランチとPR番号`<N>`を特定し、`gh pr view <N> --json baseRefName,headRefOid,mergeStateStatus`で次を確認する
-   - マージ先がmain
+1. `git-spice ls`で、マージする範囲の一番上のブランチ、範囲のPRの番号、範囲の一番上のブランチのすぐ上に積まれた（範囲に入らない）ブランチを控える
+2. 範囲のPRごとに、`gh pr view <N> --json headRefOid,statusCheckRollup`で次を確かめる
    - head SHAがローカルのブランチと一致
-   - `mergeStateStatus`が`CLEAN`（CI実行中なら`CLEAN`になるまで待つ）
-   - 次のブランチと一番下のブランチとの差分を控える
-2. `gh pr merge <N> --squash --match-head-commit <手順1のhead SHA>`でマージする
-   - `--subject`・`--body`・`--delete-branch`は付けない
-3. `git-spice repo sync --restack=aboves`でローカルへ反映し、次を確認する
-   - 出力に`#<N> was merged`と`<次のブランチ>: restacked on main`がある
-   - mainの最新コミットが`<PRタイトル> (#<N>)`
-   - 次のブランチの`main`との差分が、手順1で控えた差分と一致する
-4. `git-spice branch submit --branch <次のブランチ>`でpushし、次のPRのマージ先がmain、head SHAがローカルと一致、`mergeStateStatus`が`CLEAN`になったことを確認する
-5. 手順1へ戻る。最後のPRをマージしたら「完了時の確認」へ進む
+   - CIのチェックがすべて終わって成功している。終わっていなければ終わるまで待つ。1つでも失敗していればマージしない
+3. マージする。Bashの時間の上限を600000 msにし、前面で走らせる（バックグラウンドにしない）
+   - mainの上の1本だけ: `git-spice branch merge --branch <ブランチ>`
+   - 2本以上: `git-spice downstack merge --branch <範囲の一番上のブランチ>`
+4. 次を確かめる
+   - mainに、範囲のPRごとの`<PRタイトル> (#<N>)`がある
+   - マージしたブランチがローカル・リモートとも残っていない
+5. 手順1で控えた、範囲のすぐ上のブランチごとに、次を順に実行する
+   - `git-spice upstack restack --branch <ブランチ>`
+   - `git-spice upstack submit --update-only --branch <ブランチ>`
 
-- `--restack=upstack`・`git-spice stack submit`等で、スタック全体を毎回restack・pushしない
-
-### 完了時の確認
-
-- マージしたブランチがローカル・リモートとも残っていない
-- 手順3（`git-spice repo sync --restack=aboves`）では、マージしたスタックの上に積まれた別のブランチも積み直される。そのうちGitHubにPRがあるものだけを`git-spice branch submit --update-only --branch <ブランチ>`でpushする。PRが無い（ローカルにしか無い）ブランチは、ローカルで積み直されるがpushしない
 - ほかのスタックや、ローカルにしか無いブランチに`needs restack`・`needs push`が表示されても何もしない（`git-spice repo restack`・`git-spice stack submit`は実行しない）
 
 ### 異常時
 
-- 確認項目が1つでも想定と異なれば、その場で止めてユーザーへ報告する
-- 1本ごとの手順の手順3（`git-spice repo sync --restack=aboves`）の後で止まり、やり直すときは、`repo sync`はマージを取り込み済みで次のブランチを積み直さない。`git-spice branch restack --branch <次のブランチ>`でそのブランチだけをmainの上に積み直し、差分がそのブランチの変更だけになったことを確かめてから、手順4（`git-spice branch submit --branch <次のブランチ>`）へ進む
+- 確かめが想定と異なれば、その場で止めてユーザーへ報告する
+- マージのコマンドが0以外で終わったら、何がマージされたかを`git-spice ls`とPRの状態で確かめて報告する。マージされなかったブランチを、GitHubの画面や`gh`のコマンド等の別の手段でマージしない。手順5は、マージされたブランチのすぐ上のブランチについてだけ行う
+- マージのコマンドがBashの時間の上限で打ち切られたら、何がマージされたかを`git-spice ls`とPRの状態で確かめて報告する。原因（CIの待ち等）が解けたら、同じマージのコマンドをもう一度走らせてよい
