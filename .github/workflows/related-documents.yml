@@ -1,0 +1,28 @@
+name: Related Documents
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+
+jobs:
+  main:
+    name: Check Related Documents
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Write the pull request body to a file
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: printf '%s' "$PR_BODY" > "$RUNNER_TEMP/body.md"
+      - name: Check the Related Documents section
+        run: bash .claude/skills/plan-completion/scripts/check-pr-body.sh --body-file "$RUNNER_TEMP/body.md"
