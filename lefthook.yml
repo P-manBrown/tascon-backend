@@ -37,6 +37,11 @@ pre-commit:
     - run: bash .claude/skills/plan-completion/scripts/tests/run.sh
       glob: ".claude/skills/plan-completion/**"
       fail_text: 'Read the report above.'
+    - run: bash .claude/skills/git-spice-workflow/scripts/tests/run.sh
+      glob:
+        - ".claude/skills/git-spice-workflow/scripts/**"
+        - ".claude/skills/plan-completion/scripts/lib/markdown.jq"
+      fail_text: 'Read the report above.'
 pre-push:
   commands:
     check-git-clean:
