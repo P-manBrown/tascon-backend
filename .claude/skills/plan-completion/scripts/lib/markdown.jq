@@ -64,6 +64,25 @@ def unreadable_lines:
    | select(test("Plan:"))
    | select(gsub("\uFE0F"; "") | test(_plan_line_re) | not)];
 
+# Lines of the "### Testing" sections, from the line after the heading up to
+# the next heading of level 1-3, both found outside fences.
+def testing_section:
+  reduce md_marked_lines[] as $x ({in: false, out: []};
+    if ($x.fenced | not) and ($x.line == "### Testing") then .in = true
+    elif ($x.fenced | not) and ($x.line | test("^#{1,3}[ \t]")) then .in = false
+    elif .in then .out += [$x]
+    else .
+    end)
+  | .out;
+
+def _validation_line_re: "^Validation and Acceptance of `(?<path>[^`]+)`, judged at (?<sha>[0-9a-f]{40})(?![0-9a-f])";
+
+# Validation result lines of the Testing sections (outside fences) as
+# {path, sha}: lines that start with
+# "Validation and Acceptance of `<path>`, judged at <40-hex SHA>".
+def validation_lines:
+  [testing_section[] | select(.fenced | not) | .line | capture(_validation_line_re)];
+
 # Number of "### Related Documents" headings outside fences.
 def related_documents_count:
   [md_marked_lines[] | select((.fenced | not) and .line == "### Related Documents")] | length;

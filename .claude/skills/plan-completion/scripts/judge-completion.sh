@@ -4,9 +4,15 @@
 # GitHub through `gh api` only. Writes nothing to the working directory.
 # Output (stdout, exit 0 or 4 only):
 #   {"completed": [{"plan", "prs", "completing_pr"}],
-#    "missing_marker": [{"plan", "prs"}], "unreadable": [{"pr", "line"}]}
-# Exit: 0 judged, nothing to report / 4 judged, missing_marker or unreadable
-#       found / 3 GitHub queries incomplete / 2 usage error / 1 internal error
+#    "missing_marker": [{"plan", "prs"}], "unreadable": [{"pr", "line"}],
+#    "missing_validation": [{"plan", "pr", "judged_at", "head"}]}
+# missing_validation lists the pull requests merged into main whose plan line
+# for an active plan has the check mark, but whose Testing has no validation
+# line for that plan at the pull request head (judged_at: the SHA written in
+# the line, or null when there is no line).
+# Exit: 0 judged, nothing to report / 4 judged, missing_marker, unreadable or
+#       missing_validation found / 3 GitHub queries incomplete / 2 usage error
+#       / 1 internal error
 set -u
 
 script_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 1
@@ -74,10 +80,18 @@ result=$(printf '%s\n%s\n' "$plans" "$pages" | jq -c -n -L "$lib_dir" '
   | {completed: [$judged[] | select((.done | length) > 0)
                  | {plan, prs, completing_pr: ([.done[] | $by_number[tostring]] | max_by(.merged_at) | .number)}],
      missing_marker: [$judged[] | select((.done | length) == 0) | {plan, prs}],
-     unreadable: ($unreadable | sort_by(.pr, .line))}') || { printf '%s\n' "failed to judge the pull requests" >&2; exit 1; }
+     unreadable: ($unreadable | sort_by(.pr, .line)),
+     missing_validation: [$refs[] | select(.mark == "✅") | .path as $plan
+       | select(any($plans[]; . == $plan))
+       | $by_number[.pr | tostring] as $p
+       | select($p.merged_at != null and $p.base == "main")
+       | [$p.body | validation_lines[] | select(.path == $plan) | .sha] as $shas
+       | select(any($shas[]; . == $p.head) | not)
+       | {plan: $plan, pr: $p.number, judged_at: $shas[0], head: $p.head}]
+       | unique_by([.plan, .pr])}') || { printf '%s\n' "failed to judge the pull requests" >&2; exit 1; }
 
 printf '%s\n' "$result"
-if printf '%s' "$result" | jq -e '(.missing_marker | length) == 0 and (.unreadable | length) == 0' >/dev/null; then
+if printf '%s' "$result" | jq -e '(.missing_marker | length) == 0 and (.unreadable | length) == 0 and (.missing_validation | length) == 0' >/dev/null; then
   exit 0
 fi
 exit 4
