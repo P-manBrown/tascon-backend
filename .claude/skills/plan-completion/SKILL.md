@@ -1,6 +1,6 @@
 ---
 name: plan-completion
-description: 計画（`docs/design/plans/`）の完了を判定し、完了した計画の完了の処理を行うスキル。「計画は完了した？」「完了の処理をして」等の指示があった場合、`gh pr merge`の後に完了の処理を促された場合に加え、計画の段のPRのRelated Documentsの印を書く場合にも使用する。
+description: 計画（`docs/design/plans/`）の完了を判定し、完了した計画の完了の処理を行うスキル。「計画は完了した？」「完了の処理をして」等の指示があった場合、git-spiceのマージのコマンド（`git-spice branch merge`・`git-spice downstack merge`等）の後に完了の処理を促された場合に加え、計画の段のPRのRelated Documentsの印を書く場合にも使用する。
 ---
 
 # plan-completion
