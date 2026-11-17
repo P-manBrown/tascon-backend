@@ -62,7 +62,7 @@ run_hook() {
 }
 
 export FAKE_JUDGE_OUT='{"completed":[{"plan":".claude/plans/active/a-b.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[]}'
-for cmd in 'gh pr merge 12 --squash --match-head-commit 0123abc' 'cd x && gh pr merge 3' 'x=$(gh pr merge 3)' 'echo `gh pr merge 3`' 'echo "x; gh pr merge 3"'; do
+for cmd in 'gh pr merge 12 --squash --match-head-commit 0123abc' 'cd x && gh pr merge 3' 'x=$(gh pr merge 3)' 'echo `gh pr merge 3`' 'echo "x; gh pr merge 3"' 'bash .claude/skills/git-spice-workflow/scripts/merge-stack.sh --pr 12' 'cd x && merge-stack.sh --pr 3'; do
   run_hook "$cmd"
   check "fires on: $cmd" 2 "$code"
 done
@@ -74,7 +74,7 @@ check "judge gets the repository and runs in an empty directory" "judge --repo o
 check "find gets the plan name" "find --repo o/n --plan a-b" "$(sed -n 2p "$FAKE_LOG")"
 check "nothing on stdout" "" "$(cat "$root/stdout")"
 
-for cmd in 'gh pr view 3' 'ghx pr merge' 'gh pr mergeX' 'echo "gh pr merge"' ''; do
+for cmd in 'gh pr view 3' 'ghx pr merge' 'gh pr mergeX' 'echo "gh pr merge"' 'bash .claude/skills/git-spice-workflow/scripts/merge-stack.shx --pr 12' 'bash xmerge-stack.sh' 'cat merge-stack.sh.md' ''; do
   run_hook "$cmd"
   check "does not fire on: '$cmd' (exit)" 0 "$code"
   check "does not fire on: '$cmd' (output)" "" "$err$(cat "$root/stdout")"

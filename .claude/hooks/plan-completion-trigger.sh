@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PostToolUse (Bash) hook. After `gh pr merge`, judges plan completion with the
+# PostToolUse (Bash) hook. After `gh pr merge` or merge-stack.sh, judges plan completion with the
 # plan-completion Skill scripts and tells Claude (stderr, exit 2) which plans
 # need the completion process and which pull request marks need a human.
 # Prints nothing and exits 0 for other commands or when nothing needs doing.
@@ -8,13 +8,14 @@ set -u
 input=$(cat)
 command=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
 pattern='(^|[;&|(`[:space:]])gh[[:space:]]+pr[[:space:]]+merge([[:space:]]|$)'
-printf '%s\n' "$command" | grep -Eq -- "$pattern" || exit 0
+stack_pattern='(^|[;&|(`[:space:]/])merge-stack\.sh([[:space:]]|$)'
+printf '%s\n' "$command" | grep -Eq -- "$pattern|$stack_pattern" || exit 0
 
 hook_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 0
 scripts="$hook_dir/../skills/plan-completion/scripts"
 
 not_judged() {
-  printf '%s\n' "gh pr merge の後に計画の完了を判定できなかった（$1）。後で plan-completion Skill の判定をやり直すこと。" >&2
+  printf '%s\n' "マージの後に計画の完了を判定できなかった（$1）。後で plan-completion Skill の判定をやり直すこと。" >&2
   exit 2
 }
 
