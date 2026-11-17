@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Install project dependencies. Linux only; no-op elsewhere.
+# Prepare this repository. On Linux, install the gems with bundle (bundle
+# check, then bundle install when gems are missing). On other OSes, do nothing
+# and exit 0.
 # Usage:
 #   setup.sh              manual run: use the git repository of the current directory
 #   setup.sh --from-hook  hook run: read the hook input JSON from stdin and use its cwd
