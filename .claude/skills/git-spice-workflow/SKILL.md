@@ -64,46 +64,19 @@ git-spice使用。スタック型ブランチ管理。
 
 ## mainへの追従
 
-- スタックを最新の`main`の上に載せ直すときは、作業ツリーがクリーンな状態で、`git-spice repo sync`でローカルの`main`を更新し、`git-spice stack restack --branch <スタック内のブランチ>`でそのスタックだけをrestackする。`git-spice repo restack`は他のスタックもrestackするので使わない
-- 別のworktreeでcheckoutされているブランチとその上のブランチは、「コミット内容ルール」のとおりrestackする
-- pushは、スタック内のブランチをcheckoutした状態で`git-spice stack submit --update-only`で行い、PRの無いブランチにPRを作らない
+- スタックを最新の`main`の上に載せ直すときは、このskillの`scripts/restack-stack.sh --branch <スタック内のブランチ>`を、作業ツリーがきれいで、スタックのブランチを取り出していないworktreeで走らせる。終了コードごとに次をする
+  - 0: 済み
+  - 20: 「コミット内容ルール」のとおりスタックを手で積み直して衝突を解き、PRのあるブランチをpushし、ブランチを取り出したworktreeをdetached HEADかスタック外のブランチに切り替えてから走らせ直す
+  - 21・23: 出力の`reason`にある前提を直してから走らせ直す。スタックのブランチか上のブランチを取り出したworktreeがあると言われたら、そのworktreeをdetached HEADかスタック外のブランチに切り替えてから走らせ直す
+  - 3: `reason`を読み、走らせ直すかユーザーへ報告する
 
 ## スタックPRのマージ
 
-### 前提
-
-- mainへのマージはsquash mergeのみ。マージ後、headブランチは自動削除され、1つ上のPRのマージ先はGitHubがmainへ付け替える
-- 作業ツリーがクリーンで、スタックの全ブランチのローカルとリモートが一致していること。未コミットの変更がある場合は、push前に`git stash push -u`で退避し、push後に戻す
-- マージを始める前に、マージする範囲にPlanに✅を付けたPRがあれば、そのPRごとに次を確かめる。1つでも満たさなければマージを始めない
-  - そのPRのTestingに、`Validation and Acceptance`の全項目（「マージ後に判定」を除く）を満たした判定の結果がある
-  - 判定したコミットがそのPRのheadと同じ。違えば、マージ前に判定し直してTestingを直す
-- マージを始める前に、マージする範囲の一番上のブランチの先端で`bin/bundle exec rspec`を実行し、終了コードが0（failuresが0件で、`errors occurred outside of examples`もない）であることを確かめる。満たさなければマージを始めない。確かめた後に、マージする範囲のブランチへ変更が加わったら、確かめ直す
-
-### 1本ごとの手順
-
-1. `git-spice ls`で一番下のブランチとPR番号`<N>`を特定し、`gh pr view <N> --json baseRefName,headRefOid,mergeStateStatus`で次を確認する
-   - マージ先がmain
-   - head SHAがローカルのブランチと一致
-   - `mergeStateStatus`が`CLEAN`（CI実行中なら`CLEAN`になるまで待つ）
-   - 次のブランチと一番下のブランチとの差分を控える
-2. `gh pr merge <N> --squash --match-head-commit <手順1のhead SHA>`でマージする
-   - `--subject`・`--body`・`--delete-branch`は付けない
-3. `git-spice repo sync --restack=aboves`でローカルへ反映し、次を確認する
-   - 出力に`#<N> was merged`と`<次のブランチ>: restacked on main`がある
-   - mainの最新コミットが`<PRタイトル> (#<N>)`
-   - 次のブランチの`main`との差分が、手順1で控えた差分と一致する
-4. `git-spice branch submit --branch <次のブランチ>`でpushし、次のPRのマージ先がmain、head SHAがローカルと一致、`mergeStateStatus`が`CLEAN`になったことを確認する
-5. 手順1へ戻る。最後のPRをマージしたら「完了時の確認」へ進む
-
-- `--restack=upstack`・`git-spice stack submit`等で、スタック全体を毎回restack・pushしない
-
-### 完了時の確認
-
-- マージしたブランチがローカル・リモートとも残っていない
-- 手順3（`git-spice repo sync --restack=aboves`）では、マージしたスタックの上に積まれた別のブランチも積み直される。そのうちGitHubにPRがあるものだけを`git-spice branch submit --update-only --branch <ブランチ>`でpushする。PRが無い（ローカルにしか無い）ブランチは、ローカルで積み直されるがpushしない
-- ほかのスタックや、ローカルにしか無いブランチに`needs restack`・`needs push`が表示されても何もしない（`git-spice repo restack`・`git-spice stack submit`は実行しない）
-
-### 異常時
-
-- 確認項目が1つでも想定と異なれば、その場で止めてユーザーへ報告する
-- 1本ごとの手順の手順3（`git-spice repo sync --restack=aboves`）の後で止まり、やり直すときは、`repo sync`はマージを取り込み済みで次のブランチを積み直さない。`git-spice branch restack --branch <次のブランチ>`でそのブランチだけをmainの上に積み直し、差分がそのブランチの変更だけになったことを確かめてから、手順4（`git-spice branch submit --branch <次のブランチ>`）へ進む
+- マージは、HEADを`origin/main`に切り離して置いた、作業ツリーがきれいな作業場所で、このskillの`scripts/merge-stack.sh --pr <スタックのどれかのPR>`を走らせて行う。PRを1本ずつマージしない
+- 終了コードごとに次をする
+  - 0: 続きのPRがあれば走らせ直す
+  - 10: 承認・チェックを待ってから走らせ直す
+  - 20: 「mainへの追従」の20と同じ
+  - 21・23: `reason`にある前提を直してから走らせ直す。スタックのブランチか上のブランチを取り出したworktreeがあると言われたら、そのworktreeをdetached HEADかスタック外のブランチに切り替える。Planに✅を付けたPRのTestingに今のheadで判定した記録が無いと言われたら、「プルリクエスト作成ルール」のとおり今のheadで判定し直してTestingを直す
+  - 22: `reason`にある出力のファイルを読み、テストの失敗を直す。環境の一時的な失敗（DBが無い等）だったときは、環境を直してから、`reason`にある記録のファイルを消して走らせ直す
+  - 24・3: `reason`を読み、走らせ直すかユーザーへ報告する
