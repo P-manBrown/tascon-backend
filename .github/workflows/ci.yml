@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  rspec:
+    name: rspec
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    services:
+      db:
+        image: mysql:8.4.8
+        env:
+          MYSQL_ROOT_PASSWORD: ci_root_password
+          MYSQL_USER: ci_user
+          MYSQL_PASSWORD: ci_password
+          MYSQL_DATABASE: tascon_test
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -pci_root_password"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 60
+    env:
+      RAILS_ENV: test
+      TZ: Asia/Tokyo
+      CI: "true"
+      MYSQL_USER: ci_user
+      MYSQL_PASSWORD: ci_password
+      MYSQL_DATABASE: tascon_test
+      MYSQL_TEST_DATABASE: tascon_test
+      WEB_HOST: localhost
+      WEB_PORT: "8080"
+    steps:
+      - name: Install libvips
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends libvips42
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/cache@v6
+        with:
+          path: /usr/local/bundle
+          key: gems-ruby-4.0.0-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: gems-ruby-4.0.0-${{ runner.os }}-
+      - name: Install gems
+        run: bundle install --jobs 4
+      - name: Prepare the database
+        run: bin/rails db:prepare
+      - name: rspec
+        run: bin/bundle exec rspec
+
+  checks:
+    name: checks
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    steps:
+      - name: Install jq
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends jq
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Configure git
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global user.name "CI"
+          git config --global user.email "ci@example.invalid"
+      - uses: actions/cache@v6
+        with:
+          path: /usr/local/bundle
+          key: gems-ruby-4.0.0-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: gems-ruby-4.0.0-${{ runner.os }}-
+      - name: Install gems
+        id: bundle
+        run: bundle install --jobs 4
+      - name: rubocop
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        run: bin/bundle exec rubocop
+      - name: htmlbeautifier
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        run: |
+          mapfile -d '' files < <(git ls-files -z '*.erb')
+          bin/bundle exec htmlbeautifier --lint-only "${files[@]}"
+      - name: debride
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        run: |
+          mapfile -d '' files < <(git ls-files -z '*.rb')
+          report=$(bin/bundle exec debride --rails -w debride-whitelist.txt "${files[@]}")
+          printf '%s\n' "$report"
+          grep -q 'Total suspect LOC: 0' <<<"$report"
+      - name: check-docs.sh
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        run: bash .lefthook/pre-commit/check-docs.sh
+      - name: pre-commit check tests
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        run: bash .lefthook/pre-commit/tests/run.sh
+      - name: plan-completion script tests
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        run: bash .claude/skills/plan-completion/scripts/tests/run.sh
+      - name: check-plan-completion.sh
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          base=$(git merge-base "origin/$BASE_REF" HEAD)
+          git reset --soft "$base"
+          bash .lefthook/pre-commit/check-plan-completion.sh
