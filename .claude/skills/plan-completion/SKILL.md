@@ -17,10 +17,10 @@ description: 計画（`.claude/plans/`）の完了を判定し、完了した計
 
 ## 判定
 
-空のフォルダで`scripts/judge-completion.sh --repo <owner>/<name>`を実行する。標準出力のJSONの`completed`は完了した計画、`missing_marker`は指すPRがすべてmainにマージ済みなのに✅が無い計画、`unreadable`は読めないPlan行。
+空のフォルダで`scripts/judge-completion.sh --repo <owner>/<name>`を実行する。標準出力のJSONの`completed`は完了した計画、`missing_marker`は指すPRがすべてmainにマージ済みなのに✅が無い計画、`unreadable`は読めないPlan行、`missing_validation`はmainにマージ済みの✅のPRのうち、Testingにその計画の確かめの結果の行が無い（`judged_at`がnull）か、行のコミット（`judged_at`）がPRのhead（`head`）と違うもの。
 
 - 終了コード0: `completed`の計画ごとに完了の処理を行う
-- 4: `missing_marker`・`unreadable`をユーザーに知らせる。PRの本文は自動で直さない（✅を付けるべきPRか、取りやめたPRかは人が確かめる）。`completed`の計画の完了の処理は進めてよい
+- 4: `missing_marker`・`unreadable`・`missing_validation`をユーザーに知らせる。PRの本文は自動で直さない（✅を付けるべきPRか、取りやめたPRか、確かめの結果をどう補うかは人が確かめる）。`completed`の計画の完了の処理は進めてよい
 - 3: GitHubの読み取りが揃わなかった。完了の処理をせず、時間をおいて判定をやり直す
 - 2・1: 呼び方の誤り・内部の誤り。原因を直して判定をやり直す
 
