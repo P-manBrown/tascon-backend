@@ -17,3 +17,4 @@
 - [planの完了処理のブランチも依存で切る場所を決める](plan-completion-branch-by-dependency.md)
 - [PR本文のRelated DocumentsをCIで検査する](pr-body-related-documents-ci-check.md)
 - [pre-commitのチェックをskillから分け、対象の変更時だけ実行する](precommit-checks-by-target.md)
+- [スタックのマージをgit-spiceのマージのコマンドで行い、確かめの関門をCIに移す](stack-merge-with-git-spice-and-ci-gates.md)
