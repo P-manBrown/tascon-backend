@@ -13,7 +13,7 @@ if [ "$(uname -s)" != "Linux" ]; then
 fi
 
 if [ "${1:-}" = "--from-hook" ]; then
-  if ! cwd="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["cwd"])')"; then
+  if ! cwd="$(jq -r '.cwd // empty')" || [ -z "$cwd" ]; then
     echo "project-setup: cannot read cwd from the hook input"
     exit 1
   fi
