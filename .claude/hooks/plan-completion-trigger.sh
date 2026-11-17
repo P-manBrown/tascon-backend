@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
-# PostToolUse (Bash) hook. After `gh pr merge`, judges plan completion with the
-# plan-completion Skill scripts and tells Claude (stderr, exit 2) which plans
-# need the completion process and which pull request marks need a human.
+# PostToolUse and PostToolUseFailure (Bash) hook. After a git-spice merge
+# command (git-spice branch|b, downstack|ds or stack|s, then merge|m), judges
+# plan completion with the plan-completion Skill scripts and tells Claude
+# (stderr, exit 2) which plans need the completion process, which pull request
+# marks need a human, and which pull requests lack the validation result.
 # Prints nothing and exits 0 for other commands or when nothing needs doing.
 set -u
 
 input=$(cat)
 command=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
-pattern='(^|[;&|(`[:space:]])gh[[:space:]]+pr[[:space:]]+merge([[:space:]]|$)'
+pattern='(^|[;&|(`[:space:]])git-spice[[:space:]]+(branch|b|downstack|ds|stack|s)[[:space:]]+(merge|m)([^[:alnum:]_-]|$)'
 printf '%s\n' "$command" | grep -Eq -- "$pattern" || exit 0
 
 hook_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 0
 scripts="$hook_dir/../skills/plan-completion/scripts"
 
 not_judged() {
-  printf '%s\n' "gh pr merge の後に計画の完了を判定できなかった（$1）。後で plan-completion Skill の判定をやり直すこと。" >&2
+  printf '%s\n' "git-spice のマージのコマンドの後に計画の完了を判定できなかった（$1）。後で plan-completion Skill の判定をやり直すこと。" >&2
   exit 2
 }
 
@@ -49,6 +51,15 @@ marks=$(printf '%s' "$result" | jq -r '
   (.unreadable[] | "- #\(.pr): 読めない Plan 行: \(.line)")')
 if [ -n "$marks" ]; then
   messages+="次の PR の Related Documents の印を人に知らせ、直してもらうこと（自動で直さない）:"$'\n'"$marks"$'\n'
+fi
+
+validation=$(printf '%s' "$result" | jq -r '.missing_validation[]
+  | if .judged_at == null
+    then "- #\(.pr)（\(.plan)）: Testing に計画の確かめの結果が無い"
+    else "- #\(.pr)（\(.plan)）: Testing の計画の確かめの結果は head（\(.head)）と違うコミット（\(.judged_at)）で判定した"
+    end')
+if [ -n "$validation" ]; then
+  messages+="次の PR の Testing の計画の確かめの結果を人に知らせること（PR の本文は自動で直さない。完了の処理は進めてよい）:"$'\n'"$validation"$'\n'
 fi
 
 [ -n "$messages" ] || exit 0
