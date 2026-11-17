@@ -62,7 +62,7 @@ run_hook() {
 }
 
 export FAKE_JUDGE_OUT='{"completed":[{"plan":".claude/plans/active/a-b.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[]}'
-for cmd in 'gh pr merge 12 --squash --match-head-commit 0123abc' 'cd x && gh pr merge 3' 'x=$(gh pr merge 3)' 'echo `gh pr merge 3`' 'echo "x; gh pr merge 3"' 'bash .claude/skills/git-spice-workflow/scripts/merge-stack.sh --pr 12' 'cd x && merge-stack.sh --pr 3'; do
+for cmd in 'gh pr merge 12 --squash --match-head-commit 0123abc' 'cd x && gh pr merge 3' 'x=$(gh pr merge 3)' 'echo `gh pr merge 3`' 'echo "x; gh pr merge 3"' 'bash .claude/skills/git-spice-workflow/scripts/merge-stack.sh --pr 12' 'cd x && merge-stack.sh --pr 3' 'bash "$PWD/merge-stack.sh" --pr 3' "bash './merge-stack.sh' --pr 3"; do
   run_hook "$cmd"
   check "fires on: $cmd" 2 "$code"
 done

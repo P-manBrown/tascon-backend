@@ -8,7 +8,7 @@ set -u
 input=$(cat)
 command=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
 pattern='(^|[;&|(`[:space:]])gh[[:space:]]+pr[[:space:]]+merge([[:space:]]|$)'
-stack_pattern='(^|[;&|(`[:space:]/])merge-stack\.sh([[:space:]]|$)'
+stack_pattern='(^|[;&|(`[:space:]/])merge-stack\.sh([[:space:]"'"'"']|$)'
 printf '%s\n' "$command" | grep -Eq -- "$pattern|$stack_pattern" || exit 0
 
 hook_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 0
