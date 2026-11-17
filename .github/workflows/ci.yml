@@ -38,6 +38,7 @@ jobs:
       MYSQL_TEST_DATABASE: tascon_test
       WEB_HOST: localhost
       WEB_PORT: "8080"
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
     steps:
       - name: Install libvips
         run: |

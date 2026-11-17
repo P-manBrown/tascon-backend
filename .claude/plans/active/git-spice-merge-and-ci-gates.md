@@ -14,7 +14,7 @@ Spec: N/A（設計と要件はGas Cityのbuildの成果物にあり、リポジ�
 4. `chore/trigger-plan-completion-on-git-spice-merge`: 完了処理のhookの起点を、git-spiceのマージのコマンド（`git-spice` + `branch`/`b`・`downstack`/`ds`・`stack`/`s` + `merge`/`m`）に替え、PostToolUseFailureにも登録する。`missing_validation`を人に知らせる行を足す
 5. `docs/merge-stacks-with-git-spice`: `git-spice-workflow` skillの「スタックPRのマージ」を`git-spice downstack merge`・`git-spice branch merge`の手順に替え、「プルリクエスト作成ルール」にTestingの行の形を足す。決定の記録を足す
 
-mainの必須チェックへの`rspec`・`checks`の登録は、人がGitHubの設定で行う。
+mainの必須チェックへの`rspec`・`checks`の登録と、Actions secretとDependabot secretの両方への`RAILS_MASTER_KEY`の登録は、人がGitHubの設定で行う。
 
 ## Decision Log
 
@@ -22,6 +22,7 @@ mainの必須チェックへの`rspec`・`checks`の登録は、人がGitHubの�
 - lefthookは手元の速い知らせと自動の直しのために今のまま残し、関門にはしない。`lefthook.yml`は変えない
 - CIの`check-plan-completion.sh`は、PRのheadを履歴付きで取り出し、PRのbaseの先端とheadのmerge-baseへ`git reset --soft`してから走らせる。スクリプトはindexと`HEAD`の差分を読むため、PRの全コミットの変更をまとめて確かめられ、スクリプトを変えずに済む
 - CIのrspecは並列にせず、テスト用のDBの名前（`MYSQL_TEST_DATABASE`）とサービスが作るDBの名前（`MYSQL_DATABASE`）を同じにする。サービスのユーザーが権限を持つのは、サービスが作るDBだけのため。`Docker/db/initdb.d/`の初期化のスクリプトはCIでは使わない
+- CIのrspecのjobには、Actionsのsecret `RAILS_MASTER_KEY`を環境変数で渡す。`config/master.key`は追跡されず、鍵が無いと`config/initializers/devise.rb`と`omniauth.rb`が`credentials.gmail[:address]`等で起動時に落ちるため。`credentials`を鍵なしでも通す形（`dig`）にする案は、`production.rb`の`require_master_key`が無効のため本番で設定漏れが黙って通るので採らなかった。人がリポジトリのActions secretとDependabot secretの両方に`RAILS_MASTER_KEY`を登録する必要がある（DependabotのPRにはActions secretが渡らず、Dependabot secretが同じ`secrets`の文脈で渡るため、両方に登録すればDependabotのPRでもrspecが走る）。forkのPRにはsecretが渡らずrspecが落ちるが、個人のリポジトリでforkのPRを想定しないため受け入れる（R3と同じ扱い）
 - `app/resources/application_resource.rb`の`select`は、Albaがこの名前で呼ぶため改名できない。その行だけで`Naming/PredicateMethod`を無効にする
 - ✅のPRのTestingの確かめは、マージの前の手作業から、マージの後の判定（`judge-completion.sh`の`missing_validation`）の報告に移す。マージは止めず、人に知らせるだけにする。判定したコミットがPRのheadと同じかの比べも残す（積み直しの後に判定し直していないPRを見つけるため）。atomicにマージできずに1本ずつのマージに戻った✅のPRは、積み直しでheadが変わり、中身が同じでも「SHAが違う」と出るが、報告だけでマージは止めないため受け入れる
 - Testingの行の形は`` Validation and Acceptance of `<計画のパス>`, judged at <40桁のSHA> ``にする。#797で既に使っている形で、判定が機械で読めるようにするため
