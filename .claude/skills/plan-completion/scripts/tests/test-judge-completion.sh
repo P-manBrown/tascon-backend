@@ -5,7 +5,7 @@ set -u
 
 A=.claude/plans/active/a.md
 B=.claude/plans/active/b.md
-EMPTY='{"completed":[],"missing_marker":[],"unreadable":[]}'
+EMPTY='{"completed":[],"missing_marker":[],"unreadable":[],"missing_validation":[]}'
 M1=2026-11-01T00:00:00Z
 M2=2026-11-02T00:00:00Z
 
@@ -30,7 +30,7 @@ new_case
 repo_with_plans a.md b.md
 pulls_page1 "$(pr 10 closed $M1 main "$(body "- Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- ✅ Plan: $A")")"
 run_judge --repo "$REPO"
-check "completed: output" '{"completed":[{"plan":".claude/plans/active/a.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[]}' "$out"
+check "completed: output" '{"completed":[{"plan":".claude/plans/active/a.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[],"missing_validation":[]}' "$out"
 check "completed: exit" 0 "$code"
 check "completed: gh calls are reads" yes "$(only_reads)"
 check "completed: run directory stays empty" "" "$(ls -A "$case_dir/run")"
@@ -58,21 +58,21 @@ new_case
 repo_with_plans a.md
 pulls_page1 "$(pr 10 closed $M1 main "$(body "- Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- Plan: $A")")"
 run_judge --repo "$REPO"
-check "missing marker: output" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10,12]}],"unreadable":[]}' "$out"
+check "missing marker: output" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10,12]}],"unreadable":[],"missing_validation":[]}' "$out"
 check "missing marker: exit" 4 "$code"
 
 new_case
 repo_with_plans a.md
 pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A")")" "$(pr 11 closed $M1 main "$(body "- ⬜ Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- Plan: $A")")"
 run_judge --repo "$REPO"
-check "old marks are not check marks: output" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10,11,12]}],"unreadable":[]}' "$out"
+check "old marks are not check marks: output" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10,11,12]}],"unreadable":[],"missing_validation":[]}' "$out"
 check "old marks are not check marks: exit" 4 "$code"
 
 new_case
 repo_with_plans a.md
 pulls_page1 "$(pr 10 closed $M1 main "$(body "- 🏃 Plan: $A")")" "$(pr 12 closed $M2 main "$(body "- ✅ Plan: $A")")"
 run_judge --repo "$REPO"
-check "old mark and check mark: output" '{"completed":[{"plan":".claude/plans/active/a.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[]}' "$out"
+check "old mark and check mark: output" '{"completed":[{"plan":".claude/plans/active/a.md","prs":[10,12],"completing_pr":12}],"missing_marker":[],"unreadable":[],"missing_validation":[]}' "$out"
 check "old mark and check mark: exit" 0 "$code"
 
 new_case
@@ -111,7 +111,7 @@ new_case
 repo_with_plans a.md
 pulls_page1 "$(pr 10 closed $M1 main "$(body "- Plan: $A" '```' "- ✅ Plan: $A" "- ✅　Plan: broken" '```')")"
 run_judge --repo "$REPO"
-check "plan line in a code block is neither counted nor reported" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10]}],"unreadable":[]}' "$out"
+check "plan line in a code block is neither counted nor reported" '{"completed":[],"missing_marker":[{"plan":".claude/plans/active/a.md","prs":[10]}],"unreadable":[],"missing_validation":[]}' "$out"
 
 new_case
 repo_with_plans a.md
@@ -127,7 +127,7 @@ check "a longer fence followed by spaces closes" '[".claude/plans/active/a.md"]'
 
 new_case
 repo_with_plans a.md
-pulls_page1 "$(pr 10 closed $M1 main "$(printf '### Related Documents\r\n\r\n- ✅ Plan: %s\r\n- ⬜ Spec: N/A\r\n' "$A")")"
+pulls_page1 "$(pr 10 closed $M1 main "$(printf '### Testing\r\n\r\nValidation and Acceptance of `%s`, judged at %s:\r\n\r\n### Related Documents\r\n\r\n- ✅ Plan: %s\r\n- ⬜ Spec: N/A\r\n' "$A" "$HEAD_SHA" "$A")")"
 run_judge --repo "$REPO"
 check "CRLF body: completed" '[".claude/plans/active/a.md"]' "$(printf '%s' "$out" | jq -c '[.completed[].plan]')"
 check "CRLF body: exit" 0 "$code"
@@ -195,6 +195,77 @@ repo_with_plans a.md
 answer "$(pulls_endpoint all 1)" '{"items":[]}'
 run_judge --repo "$REPO"
 check "pulls of the wrong shape: exit" 3 "$code"
+
+# missing_validation
+V_A="Validation and Acceptance of \`$A\`, judged at $HEAD_SHA:"
+OLD_SHA=fedcba9876543210fedcba9876543210fedcba98
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "$V_A" "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "validation line at the head: output" "$(jq -cn --arg a "$A" '{completed: [{plan: $a, prs: [10], completing_pr: 10}], missing_marker: [], unreadable: [], missing_validation: []}')" "$out"
+check "validation line at the head: exit" 0 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "Ran the tests." "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "no validation line: missing_validation" "$(jq -cn --arg a "$A" --arg h "$HEAD_SHA" '[{plan: $a, pr: 10, judged_at: null, head: $h}]')" "$(printf '%s' "$out" | jq -c .missing_validation)"
+check "no validation line: completed unchanged" '[".claude/plans/active/a.md"]' "$(printf '%s' "$out" | jq -c '[.completed[].plan]')"
+check "no validation line: exit" 4 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(printf '### Summary\n\nx\n\n### Related Documents\n\n- ✅ Plan: %s\n' "$A")")"
+run_judge --repo "$REPO"
+check "no Testing section: missing_validation" "$(jq -cn --arg a "$A" --arg h "$HEAD_SHA" '[{plan: $a, pr: 10, judged_at: null, head: $h}]')" "$(printf '%s' "$out" | jq -c .missing_validation)"
+check "no Testing section: exit" 4 "$code"
+
+new_case
+repo_with_plans a.md b.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "Validation and Acceptance of \`$B\`, judged at $HEAD_SHA:" "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "validation line of another plan only: missing_validation" "$(jq -cn --arg a "$A" --arg h "$HEAD_SHA" '[{plan: $a, pr: 10, judged_at: null, head: $h}]')" "$(printf '%s' "$out" | jq -c .missing_validation)"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "$(printf '```\n%s\n```' "$V_A")" "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "validation line only in a code block: missing_validation" "$(jq -cn --arg a "$A" --arg h "$HEAD_SHA" '[{plan: $a, pr: 10, judged_at: null, head: $h}]')" "$(printf '%s' "$out" | jq -c .missing_validation)"
+check "validation line only in a code block: exit" 4 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "Validation and Acceptance of \`$A\`, judged at $OLD_SHA (before the rebase):" "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "validation line at another commit: missing_validation" "$(jq -cn --arg a "$A" --arg o "$OLD_SHA" --arg h "$HEAD_SHA" '[{plan: $a, pr: 10, judged_at: $o, head: $h}]')" "$(printf '%s' "$out" | jq -c .missing_validation)"
+check "validation line at another commit: exit" 4 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "Validation and Acceptance of \`$A\`, judged at $OLD_SHA:" "- ✅ Plan: $A")" "$OLD_SHA")"
+run_judge --repo "$REPO"
+check "validation line at the commit that is the head: exit" 0 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "Ran the tests." "- Plan: $A")")" "$(pr 11 open null main "$(testing_body "Ran the tests." "- ✅ Plan: $A")")" "$(pr 12 closed $M1 feature "$(testing_body "Ran the tests." "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "unmarked, open or not into main: not reported" '[]' "$(printf '%s' "$out" | jq -c .missing_validation)"
+
+new_case
+repo_with_plans b.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "Ran the tests." "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "plan not in active: not reported" '[]' "$(printf '%s' "$out" | jq -c .missing_validation)"
+check "plan not in active: exit" 0 "$code"
+
+new_case
+repo_with_plans a.md
+pulls_page1 "$(pr 10 closed $M1 main "$(testing_body "Ran the tests." "- ✅ Plan: $A" "- ✅ Plan: $A")")"
+run_judge --repo "$REPO"
+check "two check-marked lines for one plan: reported once" 1 "$(printf '%s' "$out" | jq '.missing_validation | length')"
 
 new_case
 run_judge

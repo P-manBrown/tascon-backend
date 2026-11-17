@@ -28,7 +28,7 @@ gh_read() {
 # gh_pull_pages <repo> <state>
 # Reads every page of the pull requests with the given state (all or open),
 # oldest first, and prints one compact JSON array per page whose elements are
-# {number, state, merged_at, base, body}.
+# {number, state, merged_at, base, head, body} (head is the head commit SHA).
 gh_pull_pages() {
   local repo=$1 state=$2 page=1 out count
   while :; do
@@ -43,7 +43,7 @@ gh_pull_pages() {
     esac
     if ! out=$(printf '%s' "$out" | jq -c '
         if type == "array" and all(.[]; type == "object" and (.number | type) == "number" and (.base.ref | type) == "string")
-        then [.[] | {number, state, merged_at, base: .base.ref, body: (.body // "")}]
+        then [.[] | {number, state, merged_at, base: .base.ref, head: .head.sha, body: (.body // "")}]
         else error("unexpected shape")
         end' 2>/dev/null); then
       printf '%s\n' "pulls page $page has an unexpected shape" >&2
