@@ -1,5 +1,8 @@
 if ENV["COVERAGE"]
   require "simplecov"
+  # TEST_ENV_NUMBER is only a test DB suffix here, not a parallel run;
+  # without this, SimpleCov skips the report when its value is not 1.
+  SimpleCov.parallel_tests = false
   SimpleCov.start "rails"
 end
 
