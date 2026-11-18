@@ -79,7 +79,7 @@ git-spice使用。スタック型ブランチ管理。
 
 ### 前提
 
-- mainへのマージはsquash mergeのみ。ネイティブのスタックとマージのコマンドの設定は、`project-setup` skillのリポジトリの準備で済んでいる
+- mainへのマージはsquash mergeのみ。ネイティブのスタックとマージのコマンドの設定は、`.devcontainer/postCreateCommand.sh`がコンテナを作るときに入れている
 - 作業ツリーがクリーンで、マージする範囲の全ブランチのローカルとリモートが一致していること。未コミットの変更がある場合は、push前に`git stash push -u`で退避し、push後に戻す
 
 ### 手順
