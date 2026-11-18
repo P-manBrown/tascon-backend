@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Verification Status:** Unverified
 - **Date:** 2026-11-17
-- **Related Files:** `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/skills/project-setup/scripts/setup.sh`, `.claude/hooks/plan-completion-trigger.sh`, `.claude/settings.json`, `.github/workflows/ci.yml`, `.claude/skills/plan-completion/SKILL.md`
+- **Related Files:** `.claude/skills/git-spice-workflow/SKILL.md`, `.devcontainer/postCreateCommand.sh`, `.claude/hooks/plan-completion-trigger.sh`, `.claude/settings.json`, `.github/workflows/ci.yml`, `.claude/skills/plan-completion/SKILL.md`
 
 ## Context
 
@@ -16,7 +16,7 @@ git-spice 0.33.0は、ネイティブのスタック（`spice.forge.github.stack
 ## Decision
 
 - スタックのマージは、`git-spice downstack merge --branch <範囲の一番上のブランチ>`（1本だけなら`git-spice branch merge --branch <ブランチ>`）でまとめて行う。マージの後は、範囲のすぐ上のブランチだけを`git-spice upstack restack`と`git-spice upstack submit --update-only`で更新する。`gh stack`は使わない
-- ネイティブのスタック・マージのコマンド・squashでのマージ（`spice.merge.method=squash`）の設定は、人の作業でもGas Cityでも必ず通るリポジトリの準備（`project-setup` skillの`setup.sh`）で、OSによらず入れる。squashだけを許すこのリポジトリで、forgeの既定の`merge`を使わせないため
+- ネイティブのスタック・マージのコマンド・squashでのマージ（`spice.merge.method=squash`）の設定は、全worktreeで共有の`.git/config`に、`.devcontainer/postCreateCommand.sh`でコンテナを作るときに1回入れる。squashだけを許すこのリポジトリで、forgeの既定の`merge`を使わせないため
 - rspec（DB付き）とpre-commitの確かめは、PRごとにGitHub Actionsのワークフロー`CI`（job`rspec`・`checks`）でリポジトリ全体に走らせ、mainの必須チェックにする（登録は人が行う）。lefthookは手元の速い知らせと自動の直しのために残し、関門にはしない。マージの手順からrspecを外す
 - マージの手順は、マージの前にCIのチェックがすべて成功していることを手順の中で確かめる。mainの保護（必須チェック）の有無に頼らないため。手順は保護や承認があることを前提にせず、保護を越える手当ても書かない
 - マージのコマンドは前面で走らせ、Bashの時間の上限を600000 msにする。完了処理のhookはBashのtoolが終わった後に動くため
