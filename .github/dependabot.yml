@@ -48,3 +48,12 @@ updates:
     commit-message:
       prefix: "build"
     target-branch: "main"
+  - package-ecosystem: "pip"
+    directory: "/.github/requirements"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Asia/Tokyo"
+    commit-message:
+      prefix: "build"
+    target-branch: "main"
