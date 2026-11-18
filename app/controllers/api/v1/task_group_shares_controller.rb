@@ -87,6 +87,8 @@ module Api
       end
 
       def destroy
+        # owned_or_shared_with already limits the lookup to shares of the current user.
+        # nosemgrep: ruby.rails.security.brakeman.check-unscoped-find
         @task_group_share = TaskGroupShare.owned_or_shared_with(current_api_v1_user).find(params[:id])
         user_id = @task_group_share.user_id
 

@@ -11,6 +11,8 @@ Rails.application.config.to_prepare do
     rescue_from ActionController::BadRequest, with: :failure
 
     def failure
+      # The target is a route of this application; params only fill a query value.
+      # nosemgrep: ruby.rails.security.audit.xss.avoid-redirect
       redirect_to controller: "api/v1/auth/omniauth_callbacks",
                   action: "omniauth_failure",
                   omniauth_window_type: params["omniauth_window_type"] || "newWindow",
