@@ -1,0 +1,56 @@
+name: バグ報告
+description: バグ報告用のテンプレート
+title: '[BUG]: '
+labels: ['bug']
+assignees:
+  - P-manBrown
+body:
+  - type: textarea
+    id: describe_bug
+    attributes:
+      label: 説明
+      description: 可能な限り詳細にバグの内容を説明してください。
+      placeholder: バグの内容を記述してください...
+    validations:
+      required: true
+  - type: textarea
+    id: to_reproduce
+    attributes:
+      label: 再現手順
+      description: バグを再現するための手順を記述してください。
+      placeholder: |
+        1. 〇〇を実行
+        2. 〇〇を確認
+        3. 〇〇のようなエラーが出る
+    validations:
+      required: true
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: 期待される動作
+      description: どのような動作を期待していたかを説明してください。
+      placeholder: 期待される動作を記述してください...
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: スクリーンショット
+      description: バグについてわかるスクリーンショットを添付してください。
+      placeholder: スクリーンショットを添付してください...
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境
+      description: バグが発生した環境について記述してください。
+      placeholder: |
+        - OS: [e.g. macOS(v15.1)]
+        - 実行した環境: [e.g. 使った道具とそのバージョン]
+    validations:
+      required: true
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: 追加情報
+      description: 上記以外の追加情報があれば記述してください。
+      placeholder: 追加情報を記述してください...
