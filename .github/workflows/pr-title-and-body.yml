@@ -1,4 +1,4 @@
-name: Related Documents
+name: PR Title and Body
 
 on:
   pull_request:
