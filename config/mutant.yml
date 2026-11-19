@@ -1,0 +1,17 @@
+usage: opensource
+requires:
+  - ./config/environment
+environment_variables:
+  RAILS_ENV: test
+integration:
+  name: rspec
+matcher:
+  subjects:
+    - source:app/**/*.rb
+selection:
+  strategy: context_map
+jobs: 1
+mutation:
+  timeout: 120.0
+hooks:
+  - config/mutant/hooks.rb
