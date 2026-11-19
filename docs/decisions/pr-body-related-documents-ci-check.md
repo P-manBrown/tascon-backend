@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Verification Status:** Unverified
 - **Date:** 2026-11-17
-- **Related Files:** `.github/workflows/related-documents.yml`, `.claude/skills/plan-completion/scripts/check-pr-body.sh`, `.claude/skills/plan-completion/scripts/lib/markdown.jq`, `.claude/skills/plan-completion/SKILL.md`
+- **Related Files:** `.github/workflows/pr-title-and-body.yml`, `.claude/skills/plan-completion/scripts/check-pr-body.sh`, `.claude/skills/plan-completion/scripts/lib/markdown.jq`, `.claude/skills/plan-completion/SKILL.md`
 
 ## Context
 
