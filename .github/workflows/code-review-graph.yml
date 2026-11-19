@@ -1,0 +1,63 @@
+name: code-review-graph
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  report:
+    name: report
+    runs-on: ubuntu-latest
+    env:
+      BASE_REF: ${{ github.base_ref }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Fetch the base branch
+        run: git fetch --no-tags --depth=1 origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+      - name: Check out the report renderer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: tirth8205/code-review-graph
+          ref: b3f1285965a1337b3821e4423da03b65d70ee423 # v2.4.0
+          path: .crg-renderer
+          sparse-checkout: scripts/render_pr_comment.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Move the renderer out of the workspace
+        run: mv .crg-renderer "$RUNNER_TEMP/crg-renderer"
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13.18"
+      - name: Install code-review-graph
+        run: python -m pip install --require-hashes -r .github/requirements/code-review-graph.txt
+      - name: Build the graph
+        run: code-review-graph build
+      - name: Analyze the changes
+        run: code-review-graph detect-changes --base "origin/${BASE_REF}" > "$RUNNER_TEMP/crg-report.json"
+      - name: Render the report
+        run: |
+          set +e
+          python "$RUNNER_TEMP/crg-renderer/scripts/render_pr_comment.py" \
+            --input "$RUNNER_TEMP/crg-report.json" \
+            --output "$RUNNER_TEMP/crg-comment.md"
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ] && [ "$status" -ne 4 ]; then
+            exit "$status"
+          fi
+          echo "RENDER_STATUS=$status" >> "$GITHUB_ENV"
+      - name: Write the report to the step summary
+        run: cat "$RUNNER_TEMP/crg-comment.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Fail when the analysis did not run
+        if: env.RENDER_STATUS == '4'
+        run: |
+          echo "::error::code-review-graph could not analyze this pull request"
+          exit 1
