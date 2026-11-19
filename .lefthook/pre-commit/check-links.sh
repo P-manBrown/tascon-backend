@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Usage: check-links.sh   (run from lefthook pre-commit, inside the repository)
+# Checks that, after this commit, the links of every added or changed Markdown
+# file point at files and headings that are in the index, and that no Markdown
+# file links to a file this commit deletes. Reads the index (git show :<path>),
+# never the working tree. The staged diff only decides which files to look at.
+# Exit: 0 nothing wrong / 1 something to fix (one "file: reason" line each)
+set -u
+
+# The links are read with jq, so without it nothing can be checked.
+# Fail here instead of passing silently.
+command -v jq >/dev/null 2>&1 || { printf '%s\n' "check-links.sh: jq is required but not installed" >&2; exit 1; }
+
+script_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 1
+lib_dir="$script_dir/lib"
+top=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$top" || exit 1
+. "$lib_dir/index.sh"
+
+load_changes
+
+# links_of <md path>: "target<US>anchor<US>link" for each local link, where
+# <US> is U+001F (a separator that read does not collapse, unlike a tab).
+links_of() {
+  index_text "$1" | jq_md -Rrs --arg file "$1" '
+    include "markdown";
+    ($file | split("/") | .[:-1] | join("/")) as $dir
+    | md_links[] as $link
+    | select($link | test("^([A-Za-z][A-Za-z0-9+.-]*:|//)") | not)
+    | ($link | index("#")) as $hash
+    | (if $hash == null then $link else $link[:$hash] end | sub("\\?.*$"; "") | url_decode) as $path
+    | (if $hash == null then "" else $link[$hash + 1:] | url_decode end) as $anchor
+    | (if $path == "" then $file
+       elif ($path | startswith("/")) then $path[1:]
+       else $dir + "/" + $path
+       end | normalize_path) as $target
+    | [($target // ""), $anchor, $link] | join("\u001f")'
+}
+
+# Links in added or changed Markdown, and links to deleted files.
+declare -A deleted=() checked=()
+for path in "${!change[@]}"; do
+  case "${change[$path]}" in
+    A | M)
+      case "$path" in
+        *.md)
+          checked[$path]=1
+          while IFS=$'\x1f' read -r target anchor link; do
+            reason=$(target_problem "$target" "$anchor")
+            [ -n "$reason" ] && problem "$path" "link ($link) $reason"
+          done < <(links_of "$path")
+          ;;
+      esac
+      ;;
+    D) deleted[$path]=1 ;;
+  esac
+done
+if [ "${#deleted[@]}" -gt 0 ]; then
+  declare -A candidates=()
+  for path in "${!deleted[@]}"; do
+    while IFS= read -r file; do
+      [ -n "$file" ] && candidates[$file]=1
+    # A link may name the file percent-encoded, so Markdown that has "%" is a candidate too.
+    done < <(git grep --cached -l -F -e "${path##*/}" -e '%' -- '*.md' 2>/dev/null)
+  done
+  for file in "${!candidates[@]}"; do
+    [ -n "${checked[$file]+set}" ] && continue
+    while IFS=$'\x1f' read -r target anchor link; do
+      [ -n "$target" ] && [ -n "${deleted[$target]+set}" ] && problem "$file" "link ($link) points to $target, which this commit deletes"
+    done < <(links_of "$file")
+  done
+fi
+
+[ "${#problems[@]}" -eq 0 ] && exit 0
+printf '%s\n' "${problems[@]}" | sort
+exit 1
