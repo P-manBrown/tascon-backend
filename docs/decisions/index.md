@@ -20,3 +20,4 @@
 - [スタックのマージをgit-spiceのマージのコマンドで行い、確かめの関門をCIに移す](stack-merge-with-git-spice-and-ci-gates.md)
 - [PRごとのCIで使うテストと確かめの道具](test-and-check-tool-selection.md)
 - [CIのチェックを合否を返す物と報告だけの物に分ける](ci-required-and-report-only-checks.md)
+- [ミューテーションテストをMutantで報告だけ走らせる](mutation-testing-with-mutant.md)
