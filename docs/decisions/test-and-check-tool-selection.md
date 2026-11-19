@@ -23,7 +23,7 @@ PRごとのCIはjob`rspec`と`checks`だけで、テストのカバレッジ、R
 ## Considered Options
 
 - **採用: SimpleCov・Brakeman・CodeQL・Semgrep・Dependency Review・code-review-graph**: どれもAPIキーや有料の契約なしにCIで走る。CodeQLとDependency Reviewはpublicのリポジトリで追加の契約なしに使え、CodeQLの結果はcode scanningに上がる。規則に基づく解析で、同じコードと同じ版なら結果が変わらない。Semgrepの規則と2つのPythonの道具は自分で固定の仕方を持つ必要がある
-- **DeepSec（vercel-labs/deepsec）**: 長所: LLMを使う解析で、正規表現で候補を見つけた後にAIで調べるため、規則に書かれていない種類の問題も候補にできる。短所: モデルの利用にOpenAI・AnthropicのAPIキーかVercel AI Gatewayが要り、利用の費用がかかる（`--max-cost-usd`で上限を付けられる）。READMEは、実行する環境で全権のshellを持つcoding agentとして扱うよう求めている。CIで使うにはsecretが要り、DependabotのPRにはActionsのsecretが渡らない
+- **DeepSec（vercel-labs/deepsec）**: 案の説明: 正規表現のmatcherで候補を見つけ、その後にAIで調べる。長所: READMEは、長くアプリケーションに潜んでいた見つけにくい問題を表に出すよう作られていると述べている。短所: モデルの利用にOpenAI・AnthropicのAPIキーかVercel AI Gatewayが要り、利用の費用がかかる（`--max-cost-usd`で上限を付けられる）。READMEは、実行する環境で全権のshellを持つcoding agentとして扱うよう求めている。CIで使うにはsecretが要り、DependabotのPRにはActionsのsecretが渡らない
 - **Claude Codeの`/security-review`をCIで走らせる（`anthropics/claude-code-security-review`）**: 長所: LLMによるレビューで、規則に書かれていない種類の問題も指摘できる。短所: Anthropic APIのキー（入力`claude-api-key`）が要り、実行ごとに費用がかかる。CIで使うにはsecretが要り、DependabotのPRにはActionsのsecretが渡らない
 - **Semgrepの規則をレジストリ（`p/rails`）から取る**: 設定が1行で済むが、規則の版が固定されず、実行のたびにネットワークから取るため、コードを変えていないPRの結果が規則の更新で変わりうる
 
