@@ -1,0 +1,108 @@
+name: mutant
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  report:
+    name: report
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: ruby:4.0.0
+    services:
+      db:
+        image: mysql:8.4.8
+        env:
+          MYSQL_ROOT_PASSWORD: ci_root_password
+          MYSQL_USER: ci_user
+          MYSQL_PASSWORD: ci_password
+          MYSQL_DATABASE: tascon_test
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -pci_root_password"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 60
+    env:
+      RAILS_ENV: test
+      TZ: Asia/Tokyo
+      CI: "true"
+      MYSQL_USER: ci_user
+      MYSQL_PASSWORD: ci_password
+      MYSQL_DATABASE: tascon_test
+      MYSQL_TEST_DATABASE: tascon_test
+      WEB_HOST: localhost
+      WEB_PORT: "8080"
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
+    steps:
+      - name: Install libvips
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends libvips42
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Configure git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Fetch the base branch
+        run: git fetch --no-tags --depth=1 origin "+refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /usr/local/bundle
+          key: gems-ruby-4.0.0-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: gems-ruby-4.0.0-${{ runner.os }}-
+      - name: Install gems
+        run: bundle install --jobs 4
+      - name: Prepare the database
+        run: bin/rails db:prepare
+      - name: Record the per-test coverage
+        env:
+          COVERAGE: "true"
+        run: bin/bundle exec rspec
+      - name: Count the changed subjects
+        id: subjects
+        run: |
+          list=$(bin/bundle exec mutant environment subject list --since "origin/${BASE_REF}")
+          printf '%s\n' "$list"
+          count=$(sed -n '1s/^Subjects in environment: \([0-9][0-9]*\)$/\1/p' <<<"$list")
+          if [ -z "$count" ]; then
+            echo "::error::Could not read the number of changed subjects"
+            exit 1
+          fi
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+      - name: mutant
+        if: steps.subjects.outputs.count != '0'
+        run: |
+          set +e
+          bin/bundle exec mutant run --since "origin/${BASE_REF}"
+          echo "mutant run exited with $?"
+      - name: Write the report to the step summary
+        if: ${{ !cancelled() }}
+        env:
+          SUBJECT_COUNT: ${{ steps.subjects.outputs.count }}
+        run: |
+          if [ "$SUBJECT_COUNT" = "0" ]; then
+            printf '%s\n' "### Mutant" "" "No subjects changed in this pull request." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if ! compgen -G '.mutant/results/*.json.gz' >/dev/null; then
+            printf '%s\n' "### Mutant" "" "Mutant did not run. See the log of the earlier steps." >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::Mutant did not run"
+            exit 1
+          fi
+          subjects=$(bin/bundle exec mutant session subject)
+          alive=$(bin/bundle exec mutant session show)
+          {
+            printf '%s\n' "### Mutant" "" "Alive and total mutations per subject:" "" '```'
+            printf '%s\n' "$subjects"
+            printf '%s\n' '```' "" "<details><summary>Alive mutations</summary>" "" '```'
+            printf '%s\n' "${alive:0:500000}"
+            printf '%s\n' '```' "" "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
