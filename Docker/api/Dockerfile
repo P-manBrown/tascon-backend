@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 		set -e
 		rm -f /etc/apt/apt.conf.d/docker-clean
 		apt-get update -qq
-		apt-get install -y --no-install-recommends libvips42
+		apt-get install -y --no-install-recommends libvips42 python3 python3-venv
 EOF
 
 RUN <<-EOF
