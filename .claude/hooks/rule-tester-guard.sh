@@ -25,15 +25,16 @@ fi
 path=$(realpath -m -- "$path") || exit 0
 root=$(realpath -m -- "$root") || exit 0
 
-if [[ "$tool_name" = Read && "$path" = "$root/docs/design/plans/rule-test-fixture.md" ]]; then
+if [[ "$tool_name" = Read ]] &&
+  [[ "$path" = "$root/docs/design/plans/rule-test-fixture.md" || "$path" = "$root/.claude/plans/rule-test-fixture.md" ]]; then
   exit 0
 fi
 
-for forbidden in "$root/.claude/rules" "$root/.claude/skills" "$root/docs/design/plans" "$root/.claude/memory"; do
+for forbidden in "$root/.claude/rules" "$root/.claude/skills" "$root/docs/design/plans" "$root/.claude/plans" "$root/.claude/memory"; do
   if [[ "$path" = "$forbidden" || "$path" = "$forbidden/"* ]] ||
     { [[ "$tool_name" = Grep || "$tool_name" = Glob ]] &&
       [[ "$path" = / || "$forbidden" = "$path/"* ]]; }; then
-    reason='比較テストの条件を保つため、.claude/rules・.claude/skills・docs/design/plans・.claude/memoryの中身と、それらを含む範囲の検索は使えない。ルールは関係するファイルを読んだときの差し込み、skillはSkillツールで使う。'
+    reason='比較テストの条件を保つため、.claude/rules・.claude/skills・docs/design/plans・.claude/plans・.claude/memoryの中身と、それらを含む範囲の検索は使えない。ルールは関係するファイルを読んだときの差し込み、skillはSkillツールで使う。'
     jq -n --arg reason "$reason" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
     exit 0
   fi
