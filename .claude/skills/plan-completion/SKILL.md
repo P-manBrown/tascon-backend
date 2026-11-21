@@ -39,7 +39,7 @@ description: 計画（`docs/design/plans/`）の完了を判定し、完了し�
    - 恒久的な振る舞いルール・手順の変更、ユーザーの作業スタイル → `claude-md-maintenance`ルールの置き場所判断に従い、CLAUDE.md・`.claude/rules/*.md`・`.claude/skills/*/SKILL.md`・memoryのうち該当する場所へ反映する
 4. コードの変更が`ARCHITECTURE.md`に影響を与える場合、`ARCHITECTURE.md`を更新する
 5. 完了した計画がtech-debtに関連するものであれば`tech-debt-tracker` skillに従い、tech-debtも更新する
-6. 計画を`docs/design/plans/active/`から`docs/design/plans/completed/`へ同じ名前で移し、「完了の記録の書き方」のとおり記録を書き足す。設計（`docs/design/`）は移さない。completedの計画は削除せず、実装判断の根拠として保持し続ける
+6. 計画を`docs/design/plans/active/`から`docs/design/plans/completed/`へ同じ名前で移し、「完了の記録の書き方」のとおり記録を書き足す。設計（`docs/design/`のうち`docs/design/plans/`以外）は移さない。completedの計画は削除せず、実装判断の根拠として保持し続ける
 7. 結果をユーザーへ報告する。手順ごとに、実施内容・判定と根拠・未実施の事項を示す。手順1は項目ごと、手順2・3は洗い出した候補ごとの扱いを全件示す
 
 完了の処理の変更は、`git-spice-workflow` skillのブランチ作成ルールに従って切ったブランチでコミットし、PRにする。そのPRのRelated Documentsは`- Plan: docs/design/plans/completed/<name>.md`と、その計画の設計があれば`- Spec: <設計のパス>`、無ければ`- Spec: N/A`にする。
@@ -65,4 +65,4 @@ pre-commitの`.lefthook/pre-commit/check-plan-completion.sh`は、コミット�
 - 「マージ後に判定」の項目に`結果:`・`根拠:`がちょうど1つずつない → 書き足す
 - activeの計画を消したのに、同じ名前の計画がcompletedに無い。completedに移したのに、activeにも残っている → 消すのではなく移す。両方には残さない
 - 計画の`Decision Log`の項目を減らした。completedの計画から完了の記録の行を消した → 減らさない。文の直しと転記先のリンクの直しはよい
-- completedの計画を消した。計画を移すコミットで`docs/design/`のファイルを消した → 消さない
+- completedの計画を消した。計画を移すコミットで`docs/design/`のうち`docs/design/plans/`以外のファイルを消した → 消さない
