@@ -50,3 +50,6 @@ pre-push:
     check-git-clean:
       run: test -z "$(git status --porcelain | tee /dev/tty)"
       fail_text: 'ERROR: Commit or stash changes before pushing.'
+    brakeman:
+      run: bin/bundle exec brakeman --no-pager
+      fail_text: 'Read the report above.'
