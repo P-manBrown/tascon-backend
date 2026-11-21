@@ -2,6 +2,8 @@ module Api
   module V1
     class UsersController < ApplicationController
       def show
+        # Signed-in users can view other users' profiles, so the lookup is not limited to the current user.
+        # nosemgrep: ruby.rails.security.brakeman.check-unscoped-find
         @user = User.find(params[:id])
 
         render json: UserResource.new(@user, params: {

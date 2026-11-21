@@ -25,6 +25,8 @@ class ApplicationController < ActionController::API
     end
 
     def set_user
+      # Every controller that uses set_user checks access with authorize_user_access.
+      # nosemgrep: ruby.rails.security.brakeman.check-unscoped-find
       @user = User.find(params[:user_id])
     end
 
