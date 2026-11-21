@@ -1,0 +1,21 @@
+{
+  "name": "tascon-backend-plugins",
+  "interface": {
+    "displayName": "tascon-backend plugins"
+  },
+  "plugins": [
+    {
+      "name": "context-mode",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/mksglu/context-mode.git",
+        "path": "./plugins/claude-code"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
