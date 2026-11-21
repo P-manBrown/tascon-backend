@@ -156,7 +156,7 @@ passes "completed plan with records: transfer link fixed"
 new_repo
 put docs/design/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[壊れた](missing.md)\n')"
 commit_all "old completed plan"
-put docs/design/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[直した](../../../docs/design/specs/a.md)\n')"
+put docs/design/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[直した](../../specs/a.md)\n')"
 g add -A
 run_check
 passes "old completed plan without records: link fixed"
