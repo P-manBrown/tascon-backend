@@ -39,4 +39,3 @@
 /.agents/skills/bmad-*/
 /_bmad/*
 !/_bmad/custom/
-/_bmad/custom/.gitignore
