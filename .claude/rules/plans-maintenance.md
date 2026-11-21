@@ -1,6 +1,6 @@
 ---
 paths:
-  - ".claude/plans/**/*.md"
+  - "docs/design/plans/**/*.md"
 ---
 
 # plans運用方針
@@ -17,7 +17,7 @@ planファイルは`Context/Purpose`、`Decision Log`、`Validation and Acceptan
 1. **調査**: 実装作業を依頼されたら、着手前に関連コード・既存実装を確認する
 2. **ドラフト作成**: 調査結果を踏まえ、実装方針をドラフトとして作成する。構成はこのルールに従う
 3. **ユーザーへ提示・承認**: ドラフトの実装方針をユーザーに提示し、同意を得る
-4. **作成**: 同意を得た内容で`.claude/plans/active/<slug>.md`を作成する
+4. **作成**: 同意を得た内容で`docs/design/plans/active/<slug>.md`を作成する
 5. **連続実行**: 複数の段のplanは、`git-spice-workflow` skillに従って1段ずつブランチを切り、ブランチをスタックしながら連続実行する
 
 ## 保存ルール

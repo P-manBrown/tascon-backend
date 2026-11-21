@@ -4,7 +4,7 @@ set -u
 . "$(dirname -- "${BASH_SOURCE[0]}")/helpers.sh"
 unset GITHUB_ACTIONS
 
-A=.claude/plans/active/x.md
+A=docs/design/plans/active/x.md
 NOT_LINE='not a plan or spec line'
 NO_PLAN='no "- Plan: <path>" line'
 NO_SPEC='no "- Spec: <path>" line'
@@ -60,18 +60,18 @@ error_case() {
 }
 
 # Bodies that follow the rule.
-ok_case "template" '<!-- Plan and spec this pull request implements -->' '<!-- Put ✅ only on the plan line -->' "- Plan: $A" '- Spec: .claude/specs/x.md'
+ok_case "template" '<!-- Plan and spec this pull request implements -->' '<!-- Put ✅ only on the plan line -->' "- Plan: $A" '- Spec: docs/design/specs/x.md'
 ok_case "completing pull request" "- ✅ Plan: $A" '- Spec: N/A'
-ok_case "completion pull request" '- Plan: .claude/plans/completed/x.md' '- Spec: N/A'
+ok_case "completion pull request" '- Plan: docs/design/plans/completed/x.md' '- Spec: N/A'
 ok_case "no plan and no spec" '- Plan: N/A' '- Spec: N/A'
-ok_case "two plan lines" '- Plan: .claude/plans/active/a.md' '- ✅ Plan: .claude/plans/active/b.md' '- Spec: N/A'
+ok_case "two plan lines" '- Plan: docs/design/plans/active/a.md' '- ✅ Plan: docs/design/plans/active/b.md' '- Spec: N/A'
 ok_case "check mark with U+FE0F" "- ✅️ Plan: $A" '- Spec: N/A'
-ok_case "template name left as is" '- Plan: .claude/plans/active/<name>.md' '- Spec: .claude/specs/<name>.md'
+ok_case "template name left as is" '- Plan: docs/design/plans/active/<name>.md' '- Spec: docs/design/specs/<name>.md'
 ok_case "blank and whitespace lines" '- Plan: N/A' '' '  ' '	' '- Spec: N/A'
 ok_case "lowercase n/a spec path" '- Plan: N/A' '- Spec: n/a'
 ok_case "check mark spec line in a fence" '- Plan: N/A' '- Spec: N/A' '```' '- ✅ Spec: N/A' '```'
 
-write_raw '### Summary\r\n\r\nx\r\n\r\n### Related Documents\r\n\r\n- ✅ Plan: .claude/plans/active/x.md\r\n- Spec: N/A\r\n'
+write_raw '### Summary\r\n\r\nx\r\n\r\n### Related Documents\r\n\r\n- ✅ Plan: docs/design/plans/active/x.md\r\n- Spec: N/A\r\n'
 run_check
 check "CRLF body: exit" 0 "$code"
 check "CRLF body: output" "" "$out"
@@ -107,7 +107,7 @@ run_check
 check "heading with trailing space: exit" 1 "$code"
 check "heading with trailing space: no section" yes "$(has "$NO_SECTION")"
 
-write_raw '### Related Documents\n\n- Plan: N/A\n- ✅ Spec: N/A\n\n### Related Documents\n\n- ⬜ Plan: .claude/plans/x.md\n'
+write_raw '### Related Documents\n\n- Plan: N/A\n- ✅ Spec: N/A\n\n### Related Documents\n\n- ⬜ Plan: docs/design/plans/x.md\n'
 run_check
 check "two sections: exit" 1 "$code"
 check "two sections: count" yes "$(has '2 "### Related Documents" sections; keep exactly one')"
@@ -148,11 +148,11 @@ error_case "check mark on the spec line" "$SPEC_CHECK" '- Plan: N/A' '- ✅ Spec
 error_case "check mark with N/A" "$PLAN_CHECK_NA" '- ✅ Plan: N/A' '- Spec: N/A'
 
 # E6 and E7: path forms.
-error_case "plan directly under plans" "$PLAN_PATH" '- Plan: .claude/plans/x.md' '- Spec: N/A'
-error_case "plan in a subdirectory" "$PLAN_PATH" '- Plan: .claude/plans/active/sub/x.md' '- Spec: N/A'
-error_case "plan not markdown" "$PLAN_PATH" '- Plan: .claude/plans/active/x.txt' '- Spec: N/A'
+error_case "plan directly under plans" "$PLAN_PATH" '- Plan: docs/design/plans/x.md' '- Spec: N/A'
+error_case "plan in a subdirectory" "$PLAN_PATH" '- Plan: docs/design/plans/active/sub/x.md' '- Spec: N/A'
+error_case "plan not markdown" "$PLAN_PATH" '- Plan: docs/design/plans/active/x.txt' '- Spec: N/A'
 error_case "lowercase n/a plan path" "$PLAN_PATH" '- Plan: n/a' '- Spec: N/A'
-error_case "plan with an earlier mark" "$PLAN_PATH" '- 🏃 Plan: .claude/plans/x.md' '- Spec: N/A'
+error_case "plan with an earlier mark" "$PLAN_PATH" '- 🏃 Plan: docs/design/plans/x.md' '- Spec: N/A'
 error_case "absolute spec path" "$SPEC_PATH" '- Plan: N/A' '- Spec: /docs/x.md'
 error_case "dot spec path" "$SPEC_PATH" '- Plan: N/A' '- Spec: ./docs/x.md'
 error_case "parent spec path" "$SPEC_PATH" '- Plan: N/A' '- Spec: ../x.md'
@@ -160,10 +160,10 @@ error_case "parent spec path" "$SPEC_PATH" '- Plan: N/A' '- Spec: ../x.md'
 # E8: N/A and paths.
 error_case "plan N/A with a path" 'Plan lines mix N/A with paths' '- Plan: N/A' "- Plan: $A" '- Spec: N/A'
 error_case "plan N/A twice" '2 "- Plan: N/A" lines; keep one' '- Plan: N/A' '- Plan: N/A' '- Spec: N/A'
-error_case "spec N/A with a path" 'Spec lines mix N/A with paths' '- Plan: N/A' '- Spec: N/A' '- Spec: .claude/specs/x.md'
+error_case "spec N/A with a path" 'Spec lines mix N/A with paths' '- Plan: N/A' '- Spec: N/A' '- Spec: docs/design/specs/x.md'
 error_case "spec N/A twice" '2 "- Spec: N/A" lines; keep one' '- Plan: N/A' '- Spec: N/A' '- Spec: N/A'
 
-write_body '- Plan: .claude/plans/x.md' '- ✅ Spec: N/A'
+write_body '- Plan: docs/design/plans/x.md' '- ✅ Spec: N/A'
 run_check
 check "several errors: exit" 1 "$code"
 check "several errors: plan path" yes "$(has "$PLAN_PATH")"
@@ -182,7 +182,7 @@ run_check
 check "running mark: exit" 0 "$code"
 check "running mark: warning" "warning: 🏃 $EARLIER; only the plan line of the pull request that completes the plan gets ✅ and the other lines get no mark: \"- 🏃 Plan: $A\"" "$out"
 
-write_body '- ⬜ Plan: .claude/plans/x.md' '- Spec: N/A'
+write_body '- ⬜ Plan: docs/design/plans/x.md' '- Spec: N/A'
 run_check
 check "earlier mark and an error: exit" 1 "$code"
 check "earlier mark and an error: warning" yes "$(has "warning: ⬜ $EARLIER")"

@@ -25,10 +25,10 @@ hookは入力に対して決まった出力を返すため、モデルの解釈�
 
 - 専用のサブエージェント`rule-tester`（`omitClaudeMd: true`）で行う。memoryと個人の設定は入れず、`.claude/CLAUDE.md`・`AGENTS.md`は定義の指示でReadさせる
 - 混ぜてはいけないもの: memory、テスト対象の変更そのものの記録（plan・Decision Log・検証結果。コミット済みでも）、変更した人の会話の文脈。あってよいもの: `CLAUDE.md`・`AGENTS.md`、本番と同じ経路で読み込まれるほかのルール・skill・コード
-- `rule-tester`の読み込みの制限は、定義の`hooks`（`rule-tester-guard.sh`）で強制する。`.claude/rules/`・`.claude/skills/`・`.claude/plans/`・`.claude/memory/`のRead、それらを含む範囲のGrep・Globを拒否し、ルールは`paths`による差し込み、skillはSkillツールでだけ使わせる。ガードを実行できないときはRead・Grep・Globを止める
+- `rule-tester`の読み込みの制限は、定義の`hooks`（`rule-tester-guard.sh`）で強制する。`.claude/rules/`・`.claude/skills/`・`docs/design/plans/`・`.claude/memory/`のRead、それらを含む範囲のGrep・Globを拒否し、ルールは`paths`による差し込み、skillはSkillツールでだけ使わせる。ガードを実行できないときはRead・Grep・Globを止める
 - 変更前の状態は、テスト対象以外の未コミット変更を退避し、メインのcheckoutをテスト対象の変更の最初のコミットの1つ前へdetachして作る。worktreeは使わない（`paths`で差し込まれるルールはメインのcheckoutのファイルのため）。変更内容を表すブランチはテストの後に作る
 - 起動の前に、`rule-tester`の定義・Skillツールが返す内容が想定した版であることを引用させて確かめ、ずれていれば`touch`してから確かめ直す
-- `rule-tester`で場面を作れないとき（`paths`が`.claude/plans/`だけのルール等）も、テストしないまま変更を残さない。ガードは`.claude/plans/rule-test-fixture.md`の1ファイルだけReadを通し、テストの時だけそこに中身のないダミーのplanを置く
+- `rule-tester`で場面を作れないとき（`paths`が`docs/design/plans/`だけのルール等）も、テストしないまま変更を残さない。ガードは`docs/design/plans/rule-test-fixture.md`の1ファイルだけReadを通し、テストの時だけそこに中身のないダミーのplanを置く
 - 判定は、テストの前に決めた期待する行動が、変更前になく変更後にあるかだけで行う。人が読むための明確化は、行動が変わらなくても残してよい
 
 hookの変更は、比較テストではなく、入力JSONをstdinへ与えたスクリプトの直接実行（発火すべき入力・発火すべきでない入力）と、`settings.json`へ登録した実セッションでの発火で確かめる。

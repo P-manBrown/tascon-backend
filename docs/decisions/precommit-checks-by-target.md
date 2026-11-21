@@ -13,7 +13,7 @@
 
 - pre-commitのチェックとそのテストは`.lefthook/pre-commit/`に置く。skillの`scripts/`には、skill自身が使う判定・PR検索のスクリプトとそのテストだけを残す
 - チェックは対象ごとに分ける。計画の検査（`check-plan-completion.sh`）と、Markdownのリンクの検査（`check-links.sh`）は別のスクリプトにし、`check-docs.sh`からリンクの検査を除く。リンクの検査はコミットするMarkdown全体を対象に、ステージの内容（index）で行う
-- 計画の検査は、コミットが`.claude/plans/**`か`.claude/specs/**`に触れるときだけ実行する（lefthookのglob）。計画を移すのは削除と追加なので、移した後に壊れるリンクはリンクの検査が止める
+- 計画の検査は、コミットが`docs/design/plans/**`か`docs/design/**`に触れるときだけ実行する（lefthookのglob）。計画を移すのは削除と追加なので、移した後に壊れるリンクはリンクの検査が止める
 - テストは、テストする対象が変わるときだけ実行する。pre-commitのチェックのテストはチェックのスクリプト・`lib/`・テストの変更で、skillのテストはskillの`scripts/`の変更で実行する
 
 ## Considered Options

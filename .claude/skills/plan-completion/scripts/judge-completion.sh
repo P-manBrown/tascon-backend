@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage: judge-completion.sh --repo <owner>/<name>
-# Judges which plans in .claude/plans/active/ on main are completed, reading
+# Judges which plans in docs/design/plans/active/ on main are completed, reading
 # GitHub through `gh api` only. Writes nothing to the working directory.
 # Output (stdout, exit 0 or 4 only):
 #   {"completed": [{"plan", "prs", "completing_pr"}],
@@ -44,7 +44,7 @@ esac
 sha=$(printf '%s' "$main_json" | jq -r '.commit.sha // empty' 2>/dev/null)
 [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || { printf '%s\n' "branches/main has no commit sha" >&2; exit 3; }
 
-contents=$(gh_read "repos/$repo/contents/.claude/plans/active?ref=$sha")
+contents=$(gh_read "repos/$repo/contents/docs/design/plans/active?ref=$sha")
 case $? in
   0) ;;
   4) contents='[]' ;;
@@ -52,9 +52,9 @@ case $? in
 esac
 plans=$(printf '%s' "$contents" | jq -c '
   if type == "array"
-  then [.[] | select(.type == "file" and (.name | endswith(".md"))) | ".claude/plans/active/" + .name] | sort
+  then [.[] | select(.type == "file" and (.name | endswith(".md"))) | "docs/design/plans/active/" + .name] | sort
   else error("unexpected shape")
-  end' 2>/dev/null) || { printf '%s\n' "contents of .claude/plans/active has an unexpected shape" >&2; exit 3; }
+  end' 2>/dev/null) || { printf '%s\n' "contents of docs/design/plans/active has an unexpected shape" >&2; exit 3; }
 
 pages=$(gh_pull_pages "$repo" all) || exit 3
 

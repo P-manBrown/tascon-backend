@@ -3,7 +3,7 @@
 - **Status:** Superseded by [計画の完了をPR本文のRelated Documentsの印で判定する](plan-completion-by-pr-markers.md)
 - **Verification Status:** Verified
 - **Date:** 2026-10-24
-- **Related Files:** `.claude/skills/execution-plan/SKILL.md`, `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/rules/plans-maintenance.md`, `.claude/hooks/plan-completion-check.sh`, `.claude/plans/completed/plan-validation-before-pr.md`
+- **Related Files:** `.claude/skills/execution-plan/SKILL.md`, `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/rules/plans-maintenance.md`, `.claude/hooks/plan-completion-check.sh`, `docs/design/plans/completed/plan-validation-before-pr.md`
 
 ## Context
 
@@ -11,7 +11,7 @@ planの`Validation and Acceptance`は、planの全ブランチをmainへマー�
 
 ## Decision
 
-- `Validation and Acceptance`は、planの最後のブランチのPRを作る前に判定し、結果をplanの`検証結果`にコミットする。不合格ならPRを作らない。最後のブランチかどうかは、ブランチの先端でplanが`.claude/plans/active/`にあり`Progress`に未チェックがないことで判定する
+- `Validation and Acceptance`は、planの最後のブランチのPRを作る前に判定し、結果をplanの`検証結果`にコミットする。不合格ならPRを作らない。最後のブランチかどうかは、ブランチの先端でplanが`docs/design/plans/active/`にあり`Progress`に未チェックがないことで判定する
 - 判定の結果はPRのTestingに書かない
 - スタックのマージを始める前に、マージする範囲全体について1回だけ、planの全Stepが範囲に揃い、判定に合格した記録があり、判定後に変更が加わっていないことを確かめる。満たさなければマージを始めない
 - mainへのマージ後でないと確かめられない項目は、plan作成時に`Validation and Acceptance`へ「マージ後に判定」と明記し、完了処理ではその項目だけを判定する

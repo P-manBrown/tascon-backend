@@ -68,7 +68,7 @@ repo_with_plans() {
   for name in "$@"; do
     items=$(printf '%s' "$items" | jq -c --arg n "$name" '. + [{type: "file", name: $n}]')
   done
-  answer "repos/$REPO/contents/.claude/plans/active?ref=$SHA" "$items"
+  answer "repos/$REPO/contents/docs/design/plans/active?ref=$SHA" "$items"
 }
 
 # only_reads: every logged gh call is `api <endpoint>` (no method, no fields).

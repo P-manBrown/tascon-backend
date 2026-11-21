@@ -24,13 +24,10 @@ pre-commit:
         - "ARCHITECTURE.md"
         - "docs/*.md"
         - "docs/**/*.md"
-        - ".claude/plans/**/*.md"
-        - ".claude/tech-debt/**/*.md"
       fail_text: 'Read the report above.'
     - run: bash .lefthook/pre-commit/check-plan-completion.sh
       glob:
-        - ".claude/plans/**"
-        - ".claude/specs/**"
+        - "docs/design/**"
       fail_text: 'Read the report above.'
     - run: bash .lefthook/pre-commit/check-links.sh
       fail_text: 'Read the report above.'

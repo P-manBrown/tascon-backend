@@ -3,8 +3,8 @@
 set -u
 . "$(dirname -- "${BASH_SOURCE[0]}")/helpers.sh"
 
-ACTIVE_A=.claude/plans/active/a.md
-DONE_A=.claude/plans/completed/a.md
+ACTIVE_A=docs/design/plans/active/a.md
+DONE_A=docs/design/plans/completed/a.md
 active_text=$(cat "$tests_dir/fixtures/plan-active.txt")
 completed_text=$(cat "$tests_dir/fixtures/plan-completed.txt")
 
@@ -21,7 +21,7 @@ new_repo() {
   repo="$case_dir/repo"
   git init -q "$repo"
   put "$ACTIVE_A" "$active_text"
-  put .claude/specs/a.md "# 設計 a"
+  put docs/design/specs/a.md "# 設計 a"
   put docs/decisions/x.md "$(cat "$tests_dir/fixtures/decision.txt")"
   put docs/x.md "# x"
   commit_all "base"
@@ -35,7 +35,7 @@ complete_a() {
 }
 
 new_repo
-mkdir -p "$repo/.claude/plans/completed"
+mkdir -p "$repo/docs/design/plans/completed"
 g mv "$ACTIVE_A" "$DONE_A"
 put "$DONE_A" "$completed_text"
 g add "$DONE_A"
@@ -154,9 +154,9 @@ run_check
 passes "completed plan with records: transfer link fixed"
 
 new_repo
-put .claude/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[壊れた](missing.md)\n')"
+put docs/design/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[壊れた](missing.md)\n')"
 commit_all "old completed plan"
-put .claude/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[直した](../../specs/a.md)\n')"
+put docs/design/plans/completed/old.md "$(printf '# old\n\n## Decision Log\n\n- 古い決定\n\n## Notes\n\n[直した](../../specs/a.md)\n')"
 g add -A
 run_check
 passes "old completed plan without records: link fixed"
@@ -170,9 +170,9 @@ stops "completed plan deleted" "completed plans are kept"
 
 new_repo
 complete_a
-g rm -q .claude/specs/a.md
+g rm -q docs/design/specs/a.md
 run_check
-stops "spec deleted in the move" "specs are not moved or deleted"
+stops "spec deleted in the move" "designs are not moved or deleted"
 
 new_repo
 complete_a "$(edit "$completed_text" '  - 書き写さない: この計画だけの経緯

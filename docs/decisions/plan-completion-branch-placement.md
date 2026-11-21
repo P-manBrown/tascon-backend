@@ -3,7 +3,7 @@
 - **Status:** Superseded by [planの完了処理のブランチも依存で切る場所を決める](plan-completion-branch-by-dependency.md)
 - **Verification Status:** Verified
 - **Date:** 2026-10-24
-- **Related Files:** `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/skills/plan-completion/SKILL.md`, `.claude/plans/completed/plan-completion-branch-placement.md`
+- **Related Files:** `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/skills/plan-completion/SKILL.md`, `docs/design/plans/completed/plan-completion-branch-placement.md`
 
 ## Context
 

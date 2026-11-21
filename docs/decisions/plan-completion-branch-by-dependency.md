@@ -3,11 +3,11 @@
 - **Status:** Accepted
 - **Verification Status:** Verified
 - **Date:** 2026-11-13
-- **Related Files:** `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/skills/plan-completion/SKILL.md`, `.claude/plans/completed/new-work-branch-placement.md`
+- **Related Files:** `.claude/skills/git-spice-workflow/SKILL.md`, `.claude/skills/plan-completion/SKILL.md`, `docs/design/plans/completed/new-work-branch-placement.md`
 
 ## Context
 
-[planの完了処理のブランチをPR作成済みのブランチの直上に挿入する](plan-completion-branch-placement.md)は、新しい作業のブランチを未マージのスタックの最上段に積む決まりを前提に、完了処理のブランチだけを例外として途中へ`--insert`で挿入すると定めた。その後、新しい作業のブランチは、ほかの作業に依存しなければ`main`から切る別のスタックにし、依存する作業だけ依存する作業のスタックの上に積む決まりに変わった（`.claude/plans/completed/new-work-branch-placement.md`）。完了処理の変更は、マージ済みのplanの記録を閉じるだけで、ほかの未マージの作業に依存しない。
+[planの完了処理のブランチをPR作成済みのブランチの直上に挿入する](plan-completion-branch-placement.md)は、新しい作業のブランチを未マージのスタックの最上段に積む決まりを前提に、完了処理のブランチだけを例外として途中へ`--insert`で挿入すると定めた。その後、新しい作業のブランチは、ほかの作業に依存しなければ`main`から切る別のスタックにし、依存する作業だけ依存する作業のスタックの上に積む決まりに変わった（`docs/design/plans/completed/new-work-branch-placement.md`）。完了処理の変更は、マージ済みのplanの記録を閉じるだけで、ほかの未マージの作業に依存しない。
 
 ## Decision
 

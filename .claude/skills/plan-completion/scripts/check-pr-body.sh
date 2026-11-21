@@ -62,8 +62,8 @@ program='
               (if .kind == "Plan" and .mark == "✅" and .path == "N/A" then
                  problem("error"; "a plan line with ✅ needs the plan path, not N/A: \(.line | quoted)")
                else empty end),
-              (if .kind == "Plan" and (.path | test("^(N/A|\\.claude/plans/(active|completed)/[^/]+\\.md)$") | not) then
-                 problem("error"; "a plan path is N/A, .claude/plans/active/<name>.md or .claude/plans/completed/<name>.md: \(.line | quoted)")
+              (if .kind == "Plan" and (.path | test("^(N/A|docs/design/plans/(active|completed)/[^/]+\\.md)$") | not) then
+                 problem("error"; "a plan path is N/A, docs/design/plans/active/<name>.md or docs/design/plans/completed/<name>.md: \(.line | quoted)")
                else empty end),
               (if .kind == "Spec" and .path != "N/A" and (.path | test("^\\.{0,2}/")) then
                  problem("error"; "a spec path is N/A or a path from the repository root, not starting with /, ./ or ../: \(.line | quoted)")

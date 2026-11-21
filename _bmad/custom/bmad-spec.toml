@@ -1,0 +1,2 @@
+[workflow]
+spec_output_path = "{project-root}/docs/design/requirements"
