@@ -39,3 +39,6 @@
 /.agents/skills/bmad-*/
 /_bmad/*
 !/_bmad/custom/
+
+# SimpleCov
+/coverage/
