@@ -18,6 +18,9 @@ pre-commit:
     protect-branch:
       run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main'
       fail_text: "ERROR: Do NOT commit directly to 'main' branch."
+    semgrep:
+      run: bash .lefthook/pre-commit/semgrep.sh {staged_files}
+      fail_text: 'Read the report above.'
   jobs:
     - run: bash .lefthook/pre-commit/check-docs.sh
       glob:
