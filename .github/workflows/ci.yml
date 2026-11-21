@@ -59,8 +59,129 @@ jobs:
       - name: rspec
         run: bin/bundle exec rspec
 
-  checks:
-    name: checks
+  rubocop:
+    name: rubocop
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/cache@v6
+        with:
+          path: /usr/local/bundle
+          key: gems-ruby-4.0.0-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: gems-ruby-4.0.0-${{ runner.os }}-
+      - name: Install gems
+        run: bundle install --jobs 4
+      - name: rubocop
+        run: bin/bundle exec rubocop
+
+  htmlbeautifier:
+    name: htmlbeautifier
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Configure git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: actions/cache@v6
+        with:
+          path: /usr/local/bundle
+          key: gems-ruby-4.0.0-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: gems-ruby-4.0.0-${{ runner.os }}-
+      - name: Install gems
+        run: bundle install --jobs 4
+      - name: htmlbeautifier
+        run: |
+          mapfile -d '' files < <(git ls-files -z '*.erb')
+          bin/bundle exec htmlbeautifier --lint-only "${files[@]}"
+
+  debride:
+    name: debride
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Configure git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: actions/cache@v6
+        with:
+          path: /usr/local/bundle
+          key: gems-ruby-4.0.0-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: gems-ruby-4.0.0-${{ runner.os }}-
+      - name: Install gems
+        run: bundle install --jobs 4
+      - name: debride
+        run: |
+          mapfile -d '' files < <(git ls-files -z '*.rb')
+          report=$(bin/bundle exec debride --rails -w debride-whitelist.txt "${files[@]}")
+          printf '%s\n' "$report"
+          grep -q 'Total suspect LOC: 0' <<<"$report"
+
+  check-docs:
+    name: check-docs
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    steps:
+      - name: Install jq
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends jq
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Configure git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: check-docs.sh
+        run: bash .lefthook/pre-commit/check-docs.sh
+
+  pre-commit-check-tests:
+    name: pre-commit-check-tests
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    steps:
+      - name: Install jq
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends jq
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Configure git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: pre-commit check tests
+        run: bash .lefthook/pre-commit/tests/run.sh
+
+  plan-completion-script-tests:
+    name: plan-completion-script-tests
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    steps:
+      - name: Install jq
+        run: |
+          apt-get update -qq
+          apt-get install -y --no-install-recommends jq
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Configure git
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: plan-completion script tests
+        run: bash .claude/skills/plan-completion/scripts/tests/run.sh
+
+  check-plan-completion:
+    name: check-plan-completion
     runs-on: ubuntu-latest
     container: ruby:4.0.0
     steps:
@@ -78,43 +199,31 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global user.name "CI"
           git config --global user.email "ci@example.invalid"
-      - uses: actions/cache@v6
-        with:
-          path: /usr/local/bundle
-          key: gems-ruby-4.0.0-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
-          restore-keys: gems-ruby-4.0.0-${{ runner.os }}-
-      - name: Install gems
-        id: bundle
-        run: bundle install --jobs 4
-      - name: rubocop
-        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
-        run: bin/bundle exec rubocop
-      - name: htmlbeautifier
-        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
-        run: |
-          mapfile -d '' files < <(git ls-files -z '*.erb')
-          bin/bundle exec htmlbeautifier --lint-only "${files[@]}"
-      - name: debride
-        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
-        run: |
-          mapfile -d '' files < <(git ls-files -z '*.rb')
-          report=$(bin/bundle exec debride --rails -w debride-whitelist.txt "${files[@]}")
-          printf '%s\n' "$report"
-          grep -q 'Total suspect LOC: 0' <<<"$report"
-      - name: check-docs.sh
-        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
-        run: bash .lefthook/pre-commit/check-docs.sh
-      - name: pre-commit check tests
-        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
-        run: bash .lefthook/pre-commit/tests/run.sh
-      - name: plan-completion script tests
-        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
-        run: bash .claude/skills/plan-completion/scripts/tests/run.sh
       - name: check-plan-completion.sh
-        if: ${{ !cancelled() && steps.bundle.outcome == 'success' }}
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
         run: |
           base=$(git merge-base "origin/$BASE_REF" HEAD)
           git reset --soft "$base"
           bash .lefthook/pre-commit/check-plan-completion.sh
+
+  checks:
+    name: checks
+    if: always()
+    needs:
+      - rspec
+      - rubocop
+      - htmlbeautifier
+      - debride
+      - check-docs
+      - pre-commit-check-tests
+      - plan-completion-script-tests
+      - check-plan-completion
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail unless every job succeeded
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          jq -r 'to_entries[] | "\(.key): \(.value.result)"' <<<"$NEEDS"
+          jq -e 'all(.[]; .result == "success")' <<<"$NEEDS" > /dev/null
