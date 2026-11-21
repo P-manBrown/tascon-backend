@@ -18,3 +18,4 @@
 - [PR本文のRelated DocumentsをCIで検査する](pr-body-related-documents-ci-check.md)
 - [pre-commitのチェックをskillから分け、対象の変更時だけ実行する](precommit-checks-by-target.md)
 - [PRごとのCIで使うテストと確かめの道具](test-and-check-tool-selection.md)
+- [CIのチェックを合否を返す物と報告だけの物に分ける](ci-required-and-report-only-checks.md)
