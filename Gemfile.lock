@@ -91,6 +91,8 @@ GEM
     bigdecimal (4.0.1)
     bootsnap (1.23.0)
       msgpack (~> 1.2)
+    brakeman (8.1.0)
+      racc
     builder (3.3.0)
     bullet (8.1.0)
       activesupport (>= 3.0.0)
@@ -459,6 +461,7 @@ DEPENDENCIES
   active_storage_validations (~> 3.0)
   alba (~> 3.10)
   bootsnap
+  brakeman (~> 8.1)
   bullet (~> 8.1)
   debride (~> 1.15)
   debug
