@@ -214,6 +214,24 @@ jobs:
           git reset --soft "$base"
           bash .lefthook/pre-commit/check-plan-completion.sh
 
+  brakeman:
+    name: brakeman
+    runs-on: ubuntu-latest
+    container: ruby:4.0.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /usr/local/bundle
+          key: gems-ruby-4.0.0-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: gems-ruby-4.0.0-${{ runner.os }}-
+      - name: Install gems
+        run: bundle install --jobs 4
+      - name: brakeman
+        run: bin/bundle exec brakeman --no-pager
+
   checks:
     name: checks
     if: always()
@@ -226,6 +244,7 @@ jobs:
       - pre-commit-check-tests
       - plan-completion-script-tests
       - check-plan-completion
+      - brakeman
     runs-on: ubuntu-latest
     steps:
       - name: Fail unless every job succeeded
