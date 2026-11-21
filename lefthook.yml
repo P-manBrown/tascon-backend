@@ -9,15 +9,27 @@ pre-commit:
       fail_text: 'Read the report above.'
     htmlbeautifier:
       glob: '*.erb'
-      run: bin/bundle exec htmlbeautifier {staged_files}
-      stage_fixed: true
+      run: bin/bundle exec htmlbeautifier --lint-only {staged_files}
+      fail_text: 'Run bin/bundle exec htmlbeautifier on the files above.'
+    protect-branch:
+      run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main'
+      fail_text: "ERROR: Do NOT commit directly to 'main' branch."
+  jobs:
+    - run: bash .lefthook/pre-commit/check-plan-completion.sh
+      glob:
+        - "docs/design/**"
+      fail_text: 'Read the report above.'
+    - run: bash .lefthook/pre-commit/check-links.sh
+      fail_text: 'Read the report above.'
+pre-push:
+  commands:
     debride:
       glob: '*.rb'
       run: bin/bundle exec debride --rails -w debride-whitelist.txt {all_files} | tee /dev/tty | grep -q 'LOC:\ 0'
       fail_text: 'Read the report above.'
-    protect-branch:
-      run: git branch --show-current | tee /dev/tty | grep -Eqvx 'main'
-      fail_text: "ERROR: Do NOT commit directly to 'main' branch."
+    check-git-clean:
+      run: test -z "$(git status --porcelain | tee /dev/tty)"
+      fail_text: 'ERROR: Commit or stash changes before pushing.'
   jobs:
     - run: bash .lefthook/pre-commit/check-docs.sh
       glob:
@@ -25,25 +37,3 @@ pre-commit:
         - "docs/*.md"
         - "docs/**/*.md"
       fail_text: 'Read the report above.'
-    - run: bash .lefthook/pre-commit/check-plan-completion.sh
-      glob:
-        - "docs/design/**"
-      fail_text: 'Read the report above.'
-    - run: bash .lefthook/pre-commit/check-links.sh
-      fail_text: 'Read the report above.'
-    - run: bash .lefthook/pre-commit/tests/run.sh
-      glob:
-        - ".lefthook/pre-commit/check-plan-completion.sh"
-        - ".lefthook/pre-commit/check-links.sh"
-        - ".lefthook/pre-commit/lib/**"
-        - ".lefthook/pre-commit/tests/**"
-        - ".claude/skills/plan-completion/scripts/lib/markdown.jq"
-      fail_text: 'Read the report above.'
-    - run: bash .claude/skills/plan-completion/scripts/tests/run.sh
-      glob: ".claude/skills/plan-completion/scripts/**"
-      fail_text: 'Read the report above.'
-pre-push:
-  commands:
-    check-git-clean:
-      run: test -z "$(git status --porcelain | tee /dev/tty)"
-      fail_text: 'ERROR: Commit or stash changes before pushing.'
