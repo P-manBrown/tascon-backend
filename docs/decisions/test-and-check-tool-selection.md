@@ -29,7 +29,8 @@ PRごとのCIはjob`rspec`と`checks`だけで、テストのカバレッジ、R
 
 ## Consequences
 
-- Brakeman・Semgrep・Dependency Reviewは問題を見つけるとjobが落ちる。必須チェックにするかは人が決める
+- Brakeman・Semgrep・Dependency Reviewは問題を見つけるとjobが落ちる。3つのjobは`ci.yml`の`checks`の`needs`に入っているため、落ちると必須チェックの`checks`も落ちる
+- CodeQLは別のワークフロー`codeql.yml`にあり、`checks`の`needs`は同じワークフローのjobしか待てないため、`checks`に含まれない。必須チェックにするかは、`checks`とは別に人が決める
 - Semgrepの規則は`semgrep/semgrep-rules`のライセンス（Semgrep Rules License v1.0）が規則の配布を許さないと読めるため、リポジトリに写さず、CIで取り出して使う
 - Semgrepの規則のSHA（`ci.yml`のjob`semgrep`の`ref:`）はDependabotの対象外で、手で更新する
 - 今のmainでSemgrepが見つけた8件は、挙動を変えずに行ごとの`nosemgrep`と理由のコメントで外した。外した行を変えるときは、外す理由がまだ正しいかを見直す
