@@ -59,12 +59,18 @@ jobs:
         run: bin/rails db:prepare
       - name: rspec
         run: bin/bundle exec rspec
-      - name: Write the coverage to the step summary
+      - name: Write the coverage report
         run: |
           ruby -rjson -e '
             line = JSON.parse(File.read("coverage/.last_run.json")).dig("result", "line")
             puts "### Coverage", "", "Line coverage: #{line}%"
-          ' >> "$GITHUB_STEP_SUMMARY"
+          ' > coverage/pr-report.md
+      - name: Upload the coverage report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-report-10-coverage
+          path: coverage/pr-report.md
+          retention-days: 7
 
   rubocop:
     name: rubocop

@@ -10,7 +10,7 @@ PRごとのCI（`.github/workflows/ci.yml`のワークフロー`CI`）には、j
 
 1. `docs/add-test-and-check-tools-ci-plan-and-spec`: この計画と、承認済みの要件・設計を写した仕様`docs/design/specs/test-and-check-tools-ci.md`だけの文書のブランチ
 2. `ci/run-checks-as-parallel-jobs`: `ci.yml`のjob`checks`の手順を、ジョブごとに分けて同時に走らせる。全部のジョブを`needs`で待つまとめ役のjob`checks`（`if: always()`付きで、1つでも成功以外なら落ちる）を足す。`rspec`も`needs`に入れる
-3. `ci/add-simplecov-and-brakeman`: SimpleCov（環境変数`COVERAGE`があるときだけ動き、行のカバレッジの率をjob`rspec`のStep Summaryに書くだけ）と、job`brakeman`（`checks`の`needs`に入れる）。`.github/dependabot.yml`に`github-actions`を足す
+3. `ci/add-simplecov-and-brakeman`: SimpleCov（環境変数`COVERAGE`があるときだけ動き、行のカバレッジの率をjob`rspec`が成果物`pr-report-10-coverage`に残すだけ）と、PRへの報告のまとめ役`.github/workflows/report.yml`と、job`brakeman`（`checks`の`needs`に入れる）。`.github/dependabot.yml`に`github-actions`を足す
 4. `ci/add-codeql-and-semgrep`: `.github/workflows/codeql.yml`（job`Analyze (ruby)`。別のワークフローなので`checks`の`needs`に入れない）と、job`semgrep`（`checks`の`needs`に入れる。`semgrep/semgrep-rules`の`ruby/rails`を固定のSHAで取り出して使う）。今のmainでSemgrepが見つける8件は、行ごとの`nosemgrep`と理由のコメントで外す。`.github/dependabot.yml`に`pip`を足す。決定の記録`docs/decisions/test-and-check-tool-selection.md`を足す
 5. `ci/add-dependency-review`: job`dependency-review`（`checks`の`needs`に入れる）
 6. `ci/add-code-review-graph-report`: `.github/workflows/code-review-graph.yml`（job`report`。報告をStep Summaryに書くだけで、別のワークフローなので`checks`の`needs`に入れない）。決定の記録`docs/decisions/ci-required-and-report-only-checks.md`を足す
@@ -24,13 +24,14 @@ PRごとのCI（`.github/workflows/ci.yml`のワークフロー`CI`）には、j
 - `checks`の手順は、リントやドキュメントの検査ごとにjobを分け、gemが要るjobだけ、既存の`actions/cache@v6`で同じキーのgemのキャッシュを使う。分ける前の`checks`と同じく、PRのhead（`github.event.pull_request.head.sha`）を取り出す。`rspec`のjobは変えない
 - PRは関心事ごとに分ける。文書だけ、`checks`のjobの分割、道具ごとの追加を別のPRにする。`checks`の分割は、名前`checks`を保ったまま1つのPRで入れる。まとめ役を別のPRに分けると、その間に必須の`checks`が実際の確かめを待たなくなるため
 - 道具はCLIをCIのステップで直接走らせ、外の物はすべて不変のIDで固定する。公式のActionをSHAで固定して使う案は、code-review-graphのcomposite Actionが中で`actions/setup-python@v7`・`actions/cache@v6`をタグで参照し、本体を版の指定なしで`pip install`するため、本体と中のActionが浮くので採らなかった。1本のPRにまとめる案は、依頼の「PRはまとまりごとに分ける」に反するため採らなかった
-- SimpleCovは既存のjob`rspec`の中で、`COVERAGE`があるときだけ動かす。別のjobでrspecを走らせる案は、DB付きのテストを2回走らせ遅くなるため採らなかった。常に動かす案は、手元のrspec・guardの出力と速さを変え、`coverage/`が毎回できるため採らなかった。しきい値は付けず、率で合否を変えない
+- SimpleCovは既存のjob`rspec`の中で、`COVERAGE`があるときだけ動かす。別のjobでrspecを走らせる案は、DB付きのテストを2回走らせ遅くなるため採らなかった。常に動かす案は、手元のrspec・guardの出力と速さを変え、`coverage/`が毎回できるため採らなかった。しきい値は付けず、率で合否を変えない。率は成果物`pr-report-10-coverage`に残し、`report.yml`がPRのコメントに載せる
 - `spec/spec_helper.rb`のSimpleCovは`SimpleCov.parallel_tests = false`で並列の検出を切る。このリポジトリの`TEST_ENV_NUMBER`はworktreeごとのテストDBの接尾辞で、並列実行ではないため。切らないと、値が1以外の環境ではSimpleCovが報告も`coverage/.last_run.json`も書かない。手元で確かめるために`TEST_ENV_NUMBER`を`unset`する案は、接尾辞の無い共有のテストDBに当たるため採らなかった
 - Brakemanは`Gemfile`のdevelopmentのgroupに入れる。CIだけで`gem install`する案は、版が`Gemfile.lock`で固定されずDependabotも更新しないため採らなかった
 - Semgrepの規則は`semgrep/semgrep-rules`を固定のSHAで取り出し、リポジトリには写さない。レジストリの`p/rails`は規則の版が固定されず、コードを変えていないPRの結果が変わりうるため採らなかった。規則を写さないのは、Semgrep Rules License v1.0が規則の再配布を許さないと読めるため。規則のSHAはDependabotの対象外で、手で更新する
 - Semgrepの本体とcode-review-graphの本体は、`pip-compile --generate-hashes`で作った全依存のhash付きのrequirementsから`pip install --require-hashes`で入れる。CIのPythonは、requirementsを作るPython（開発コンテナの3.13）と同じ3.13系の固定の版にする
 - 今のmainでSemgrepが見つける8件は、挙動を変えずに、行ごとの`nosemgrep`と理由のコメントで外す。この計画はCIに道具を入れる作業で、アプリの挙動を変えないため
-- code-review-graphの報告はjobのStep Summaryに書き、PRへのコメントは書かない。コメントには`pull-requests: write`が要り、権限が増えるため。レンダラ`scripts/render_pr_comment.py`は本体と同じ版のタグのSHAで取り出す（PyPIのパッケージに含まれないため）。レンダラのSHAは手で本体の版に合わせる
+- code-review-graphのレンダラ`scripts/render_pr_comment.py`は本体と同じ版のタグのSHAで取り出す（PyPIのパッケージに含まれないため）。レンダラのSHAは手で本体の版に合わせる。報告の出し方は、次のPRへの報告のまとめ役の形に従う
+- PRへの報告は、まとめ役のワークフロー`.github/workflows/report.yml`（ワークフロー`PR report`、job`comment`）が1つのコメントに書き、同じコメントを上書きする。合否を決めるワークフローと報告を分け、各ワークフローは報告を、名前が`pr-report-<2桁の順>-<中身>`の短いMarkdownの成果物として残すだけにする。`report.yml`は`workflow_run`で、きっかけの一覧（`workflows`）のワークフローの完了で動き、PRの先頭のコミットの`pull_request`のすべての実行から`pr-report-`の成果物を集め（同じ名前は新しい方）、名前の順に並べ、届いた分だけ載せる。`pull-requests: write`は`report.yml`だけに持たせ、PRのコードは取り出さず動かさない。外のActionは使わず、ランナーの`gh`・`jq`・`unzip`だけで動かす。必須のチェックにはしない。今あるワークフローに報告を足すときは成果物を残すだけで載り、新しいワークフローを足すときだけ`report.yml`の`workflows`に1行足す。Step Summaryだけに書く案は、PRから見るのに画面を何度も移る必要があるため採らなかった。各ワークフローが自分でPRにコメントする案は、PRのコードが動くjobに`pull-requests: write`を持たせることになり、コメントも道具の数だけ増えるため採らなかった。`workflow_run`のワークフローはmainにある版だけが動くため、`report.yml`は段3のPRの中では動かず、mainへのマージ後に確かめる。code-review-graph（段6）もこの形にそろえ、仕様のREQ-007は段6で改める
 - job`dependency-review`は`actions/dependency-review-action`をv5.0.0のSHAで固定し、`with:`は付けない。`fail-on-severity`の既定（`low`）なら重さによらず既知の脆弱性のある依存の追加で落とせ、ライセンスの確かめはこの計画の対象外のため。公開から2週間未満の最新版（v5.0.1）は、公開直後の版を取り込まないため採らなかった。更新はDependabotに任せる
 - code-review-graphは解析が走らなかったとき（レンダラの終了コード4）にjobを落とし、リスクの点数では落とさない。解析していないPRを「問題なし」と見せないため
 - CodeQLは`push`（main）でも走らせる。PRの結果を比べる基準の解析をcode scanningに持たせるため
@@ -42,7 +43,7 @@ PRごとのCI（`.github/workflows/ci.yml`のワークフロー`CI`）には、j
 2. 開発コンテナで`bin/bundle exec brakeman --no-pager`が0で終わる。わざと危ない行を足すと0以外で終わる
 3. 新しく足した`uses:`と`ref:`がすべて40桁のSHAで、`uses:`に版のコメントがある。既存の`uses:`の行は変わっていない
 4. `.github/requirements/*.txt`のすべてのパッケージの行が`--hash=sha256:`を持ち、スクラッチのvenvで`pip install --require-hashes`が通る
-5. 実際のPRの上で各新jobが成功し、`rspec`のStep Summaryにカバレッジの率、`report`のStep Summaryにcode-review-graphの報告が出る
+5. 実際のPRの上で各新jobが成功し、`rspec`が成果物`pr-report-10-coverage`にカバレッジの率を残し、`report`のStep Summaryにcode-review-graphの報告が出る。`report.yml`がPRに1つのコメントでカバレッジの率を載せ、次のpushで同じコメントを上書きすることは、マージ後に判定
 6. 実際のPRの上で`Analyze (ruby)`が成功し、PRに`CodeQL`のチェックが付く。落ちた場合は、原因がdefault setupなら人に知らせた
 7. `semgrep`が今のコードで成功する
 8. `dependency-review`が成功する。脆弱性のある版のgemを足すと落ちることを、捨てるPRで見た
