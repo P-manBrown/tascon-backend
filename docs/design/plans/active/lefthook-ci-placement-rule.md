@@ -136,7 +136,7 @@ $(cat <PROMPT_FILE>)")" --allowedTools "Agent Skill Read Grep Glob" --output-for
 | B2 htmlbeautifier | pre-commit | ＋ CI（`--lint-only`）。lefthook で直す（直しの判断は知らせる） |
 | B3 debride | 決まっていない | 分かれ方を記録 |
 | B4 protect-branch | 手元だけ | |
-| B5 check-docs.sh | pre-commit | ＋ CI |
+| B5 check-docs.sh | pre-push | ＋ CI。2026-11-22 に pre-commit から直した（PR #853 の置き場所） |
 | B6 check-plan-completion.sh | pre-commit | ＋ CI |
 | B7 check-links.sh | pre-commit | CI に無い（知らせる） |
 | B8 pre-commit check tests | pre-commit | ＋ CI |
@@ -157,13 +157,13 @@ $(cat <PROMPT_FILE>)")" --allowedTools "Agent Skill Read Grep Glob" --output-for
 | F3 markdownlint | pre-commit | CI に無い（知らせる） |
 | F4 check-logger-trace | pre-commit | CI に無い（知らせる） |
 | F5 protect-branch | 手元だけ | |
-| F6 check-docs.sh | pre-commit | CI に無い（知らせる） |
+| F6 check-docs.sh | pre-push | CI に無い（知らせる）。2026-11-22 に pre-commit から直した |
 | F7 knip | pre-push | ＋ CI |
 | F8 型の確かめ | pre-push | ＋ CI |
 | F9 next build | CI だけ | |
 | F10 check-git-clean | 手元だけ | |
 | F11 semantic-pull-request | CI だけ | |
-| F12 Vitest | CI だけ | 全部のテスト。関係するテストだけは pre-push |
+| F12 Vitest | CI だけ | 全部のテスト。関係するテストだけは pre-commit（2026-11-22 に pre-push から直した） |
 | F13 Playwright | CI だけ | |
 | F14 Stryker | CI だけ | |
 
@@ -536,3 +536,129 @@ $(cat <PROMPT_FILE>)")" --allowedTools "Agent Skill Read Grep Glob" --output-for
 ## Decision Log
 
 - 2026-11-19: plan-review で計画を承認。正式な plan/spec を保存する方針を採用。保存しない旨の旧記述はこの決定で変更。出典: /home/ruby/tascon-backend/.gc-artifacts/lefthook-ci-placement-rule/requirements.md, /home/ruby/tascon-backend/.gc-artifacts/lefthook-ci-placement-rule/brainstorming/design.md, /home/ruby/tascon-backend/.gc-artifacts/lefthook-ci-placement-rule/implementation-plan.md。
+- 2026-11-20: 実装の時点で、作業の枝 `docs/lefthook-ci-placement-rule` に、承認済みの計画と設計を保存したコミット（`963f5d90`）が既にあった。Task 1 の Step 2 は計画のファイルを新規に作るとしていたが、この保存済みの計画をそのまま使い、比較テストの結果と知らせる物はこの Decision Log に足した。Step 11 の「ブランチを作る」は行わず、既にある枝にコミットを 1 つ足した（比較テストは、計画を含むコミットの 1 つ前である `origin/main` へ detach して行ったので、計画・設計は変更前にも変更後にも見えていない）。
+- 2026-11-22: PR #847 のレビューで人が決めた。(1) スクリプトのテスト（B8・B9）は `docs/decisions/precommit-checks-by-target.md` のとおり、対象が変わった時だけ pre-commit で走らせるのが正しい。ルールの「CIだけ」の基準を「プロジェクトのテスト全体を走らせる物」に絞る。(2) ルールを「## CI」と「## lefthook」の節に分け、CI の節に「手元の状態を見る物はCIに入れない」、lefthook の節に「手元の状態を見る物はlefthookに入れる」と中身を確かめる物の段（pre-commit・pre-push・置かない＝CIだけ）を書く。中身の基準は変えず、具体例は足さない。(3) 比較テストをやり直し、残った食い違いを判定の文にそのまま書く。やり直しの 1 回目（変更前 = r2 の文、変更後 = 節を分けて「プロジェクトのテスト全体」にした文。同じプロンプト、headless Claude の中の `rule-tester`）では、B8・B9 は変更前・変更後とも「CIだけ」（根拠は `run.sh` が全部の `test-*.sh` を走らせるのでテスト全体に当たる）で、期待する行動は変更後にも出なかった。手元の状態を見る物（B4・B10・F5・F10）は、変更後は lefthook の段（pre-commit・pre-push）で CI に入れないと答えた。人の決定 (4): pre-commit の基準を「変えたファイルだけで確かめられる物。テストする対象が変わった時に、その対象のテストを走らせる物も含む」にし、`precommit-checks-by-target.md` の「テストは、テストする対象が変わるときだけ実行する」と同じ考えにする（具体例・道具の名前は足さない）。この文（r4）で変更後をやり直し、B8・B9 は pre-commit（対象が変わった時）・CI 必須になり、期待する行動が変更後に出た（変更前の r2 の文では CI だけ）。結果と残った食い違いは「### 比較テスト」の判定と r3・r4 に書いた。比較テストは、Agent ツールの起動が auto mode で通らなかった（context-mode の hook がプロンプトを書き換えるため）ので、2026-11-20 と同じく headless Claude の中で `rule-tester` を起動して行った。r4 では計画の変更を名前付きの stash に退避した。テスト対象の変更はコミットしていないので detach は要らなかった。
+- 2026-11-22: 人の決定。ルールの文は r4 のままにする。照らす表が古かったので直した: B5・F6 `check-docs.sh` は人が pre-push と決めている（PR #853 で pre-commit から pre-push へ移す）。F12 の関係するテストだけは、r4 の基準（テストする対象が変わった時にその対象のテストを走らせる物）なら pre-commit が筋。直した表で r4 を判定し直した（「### 比較テスト」の判定）。
+
+### 比較テスト
+
+- 期待する行動（1 点）: 道具の置き場所を、速さでなく確かめに要る物（変えたファイルだけ／プロジェクト全体／ビルド・サーバー・ブラウザ・DB・テストの繰り返し／手元の状態）で決め、決まっている道具では照らす表の段と一致させる
+- 手順: `claude-md-maintenance` の必須手順を、Gas City の取り決めで読み替えた。`rule-tester` は作業の worktree で起動した headless Claude の中で起動した（`claude -p ... --allowedTools "Agent Skill Read Grep Glob"`、1 回ごとに新しい Claude）。変更前・変更後とも土台のコミット `0f60f4ad`（`origin/main`）へ detach して行い、変更内容を表す枝名と、計画・設計のファイルが見えないようにした。計画と設計を含むコミット（`963f5d90`）があるので手順 3 は適用され、その 1 つ前の `0f60f4ad` へ detach した。`0f60f4ad` と `963f5d90` で `.claude/agents/rule-tester.md`・`.claude/hooks/rule-tester-guard.sh` は同じ（`git diff --stat 0f60f4ad 963f5d90 -- .claude/agents .claude/hooks` が空）なので、定義とガードの置き直しは要らなかった。元の HEAD の状態は枝 `docs/lefthook-ci-placement-rule`。変更前と最初の変更後（r0）は、ルールを名前付きの stash に入れて戻した。直した後のやり直し（r1・r2）は、計画の変更を名前付きの stash（`lefthook-ci-placement-rule-cmm-other-2`）に退避し、ルールは作業ツリーに置いたまま detach して行い、終えて枝へ戻して stash を名前で戻した
+- 定義とガードの確認: `rule-tester` の定義の指示文 5 行を引用させ、Current System の定義と一致した。`claude-md-maintenance.md` の Read は、`rule-tester` が定義の 3 つ目の指示に従って自分で Read せず、ガードの拒否の文は出なかった（ガードの拒否そのものは確かめていない）。定義が今の版で動いていることは引用で確かめた
+- プロンプトの全文（変更前・変更後で同じ）:
+
+  ```text
+  .github/workflows/semantic-pull-request.yml を読んでから答えて。
+
+  backend（このリポジトリ、Rails）と frontend（別のリポジトリ、Next.js）の確かめの置き場所を、lefthook の段と CI について白紙から見直している。今の lefthook.yml と、semantic-pull-request.yml 以外の .github/workflows/ のファイルは、今の置き場所を写さないために読まないで（.lefthook/ の下のスクリプトの中身は読んでよい）。
+
+  下の道具ごとに、次の 4 つを答えて。
+  - 段: pre-commit・pre-push・CI だけ・手元だけ のどれか 1 つ（lefthook と CI の両方に置くなら lefthook の段を書く）
+  - CI: CI に入れるか。入れるなら、マージの前に通っていないといけない必須のチェックにするか
+  - 直し: lefthook で走らせるときにファイルを直してよいか
+  - 根拠: その段・CI・直しにした理由と、根拠にしたファイル
+
+  答えは、道具の ID ごとに 1 行（「ID 名前: 段 / CI / 直し / 根拠」）で書いて。
+
+  backend
+  - B1 rubocop: `bin/bundle exec rubocop`（直すオプション `--autocorrect` がある）
+  - B2 htmlbeautifier: `bin/bundle exec htmlbeautifier <erb のファイル>`（渡したファイルを書き換える。`--lint-only` を付けると書き換えずに確かめだけする）
+  - B3 debride: `bin/bundle exec debride --rails -w debride-whitelist.txt <rb のファイル>`
+  - B4 protect-branch: `git branch --show-current | grep -Eqvx 'main'`
+  - B5 check-docs.sh: `bash .lefthook/pre-commit/check-docs.sh`
+  - B6 check-plan-completion.sh: `bash .lefthook/pre-commit/check-plan-completion.sh`
+  - B7 check-links.sh: `bash .lefthook/pre-commit/check-links.sh`
+  - B8 pre-commit check tests: `bash .lefthook/pre-commit/tests/run.sh`
+  - B9 plan-completion script tests: `bash .claude/skills/plan-completion/scripts/tests/run.sh`
+  - B10 check-git-clean: `test -z "$(git status --porcelain)"`
+  - B11 rspec: `bin/bundle exec rspec`
+  - B12 Validate PR title: semantic-pull-request.yml の job
+  - B13 Related Documents の確かめ: `bash .claude/skills/plan-completion/scripts/check-pr-body.sh --body-file <PR の本文>`
+  - B14 SimpleCov: rspec の中でテストのカバレッジの率を書き出す（合否は返さない）
+  - B15 Brakeman: `bin/bundle exec brakeman --no-pager`
+  - B16 Semgrep: `semgrep scan --config <Rails の規則> --metrics=off --error`
+  - B17 CodeQL（Ruby）: `github/codeql-action/init` と `github/codeql-action/analyze`
+  - B18 Dependency Review: `actions/dependency-review-action`
+  - B19 code-review-graph: `code-review-graph build` の後に `code-review-graph detect-changes --base <PR の土台の枝>` で報告を書く（合否は返さない）
+  - B20 PR の言語の確かめ: PR のタイトルと本文に日本語の文字があれば落とす
+
+  frontend
+  - F1 biome: `yarn biome check --error-on-warnings <ファイル>`（直すオプション `--write` がある）
+  - F2 markuplint: `yarn markuplint <ファイル>`（直すオプション `--fix` がある）
+  - F3 markdownlint: `yarn markdownlint-cli2 <ファイル>`
+  - F4 check-logger-trace: `grep -nFH 'logger.trace' <src のファイル>` で見つかれば落とす
+  - F5 protect-branch: `git branch --show-current | grep -Eqvx 'main'`
+  - F6 check-docs.sh: `bash .lefthook/pre-commit/check-docs.sh`
+  - F7 knip: `yarn knip`
+  - F8 型の確かめ: `yarn next typegen && yarn tsc --noEmit`
+  - F9 next build: `yarn next build`
+  - F10 check-git-clean: `test -z "$(git status --porcelain)"`
+  - F11 semantic-pull-request: PR のタイトルの形を確かめる GitHub Actions の job
+  - F12 Vitest: `yarn vitest run`（全部のテスト）と `yarn vitest related <ファイル>`（変えたファイルに関係するテストだけ）
+  - F13 Playwright: `yarn playwright test`
+  - F14 Stryker: `yarn stryker run`
+  ```
+
+- 照らした結果（道具 / 決まった段 / 変更前 / 変更後 / 一致）。変更後の列は、B15・B16 以外は最初の文（r0）の答えで、採用した文（r2）の答えと段が同じ。B15・B16 だけ r2 で段が変わったので、行に r2 を併記した。変更前の根拠は多くが「重い」「速い」「道具の性質」「慣習・過去の決定（`precommit-checks-by-target.md` など）」、変更後の根拠は「変えたファイルだけで確かめられる」「プロジェクト全体は要るがビルド・DB は要らない」「DB が要る」「テストを何度も走らせる」「手元の状態を見る」で、ルールの基準の言い方に沿っていた。変更前に段が食い違った B4・B10・B11・F5・F10 は、変更後に一致した
+  - B1 rubocop / pre-commit＋CI・直す / 前: pre-commit・直す / 後: pre-commit・直す / 一致
+  - B2 htmlbeautifier / pre-commit＋CI・直す / 前: pre-commit・直す / 後: pre-commit・直さない（意味が変わりうるとして `--lint-only` のみ） / 段は一致、直しは不一致
+  - B3 debride / 決まっていない / 前: CI だけ・必須にしない・直さない / 後: pre-push・CI 必須・直さない
+  - B4 protect-branch / 手元だけ / 前: pre-commit / 後: 手元だけ / 前は不一致、後は一致
+  - B5 check-docs.sh / pre-commit＋CI / 前: pre-commit / 後: pre-push（ディレクトリを丸ごと走査するため） / 後は不一致
+  - B6 check-plan-completion.sh / pre-commit＋CI / 前: pre-commit・CI しない / 後: pre-commit・CI 必須（今のままでは CI で意味がないと指摘） / 一致
+  - B7 check-links.sh / pre-commit（CI に無い）/ 前: pre-commit・CI しない / 後: pre-commit・CI 必須（全体を見る形が要ると指摘） / 一致
+  - B8 pre-commit check tests / pre-commit＋CI / 前: pre-commit / 後: CI だけ（テストを何度も走らせる物） / 後は不一致
+  - B9 plan-completion script tests / pre-commit＋CI / 前: pre-commit / 後: CI だけ / 後は不一致
+  - B10 check-git-clean / 手元だけ / 前: CI だけ / 後: 手元だけ / 前は不一致、後は一致
+  - B11 rspec / CI だけ / 前: pre-push / 後: CI だけ（DB が要る・テストを何度も） / 前は不一致、後は一致
+  - B12 Validate PR title・B13 Related Documents・B18 Dependency Review・B20 PR の言語 / CI だけ / 前後とも CI だけ・必須 / 一致（B12・B13・B20 の後の根拠は PR が要るため）
+  - B14 SimpleCov・B19 code-review-graph / CI だけ（報告） / 前後とも必須にしない / 一致
+  - B15 Brakeman・B16 Semgrep / 決まっていない / 前: CI だけ・必須・直さない / 後（r0）: CI だけ・必須・直さない（手元に入れていない道具は使わないとして） / 後（r2、採用した文）: B15 は pre-push・CI 必須・直さない、B16 は pre-commit・CI 必須・直さない
+  - B17 CodeQL / CI だけ（別のワークフロー） / 前: CI だけ・必須にしない / 後: CI だけ・必須（`checks` のワークフローの中のジョブとして） / 段は一致
+  - F1 biome / pre-commit＋CI・直す / 前後とも pre-commit・直す（後は `--unsafe` を使わない） / 一致
+  - F2 markuplint / pre-commit＋CI・直さない / 前: pre-commit・直す / 後: pre-commit・直さない / 前は直しが不一致、後は一致
+  - F3 markdownlint・F4 check-logger-trace / pre-commit / 前後とも pre-commit・直さない / 一致
+  - F5 protect-branch / 手元だけ / 前: pre-commit / 後: 手元だけ / 後は一致
+  - F6 check-docs.sh / pre-commit / 前: pre-commit / 後: pre-push / 後は不一致
+  - F7 knip・F8 型の確かめ / pre-push＋CI / 前後とも pre-push・CI 必須 / 一致
+  - F9 next build・F13 Playwright / CI だけ / 前後とも CI だけ / 一致
+  - F10 check-git-clean / 手元だけ / 前: CI だけ / 後: 手元だけ / 後は一致
+  - F11 semantic-pull-request / CI だけ / 前後とも CI だけ / 一致
+  - F12 Vitest / CI だけ（関係するテストだけ pre-push） / 前: pre-push（全部）/ 後: 関係するテストだけ pre-commit・全部は CI（pre-commit に置くかは微妙と書いた） / 後は関係するテストの段が不一致
+  - F14 Stryker / CI だけ / 前: CI だけ・必須にしない（定期か手動） / 後: CI だけ・必須（閾値を設定する前提） / 段は一致
+- 判定: 期待する行動は、変更前に無く変更後にある。変更前は「重い」「速い」で置き場所を決め、決まっている道具の段が B4・B10・B11・F5・F10・F12 などでずれた。変更後は確かめに要る物で決め、手元だけの道具・CI だけの道具・pre-push の道具を、ルールの基準の言い方で分けた。変更前でも段が一致した道具（B1・B6・B7・F1 など）は、根拠を見て判定した。r4 の判定は、2026-11-22 に直した照らす表（B5・F6 は pre-push、F12 の関係するテストだけは pre-commit）で行った。r4 の段は、照らす表の決まっている道具のうち、下の手元の状態を見る物を除いてすべて一致した（B5・F6 は pre-push、F12 は関係するテストだけ pre-commit・全部のテストは CI だけ）。照らす表と違った次の 3 つは、2026-11-22 に人が、ルールどおりの答えで、ずれは今の設定の側（手元の状態を見る物は、照らす表の書き方の側）と判定した（ルールは直さない）:
+  - B6 check-plan-completion.sh: 段は pre-commit で一致 / CI は、今の設定では CI に入っているが、r4 は CI に入れない（index と HEAD の差を読むので、今の形では全体を対象にできない）。今の設定の方を別に直す（実装役に頼んである）
+  - B2 htmlbeautifier: 段は一致 / 直しは、今の設定では lefthook で直すが、r4 は直さない。PR #853 で lefthook では直さない形になる
+  - B4・F5 protect-branch、B10・F10 check-git-clean: 照らす表の段は手元だけ / r4 は選択肢の「手元だけ」を選ばず、lefthook の段（B4・F5 は pre-commit、B10・F10 は pre-push）と答え、CI には入れない。今の `lefthook.yml`（`protect-branch` は pre-commit、`check-git-clean` は pre-push、CI には無い）と合っている。照らす表の「手元だけ」の書き方が古い
+  - 決まっていない B3・B15・B16（r4）: debride は pre-push、Brakeman は pre-push、Semgrep は pre-commit。3 つとも CI に入れて必須、lefthook では直さない
+- 直した文（4 回。どれも例・理由・道具の名前を足しておらず、BR-3 の 4 つの段と BR-1〜BR-5 の意味を保つ。r3・r4 は 2026-11-22 の PR #847 のレビューで人が決めた直し）。変更後の最初の答え（r0）で段が決まった段と食い違った道具は B5・F6・B8・B9。F12 は前提 A6 のとおり「全部のテスト＝CI だけ」で照らして一致（関係するテストだけを pre-commit とした答えは記録のみ）、B2 は段が一致で直しの判断だけを知らせる
+  - r0 の文（`comparison-test/rule-r0.md`）: 「CIだけ: ビルド・サーバー・ブラウザ・DBが要る物、またはテストを何度も走らせる物」
+  - r1（`02-after-r1.jsonl`）: 「またはテストを、条件を変えて何度も走らせる物」へ。B8・B9 が「テストを何度も走らせる物」と読まれて CI だけになったのは、テストの集まりを 1 回走らせる物と読み違えた可能性があったため、対象を絞った。結果: B8・B9 は pre-push になり（CI だけにも pre-commit にもならず）、B7（check-links.sh）が pre-commit から pre-push、F12 の全部のテストが CI だけから pre-push に、一致が減った。この文は採らない
+  - r2（`02-after-r2.jsonl`）: 「ビルド・サーバー・ブラウザ・DBが要る物、またはテスト全体を走らせる物、テストを条件を変えて何度も走らせる物」へ。依頼の「Vitest の全部のテストは CI だけ」を、道具の名前なしで基準の言い方にした明確化。結果: B7・F12 は r0 と同じ一致に戻り、段の食い違いは B5・F6・B8・B9 の 4 つ（r0 と同じ道具）。直し前後で一致する道具の数は変わらない。r2 を採った理由は、F12 の答えの根拠が「テスト全体を走らせる」と基準の文に沿うようになったこと。判定は直した後の文で行っても「変更前に無く変更後にある」で変わらない
+  - r3（変更前は r2 の文。同じプロンプト）: ルールを「## CI」と「## lefthook」の節に分け、CI の節に「手元の状態を見る物はCIに入れない」、lefthook の節に「手元の状態を見る物はlefthookに入れる」を置き、段の一覧を中身を確かめる物の段（pre-commit・pre-push・「置かない（CIだけ）」）にした。「lefthookでの直し」の節は「## lefthook」にまとめた。「CIだけ」の基準を「またはプロジェクトのテスト全体を走らせる物」に絞った。結果: B8・B9 は変更前・変更後とも CI だけのまま（`run.sh` が全部の `test-*.sh` を走らせるのでテスト全体に当たると読んだ）。手元の状態を見る物は lefthook の段で CI に入れない、と答えた
+  - r4（現在のルールの文）: r3 に加え、pre-commit の基準を「変えたファイルだけで確かめられる物。テストする対象が変わった時に、その対象のテストを走らせる物も含む」にした。結果: B8・B9 は pre-commit（対象が変わった時）・CI 必須になり、決まった段と一致した。根拠は「テストする対象が変わったら、その対象のテストを走らせる物に当たる」。B11 rspec と F12 の全部のテストは CI だけのまま一致
+- B5・F6 は、r2 まで、直す対象にせず今の設定の側の食い違い（BR-10）として扱った。2026-11-22 に人が pre-push と決めていること（PR #853）が分かり、照らす表の方を直したので、r4 では一致として判定した。r2 までの扱いの根拠:根拠: `check-docs.sh` は `find` でディレクトリ全体を走査し、基準の「プロジェクト全体は要る」（pre-push）に当たる。pre-commit にするには基準の 3 つ目の区分「変えたファイルだけで確かめられる物」の意味を変える必要があり、意味を変えない直しでは解けない
+- B8・B9 は、r2 までは「テスト全体を走らせる物は CI だけ」の文で CI だけになり、決まった段（`docs/decisions/precommit-checks-by-target.md`）と食い違っていた。r4 の文で一致した
+- 5 点は取り消さず残した（判定はノイズではないので、`claude-md-maintenance` の手順 6 との食い違いは起きていない）
+
+### 知らせる物
+
+- debride・Brakeman・Semgrep の分かれ方（r2 の答え。現在の文 r4 の答えも段・CI・直しは同じ。括弧内は直す前 r0 の答え）
+  - debride: pre-push・CI に入れて必須・lefthook では直さない（r0 も同じ）。根拠は、使われていないメソッドの判定はプロジェクト全体が要り、ビルド・DB は要らないため。今は pre-commit の全ファイル対象
+  - Brakeman: pre-push・CI 必須・直さない（r0: CI だけ・必須）。根拠は、ファイルをまたぐ静的解析でプロジェクト全体が要り、ビルド・サーバー・DB は要らないため（r0 は、手元の環境に入れていない道具は lefthook に置かないという既存のルール `scripts-authoring.md` を根拠にした）
+  - Semgrep: pre-commit・CI 必須（全体対象）・直さない（r0: CI だけ・必須）。根拠は、規則をファイル単位で当てるので変えたファイルだけで確かめられるため（ただし規則をネットワーク越しに取るなら CI だけに寄せるとも答えた）
+  - 3 つとも、答えは実行ごとに変わり、基準の文だけでは「pre-commit・pre-push・CI だけ」のどれか（道具の入れ方や規則の取り方）が決まらない。どれにするかは人が決める
+- 直らずに残った食い違い（決まった段 / ルールでの段 / 残した理由）。基準を変えるか置き場所を変えるかは人が決める
+  - B2 htmlbeautifier の lefthook での書き換え: 今は直す。変更後の答えは、HTML は空白で意味が変わりうるので「意味を変えないと保証された直し」に当たらず、直さないと判断した
+- 今の設定とルールの食い違い（設定は直していない）
+  - backend の `check-links.sh` が CI に無い（変更後の答えは CI に入れて必須にすべきとした）
+  - frontend の markdownlint・check-logger-trace・`check-docs.sh` が CI に無い（変更後の答えは CI に入れて必須とした）
+  - CodeQL が、必須の確かめを置く 1 つのワークフローの外（別のワークフロー）にある（変更後の答えは `checks` のワークフローの中のジョブとしていた）
+  - `check-plan-completion.sh` は CI で意味を持つか（今の CI の `checks` ジョブには入っている。変更後の答えは、index と HEAD の差を読むので今の形では CI で意味がないとした）
+- 重なる記述の確かめ（`grep -rnE 'pre-push|pre-commit|必須のチェック|lefthook|まとめ役|checks' AGENTS.md .claude/CLAUDE.md .claude/rules .claude/skills docs --include='*.md'`）。直していない
+  - `docs/decisions/precommit-checks-by-target.md`: テストは対象が変わるときだけ pre-commit で実行する。r2 までの文の「テスト全体を走らせる物は CI だけ」と食い違っていた。r4 の文（pre-commit は、テストする対象が変わった時にその対象のテストを走らせる物も含む）で同じ考えになった
+  - `docs/decisions/pr-body-related-documents-ci-check.md`: Related Documents の確かめを必須のチェックにしない。新しいルールの「中身を確かめる必須のチェックは `checks` の 1 つのワークフロー」と、PR の確かめを必須にするかの扱いが合わない
+  - `docs/decisions/reminder-hooks-removal.md`: `check-docs.sh` を pre-commit で実行する。新しいルールでは pre-push になる（人は pre-push と決めており、PR #853 で移す）
+  - `.claude/rules/scripts-authoring.md`・`.claude/rules/code-comments.md`: `paths` が新しいルールと重なる（食い違う記述は無い）
+  - `.claude/rules/hooks-authoring.md`: 「違反の検出は pre-commit に任せる」。食い違いは無い
+  - `.claude/skills/doc-gardening/SKILL.md`・`.claude/skills/plan-completion/SKILL.md`・`docs/decisions/plan-branch-mapping-in-git-config.md`・`plan-completion-by-pr-markers.md`・`commit-message-check-scope.md`: lefthook・CI の置き場所に言及するが、新しいルールの 5 点と食い違う記述は無かった
