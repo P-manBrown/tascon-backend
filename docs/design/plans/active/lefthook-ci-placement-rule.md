@@ -626,10 +626,10 @@ $(cat <PROMPT_FILE>)")" --allowedTools "Agent Skill Read Grep Glob" --output-for
   - F11 semantic-pull-request / CI だけ / 前後とも CI だけ / 一致
   - F12 Vitest / CI だけ（関係するテストだけ pre-push） / 前: pre-push（全部）/ 後: 関係するテストだけ pre-commit・全部は CI（pre-commit に置くかは微妙と書いた） / 後は関係するテストの段が不一致
   - F14 Stryker / CI だけ / 前: CI だけ・必須にしない（定期か手動） / 後: CI だけ・必須（閾値を設定する前提） / 段は一致
-- 判定: 期待する行動は、変更前に無く変更後にある。変更前は「重い」「速い」で置き場所を決め、決まっている道具の段が B4・B10・B11・F5・F10・F12 などでずれた。変更後は確かめに要る物で決め、手元だけの道具・CI だけの道具・pre-push の道具を、ルールの基準の言い方で分けた。変更前でも段が一致した道具（B1・B6・B7・F1 など）は、根拠を見て判定した。r4 の判定は、2026-11-22 に直した照らす表（B5・F6 は pre-push、F12 の関係するテストだけは pre-commit）で行った。r4 の段は、照らす表の決まっている道具のうち、下の手元の状態を見る物を除いてすべて一致した（B5・F6 は pre-push、F12 は関係するテストだけ pre-commit・全部のテストは CI だけ）。段以外で照らす表と残った食い違い:
-  - B6 check-plan-completion.sh: 段は pre-commit で一致 / CI は、決まった置き場所は CI にも入れるが、r4 は CI に入れない（index と HEAD の差を読むので、今の形では全体を対象にできない）
-  - B2 htmlbeautifier: 段は一致 / 直しは、決まった置き場所は lefthook で直すが、r4 は直さない
-  - B4・F5 protect-branch、B10・F10 check-git-clean: 決まった段は手元だけ / r4 は選択肢の「手元だけ」を選ばず、lefthook の段（B4・F5 は pre-commit、B10・F10 は pre-push）と答え、CI には入れない。lefthook だけに置き CI に入れない点は手元だけと同じ。今の lefthook の段と同じかは確かめていない
+- 判定: 期待する行動は、変更前に無く変更後にある。変更前は「重い」「速い」で置き場所を決め、決まっている道具の段が B4・B10・B11・F5・F10・F12 などでずれた。変更後は確かめに要る物で決め、手元だけの道具・CI だけの道具・pre-push の道具を、ルールの基準の言い方で分けた。変更前でも段が一致した道具（B1・B6・B7・F1 など）は、根拠を見て判定した。r4 の判定は、2026-11-22 に直した照らす表（B5・F6 は pre-push、F12 の関係するテストだけは pre-commit）で行った。r4 の段は、照らす表の決まっている道具のうち、下の手元の状態を見る物を除いてすべて一致した（B5・F6 は pre-push、F12 は関係するテストだけ pre-commit・全部のテストは CI だけ）。照らす表と違った次の 3 つは、2026-11-22 に人が、ルールどおりの答えで、ずれは今の設定の側（手元の状態を見る物は、照らす表の書き方の側）と判定した（ルールは直さない）:
+  - B6 check-plan-completion.sh: 段は pre-commit で一致 / CI は、今の設定では CI に入っているが、r4 は CI に入れない（index と HEAD の差を読むので、今の形では全体を対象にできない）。今の設定の方を別に直す（実装役に頼んである）
+  - B2 htmlbeautifier: 段は一致 / 直しは、今の設定では lefthook で直すが、r4 は直さない。PR #853 で lefthook では直さない形になる
+  - B4・F5 protect-branch、B10・F10 check-git-clean: 照らす表の段は手元だけ / r4 は選択肢の「手元だけ」を選ばず、lefthook の段（B4・F5 は pre-commit、B10・F10 は pre-push）と答え、CI には入れない。今の `lefthook.yml`（`protect-branch` は pre-commit、`check-git-clean` は pre-push、CI には無い）と合っている。照らす表の「手元だけ」の書き方が古い
   - 決まっていない B3・B15・B16（r4）: debride は pre-push、Brakeman は pre-push、Semgrep は pre-commit。3 つとも CI に入れて必須、lefthook では直さない
 - 直した文（4 回。どれも例・理由・道具の名前を足しておらず、BR-3 の 4 つの段と BR-1〜BR-5 の意味を保つ。r3・r4 は 2026-11-22 の PR #847 のレビューで人が決めた直し）。変更後の最初の答え（r0）で段が決まった段と食い違った道具は B5・F6・B8・B9。F12 は前提 A6 のとおり「全部のテスト＝CI だけ」で照らして一致（関係するテストだけを pre-commit とした答えは記録のみ）、B2 は段が一致で直しの判断だけを知らせる
   - r0 の文（`comparison-test/rule-r0.md`）: 「CIだけ: ビルド・サーバー・ブラウザ・DBが要る物、またはテストを何度も走らせる物」
