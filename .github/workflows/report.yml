@@ -81,6 +81,13 @@ jobs:
           # A comment body is limited to 65536 characters.
           head -c 60000 "$work/full.md" > "$work/body.md"
 
+          # A push may have come in while the artifacts were collected.
+          head=$(gh api "repos/$REPO/pulls/$pr" --jq 'select(.state == "open") | .head.sha')
+          if [ "$head" != "$HEAD_SHA" ]; then
+            echo "Pull request #$pr no longer has $HEAD_SHA as its head."
+            exit 0
+          fi
+
           ids=$(gh api --paginate "repos/$REPO/issues/$pr/comments?per_page=100" \
             --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- pr-report -->"))) | .id')
           comment_id=${ids%%$'\n'*}
