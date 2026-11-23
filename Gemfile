@@ -48,6 +48,8 @@ end
 group :development do
   gem "debride", "~> 1.15", require: false
 
+  gem "brakeman", "~> 8.1", require: false
+
   gem "guard", "~> 2.20"
   gem "guard-rspec", "~> 4.7", require: false
 
@@ -62,4 +64,8 @@ group :development do
   gem "rubocop-performance", "~> 1.26", require: false
   gem "rubocop-rails", "~> 2.34", require: false
   gem "rubocop-rspec", "~> 3.9", require: false
+end
+
+group :test do
+  gem "simplecov", "~> 1.3", require: false
 end

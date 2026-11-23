@@ -24,7 +24,9 @@ Rails.application.configure do
   # this probably isn't necessary. It's a good idea to do
   # in a continuous integration
   # system, or in some way before deploying your code.
-  config.eager_load = ENV["CI"].present?
+  # Coverage runs eager load too, so files no test loads are counted the same
+  # way as in CI.
+  config.eager_load = ENV["CI"].present? || ENV["COVERAGE"].present?
 
   # Configure public file server for tests with Cache-Control for performance.
   config.public_file_server.enabled = true
