@@ -1,4 +1,4 @@
-# lefthook debrideフックのスコープ変更（未着手）
+# lefthook debrideフックのスコープ変更（取り下げ）
 
 Spec: N/A（lefthookのフックの設定を変える計画で、方針は本文の「変更内容（案）」に書いており、別の設計は無い）
 
@@ -54,3 +54,8 @@ debride:
 2. `bin/bundle exec debride --rails -w debride-whitelist.txt app config`を手動実行し、現状のwhitelistで通るか確認
 3. 実際に何かファイルを変更して`git commit`し、pre-commitフックが正常に動作する（かつ実行時間が許容範囲）ことを確認
 4. 既存の主要ブランチ・過去のコミット相当の変更点でも誤検知が起きないか、いくつかサンプル的に確認
+
+## Decision Log
+
+- 2026-11-22 前提が誤りだった。lefthookの資料（evilmartians/lefthookの`docs/configuration/run.md`）では、波かっこ付きの`{all_files}`は、gitが追っている全部のファイルを指す（ステージされたファイルだけではない）。そのため`debride`は前から、渡す範囲が全体だった。「背景」の「ステージされた`.rb`ファイルのみ」という説明と、それに基づく「変更内容（案）」は取り下げ、`lefthook.yml`の`debride`の`run`は`{all_files}`のまま変えない。範囲は今のまま全体（`glob: '*.rb'`に合う全部）にする。#853（`chore/lefthook-stage-placement`）の`pre-push`でも全体で通っている。この計画は実装せずに完了とする（ユーザー判断）
+  - 書き写さない: この計画固有の経緯で、恒久的なルールや横断的な設計判断ではなく、`lefthook.yml`の設定は変更していないため
