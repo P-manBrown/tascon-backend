@@ -19,8 +19,10 @@ permissions:
   contents: read
   pull-requests: write
 
+# The SHA keeps a late run of an older commit from replacing the pending run
+# of the current head, as only one run can wait in a group.
 concurrency:
-  group: pr-report-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  group: pr-report-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}-${{ github.event.workflow_run.head_sha }}
 
 defaults:
   run:
